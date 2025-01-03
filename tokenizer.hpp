@@ -9,7 +9,7 @@ using namespace std;
 struct Tokenizer : public TokenHelpers {
 	struct Tok { string str; int lpos; int hpos; };
 	const Tok TOK_EOF = { "$EOF", -1, -1 };
-	int flag_eof = 0;
+	int flag_eol = 0;
 	vector<Tok> tok;
 	string errormsg;
 	int pos = 0, plinepos = 0;
@@ -59,7 +59,7 @@ struct Tokenizer : public TokenHelpers {
 		// final token (if necessary)
 		addtok();
 		// add EOF token, if required
-		if (flag_eof)  t = "$EOF", addtok();
+		if (flag_eol)  t = "$EOL", addtok();
 		return true;
 	}
 
