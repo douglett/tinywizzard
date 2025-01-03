@@ -1,0 +1,6 @@
+// print message
+print:
+	(accept print 
+		(require $strlit 
+			(* , $strlit)
+			$eol))
