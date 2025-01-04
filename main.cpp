@@ -35,9 +35,9 @@ struct AST : public TokenHelpers {
 
 	int prule() {
 		string rulename;
-		if ( !prulename(rulename) )  return false;
+		prulename(rulename);
 		rules[rulename] = { Sexpr::T_LIST };  // define rule
-		if ( !psexpr( rules[rulename] ) )  return false;
+		psexpr( rules[rulename] );
 		if ( tok.peek() != "$EOL" )  return error("rule-definition", "expected $EOL after rule definition s-expression");
 		return true;
 	}
@@ -49,7 +49,6 @@ struct AST : public TokenHelpers {
 		tok.get();
 		if ( tok.peek() != "$EOL" )  goto err;
 		tok.get();
-		// printf("rulename: [%s]\n", rulename.c_str());
 		return true;
 		// error
 		err:
@@ -63,10 +62,13 @@ struct AST : public TokenHelpers {
 		while (true)
 			if      ( tok.eof() )  goto err;
 			else if ( tok.peek() == "$EOL" )  tok.get();
-			else if ( tok.peek() == "(" )  sexpr.list.push_back({ Sexpr::T_LIST }), psexpr( sexpr.list.back() );
-			else if ( tok.peek() == ")" )  { tok.get();  break; }
-			else if ( tok.peek() == "$" )  pspecialtoken(t), sexpr.list.push_back({ Sexpr::T_TOKEN, t });
-			else    sexpr.list.push_back({ Sexpr::T_TOKEN, tok.get() });
+			else if ( tok.peek() == "(" )     sexpr.list.push_back({ Sexpr::T_LIST }),  psexpr( sexpr.list.back() );
+			else if ( tok.peek() == ")" )     { tok.get();  break; }
+			else if ( tok.peek() == "$" )     pspecialtoken(t),  sexpr.list.push_back({ Sexpr::T_TOKEN, t });
+			else                              sexpr.list.push_back({ Sexpr::T_TOKEN, tok.get() });
+		// validate
+		if ( sexpr.list.size() == 0 || sexpr.list[0].type != Sexpr::T_TOKEN )
+			return error("s-expression", "expected rule type in s-expression");
 		return true;
 		// error
 		err:
@@ -106,8 +108,6 @@ struct AST : public TokenHelpers {
 			case Sexpr::T_LITERAL:  cout << sexpr.val << " ";  break;
 			case Sexpr::T_LIST:
 				cout << endl << string(indent*3, ' ') << "( ";
-				// for (auto& sx : sexpr.list)
-				// 	showsexpr( sx, indent+1 );
 				for (size_t i = 0; i < sexpr.list.size(); i++) {
 					showsexpr( sexpr.list[i], indent+1 );
 					if ( sexpr.list[i].type == Sexpr::T_LIST && i < sexpr.list.size()-1 && sexpr.list[i+1].type != Sexpr::T_LIST )
