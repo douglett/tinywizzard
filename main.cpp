@@ -57,6 +57,7 @@ struct AST : public TokenHelpers {
 	}
 
 	int psexpr(Sexpr& sexpr) {
+		string t;
 		if ( tok.peek() != "(" )  goto err;
 		tok.get();
 		while (true)
@@ -64,11 +65,23 @@ struct AST : public TokenHelpers {
 			else if ( tok.peek() == "$EOL" )  tok.get();
 			else if ( tok.peek() == "(" )  sexpr.list.push_back({ Sexpr::T_LIST }), psexpr( sexpr.list.back() );
 			else if ( tok.peek() == ")" )  { tok.get();  break; }
+			else if ( tok.peek() == "$" )  pspecialtoken(t), sexpr.list.push_back({ Sexpr::T_TOKEN, t });
 			else    sexpr.list.push_back({ Sexpr::T_TOKEN, tok.get() });
 		return true;
 		// error
 		err:
 		return error("s-expression", "error parsing bracketed s-expression");
+	}
+
+	int pspecialtoken(string& t) {
+		if ( tok.peek() != "$" )  goto err;
+		t = tok.get();
+		if ( tok.eof() || tok.peek() == "$EOL" )  goto err;
+		t += tok.get();
+		return true;
+		// error
+		err:
+		return error("$-token", "error parsing $-token");
 	}
 
 	int error(const string& rule, const string& msg) {
