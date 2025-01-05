@@ -17,13 +17,13 @@ struct Sexpr {
 };
 
 
-struct AST : public TokenHelpers {
+struct ASTParse : TokenHelpers {
 	Tokenizer tok;
 	map<string, Sexpr> rules;
 
-	int parse() {
+	int parse(const string& fname) {
 		tok.flag_eol = 1;
-		tok.tokenize("simplebasic.ast");
+		tok.tokenize(fname);
 		tok.show();
 		// parse lines
 		while (!tok.eof())
@@ -120,7 +120,19 @@ struct AST : public TokenHelpers {
 };
 
 
+struct ASTRun : TokenHelpers {
+	map<string, Sexpr> rules;
+
+	int parse(const string& fname) {
+		return true;
+	}
+};
+
+
 int main() {
-	AST ast;
-	ast.parse();
+	ASTParse astp;
+	astp.parse("simplebasic.ast");
+	ASTRun astr;
+	astr.rules = astp.rules;
+	astr.parse("test.bas");
 }

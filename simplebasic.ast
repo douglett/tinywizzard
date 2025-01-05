@@ -1,4 +1,5 @@
-// print message
+
+// print statement
 print:
 	(accept print 
 		(require $strlit 
