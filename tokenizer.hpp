@@ -10,6 +10,7 @@ struct Tokenizer : public TokenHelpers {
 	struct Tok { string str; int lpos; int hpos; };
 	const Tok TOK_EOF = { "$EOF", -1, -1 };
 	int flag_eol = 0;
+	string lcomment = "//";
 	vector<Tok> tok;
 	string errormsg;
 	int pos = 0, plinepos = 0;
@@ -41,7 +42,7 @@ struct Tokenizer : public TokenHelpers {
 			// spaces
 			if (isspace(c))  addtok();
 			// line comments (exit and ignore)
-			else if (c == '/' && line.substr(i, 2) == "//")  break;
+			else if (lcomment.length() && lcomment[0] == c && line.substr(i, lcomment.length()) == lcomment)  break;
 			// string
 			else if (c == '"') {
 				addtok(), t = c;
