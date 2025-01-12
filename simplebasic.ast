@@ -1,4 +1,12 @@
 
+// program entry
+program:
+	(* $line)
+
+line:
+	(accept 
+		(or ))
+
 // print statement
 print:
 	(accept print 

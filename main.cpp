@@ -17,13 +17,14 @@ struct Sexpr {
 };
 
 
-struct ASTParse : TokenHelpers {
+struct GrammarParser : TokenHelpers {
 	Tokenizer tok;
 	map<string, Sexpr> rules;
 
 	int parse(const string& fname) {
 		tok.flag_eol = 1;
-		tok.tokenize(fname);
+		if ( !tok.tokenize(fname) )
+			error("parse", tok.errormsg);
 		tok.show();
 		// parse lines
 		while (!tok.eof())
@@ -99,6 +100,7 @@ struct ASTParse : TokenHelpers {
 			cout << rule.first << ":";
 			showsexpr( rule.second, 1 );
 		}
+		cout << endl;
 	}
 
 	void showsexpr(const Sexpr& sexpr, int indent=0) {
@@ -120,19 +122,50 @@ struct ASTParse : TokenHelpers {
 };
 
 
-struct ASTRun : TokenHelpers {
+struct LanguageParser : TokenHelpers {
+	Tokenizer tok;
 	map<string, Sexpr> rules;
 
 	int parse(const string& fname) {
+		tok.lcomment = "REM";
+		tok.flag_eol = true;
+		if ( !tok.tokenize(fname) )
+			error("parse", tok.errormsg);
+		tok.show();
+		// parse program
+		prulename("$program");
+		return true;
+	}
+
+	int error(const string& rule, const string& msg) {
+		throw runtime_error(
+			rule + " error: " 
+			+ msg
+			+ " (line " + to_string(tok.linepos()) + ")" );
+		return false;
+	}
+
+	int prulename(const string& rulename) {
+		if      ( rulename == "" )  error("prulename", "empty rule name");
+		else if ( rulename[0] == '$' ) {
+			if ( !rules.count(rulename.substr(1)) )
+				return error("prulename", "missing rule: " + rulename);
+			prule( rules[rulename.substr(1)] );
+		}
+		else    error("prulename", "unknown rule: " + rulename);
+		return true;
+	}
+
+	int prule(const Sexpr& rule) {
 		return true;
 	}
 };
 
 
 int main() {
-	ASTParse astp;
-	astp.parse("simplebasic.ast");
-	ASTRun astr;
-	astr.rules = astp.rules;
-	astr.parse("test.bas");
+	GrammarParser grammar;
+	grammar.parse("simplebasic.ast");
+	LanguageParser lang;
+	lang.rules = grammar.rules;
+	lang.parse("hurkle.bas");
 }
