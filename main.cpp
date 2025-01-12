@@ -44,8 +44,10 @@ struct GrammarParser : TokenHelpers {
 	}
 
 	int prulename(string& rulename) {
-		if ( !isidentifier(tok.peek()) )  goto err;
+		if ( tok.peek() != "$" )  goto err;
 		rulename = tok.get();
+		if ( !isidentifier(tok.peek()) )  goto err;
+		rulename += tok.get();
 		if ( tok.peek() != ":" )  goto err;
 		tok.get();
 		if ( tok.peek() != "$EOL" )  goto err;
@@ -53,7 +55,7 @@ struct GrammarParser : TokenHelpers {
 		return true;
 		// error
 		err:
-		return error("rule-name", "expected 'rulename: $EOL'");
+		return error("rule-name", "expected '$rulename: $EOL'");
 	}
 
 	int psexpr(Sexpr& sexpr) {
@@ -133,7 +135,13 @@ struct LanguageParser : TokenHelpers {
 			error("parse", tok.errormsg);
 		tok.show();
 		// parse program
-		prulename("$program");
+		if (!prulename("$program"))
+			return error("$program", "error parsing $program");
+		// make sure we are at the end of file
+		// while (tok.peek() == "$eol")
+		// 	tok.get();
+		// if (!tok.eof())
+		// 	return error("program", "error: parsing $program did not reach end-of-file");
 		return true;
 	}
 
@@ -146,26 +154,35 @@ struct LanguageParser : TokenHelpers {
 	}
 
 	int prulename(const string& rulename) {
-		if      ( rulename == "" )  error("prulename", "empty rule name");
-		else if ( rulename[0] == '$' ) {
-			if ( !rules.count(rulename.substr(1)) )
+		// sanity check
+		if (rulename.length() == 0)
+			return error("prulename", "expected rule name, got nothing");
+		// built in rules
+
+		// user defined rule
+		else if (rulename[0] == '$') {
+			if (!rules.count(rulename))
 				return error("prulename", "missing rule: " + rulename);
-			prule( rules[rulename.substr(1)] );
+			return prule( rules[rulename.substr(1)] );
 		}
-		else    error("prulename", "unknown rule: " + rulename);
-		return true;
+		// string matching
+		else {
+			if (tok.peek() == rulename)
+				return tok.get(), true;
+			return false;
+		}
 	}
 
 	int prule(const Sexpr& rule) {
-		return true;
+		return false;
 	}
 };
 
 
 int main() {
 	GrammarParser grammar;
-	grammar.parse("simplebasic.ast");
+	grammar.parse("test/test1.ast");
 	LanguageParser lang;
 	lang.rules = grammar.rules;
-	lang.parse("hurkle.bas");
+	lang.parse("test/test1.script");
 }
