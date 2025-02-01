@@ -1,6 +1,7 @@
 #include "tokenizer.hpp"
 #include <exception>
 #include <map>
+#include <cassert>
 using namespace std;
 
 
@@ -105,7 +106,7 @@ struct GrammarParser : TokenHelpers {
 		cout << endl;
 	}
 
-	void showsexpr(const Sexpr& sexpr, int indent=0) {
+	static void showsexpr(const Sexpr& sexpr, int indent=0) {
 		switch (sexpr.type) {
 			case Sexpr::T_NIL:      cout << "NIL ";  break;
 			case Sexpr::T_TOKEN:    cout << sexpr.val << " ";  break;
@@ -154,16 +155,17 @@ struct LanguageParser : TokenHelpers {
 	}
 
 	int prulename(const string& rulename) {
+		assert( rulename.length() > 0 );  // sanity check
 		// sanity check
-		if (rulename.length() == 0)
-			return error("prulename", "expected rule name, got nothing");
+		// if (rulename.length() == 0)
+		// 	return error("prulename", "expected rule name, got nothing");
 		// built in rules
 
 		// user defined rule
-		else if (rulename[0] == '$') {
+		if (rulename[0] == '$') {
 			if (!rules.count(rulename))
 				return error("prulename", "missing rule: " + rulename);
-			return prule( rules[rulename.substr(1)] );
+			return prule( rules.at(rulename) );
 		}
 		// string matching
 		else {
@@ -174,7 +176,21 @@ struct LanguageParser : TokenHelpers {
 	}
 
 	int prule(const Sexpr& rule) {
-		return false;
+		// GrammarParser::showsexpr( rule );  cout << endl;
+		assert( rule.type == Sexpr::T_LIST );  // sanity checks
+		assert( rule.list.size() > 0 && rule.list[0].type == Sexpr::T_TOKEN );
+		string ruletype = rule.list[0].val;
+		if (ruletype == "accept") {
+			for (size_t i = 1; i < rule.list.size(); i++) {
+				auto& subrule = rule.list[i];
+				if      ( i == 0 )  continue;
+				else if ( subrule.type == Sexpr::T_TOKEN )  return prulename( subrule.val );
+				else if ( subrule.type == Sexpr::T_LIST )  return prule( subrule );
+				else    return error("prule", "unexpected Sexpr type: " + to_string(subrule.type));
+			}
+		}
+		else
+			return error("prule", "unknown rule type: " + ruletype);
 	}
 };
 
