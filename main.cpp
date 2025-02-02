@@ -10,7 +10,7 @@ struct Ruleset : TokenHelpers {
 	struct Rule { string type; vector<string>list; };
 	static inline const vector<string> 
 		RULE_TYPES      = { "accept", "require" },
-		RULE_PREDEF     = { "$eof" };
+		RULE_PREDEF     = { "$eof", "$identifier" };
 	string name;
 	map<string, Rule> rules;
 
@@ -90,9 +90,16 @@ struct Parser : TokenHelpers {
 	}
 
 	int prule(const string& rulename) {
+		printf("parsing rule: %s %s\n", rulename.c_str(), tok.peek().c_str());
 		// built in rules
 		if ( rulename == "$eof" ) {
-			if ( !tok.eof() )  return false;
+			if ( !tok.eof() )
+				return false;
+		}
+		else if ( rulename == "$identifier" ) {
+			if ( !isidentifier( tok.peek() ) )
+				return false;
+			tok.get();
 		}
 		// user defined rules
 		else if ( ruleset.rules.count(rulename) ) {
@@ -120,7 +127,7 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$eof" );
+		ruleset.add( "$program", "$identifier $eof" );
 		ruleset.show();
 		ruleset.validate();
 		return true;
