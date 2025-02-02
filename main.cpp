@@ -10,7 +10,7 @@ struct Ruleset : TokenHelpers {
 	struct Rule { string type; vector<string>list; };
 	static inline const vector<string> 
 		RULE_TYPES      = { "accept", "require" },
-		RULE_PREDEF     = { "$eol" };
+		RULE_PREDEF     = { "$eof" };
 	string name;
 	map<string, Rule> rules;
 
@@ -31,6 +31,9 @@ struct Ruleset : TokenHelpers {
 			// check rule type
 			if ( find( RULE_TYPES.begin(), RULE_TYPES.end(), rule.type ) == RULE_TYPES.end() )
 				return error( "validate", name + ": unknown rule type: " + rule.type );
+			// make sure the $program rule is defined
+			if ( !rules.count("$program") )
+				return error( "validate", "missing entry rule $program" );
 			// check individual rules exist
 			for (auto& subrule : rule.list)
 				if      ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule ) != RULE_PREDEF.end() ) ;
@@ -48,13 +51,6 @@ struct Ruleset : TokenHelpers {
 			if ( !isalphanum(name[i]) )  return false;
 		return true;
 	}
-
-
-	//  === run ruleset ===
-	// int runpredef(const string& rule) {
-	// 	// TODO
-	// 	return true;
-	// }
 
 
 	//  === helpers ===
@@ -78,6 +74,40 @@ struct Ruleset : TokenHelpers {
 struct Parser : TokenHelpers {
 	Tokenizer tok;
 	Ruleset ruleset;
+
+	int parse(const string& fname) {
+		// tokenize
+		printf("loading file: %s\n", fname.c_str());
+		if ( !tok.tokenize(fname) )
+			error("parse", tok.errormsg);
+		tok.show();
+		// parse program
+		if ( !prule("$program") )
+			return error( "$program", "error parsing $program" );
+		printf("file parsed successfully!");
+		// ok
+		return true;
+	}
+
+	int prule(const string& rulename) {
+		// built in rules
+		if ( rulename == "$eof" ) {
+			if (tok.eof())  return true;
+		}
+		// user defined rules
+		else if ( ruleset.rules.count(rulename) ) {
+			for (const auto& subrule : ruleset.rules[rulename].list)
+				prule( subrule );
+		}
+		else 
+			error( "prule", "missing rule: " + rulename );
+		return true;
+	}
+
+	int error(const string& rule, const string& msg) {
+		throw runtime_error( rule + " error: " + msg );
+		return false;
+	}
 };
 
 
@@ -89,34 +119,10 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$eol" );
+		ruleset.add( "$program", "$eof" );
 		ruleset.show();
 		ruleset.validate();
 		return true;
-	}
-
-	int parse(const string& fname) {
-		// tokenize
-		if ( !tok.tokenize(fname) )
-			error("parse", tok.errormsg);
-		tok.show();
-		// parse program
-		if ( !prule("$program") )
-			return error( "$program", "error parsing $program" );
-		// ok
-		return true;
-	}
-
-	int prule(const string& rulename) {
-		if ( rulename == "$eof" ) {
-			// TODO
-		}
-		return true;
-	}
-
-	int error(const string& rule, const string& msg) {
-		throw runtime_error( rule + " error: " + msg );
-		return false;
 	}
 };
 
