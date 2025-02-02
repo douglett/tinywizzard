@@ -51,10 +51,10 @@ struct Ruleset : TokenHelpers {
 
 
 	//  === run ruleset ===
-	int runpredef(const string& rule) {
-		// TODO
-		return true;
-	}
+	// int runpredef(const string& rule) {
+	// 	// TODO
+	// 	return true;
+	// }
 
 
 	//  === helpers ===
@@ -69,21 +69,62 @@ struct Ruleset : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error(
-			rule + " error: " 
-			+ msg );
+		throw runtime_error( rule + " error: " + msg );
 		return false;
 	}
 };
 
 
-Ruleset testlang = { {}, "testlang" };
+struct Parser : TokenHelpers {
+	Tokenizer tok;
+	Ruleset ruleset;
+};
+
+
+struct TestlangParser : Parser {
+	int init() {
+		// tokenizer settings
+		tok.lcomment = "REM";
+		tok.flag_eol = true;
+
+		// initialise ruleset
+		ruleset.name = "testlang";
+		ruleset.add( "$program", "$eol" );
+		ruleset.show();
+		ruleset.validate();
+		return true;
+	}
+
+	int parse(const string& fname) {
+		// tokenize
+		if ( !tok.tokenize(fname) )
+			error("parse", tok.errormsg);
+		tok.show();
+		// parse program
+		if ( !prule("$program") )
+			return error( "$program", "error parsing $program" );
+		// ok
+		return true;
+	}
+
+	int prule(const string& rulename) {
+		if ( rulename == "$eof" ) {
+			// TODO
+		}
+		return true;
+	}
+
+	int error(const string& rule, const string& msg) {
+		throw runtime_error( rule + " error: " + msg );
+		return false;
+	}
+};
 
 
 int main() {
 	printf("hello world\n");
 
-	testlang.add( "$program", "$eol" );
-	testlang.show();
-	testlang.validate();
+	TestlangParser parser;
+	parser.init();
+	parser.parse("test/test1.script");
 }
