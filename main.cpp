@@ -14,8 +14,8 @@ struct Ruleset : TokenHelpers {
 	string name;
 	map<string, Rule> rules;
 
-	// === build ruleset ===
 
+	// === build ruleset ===
 	int add(const string& name, const string& list, const string& type = "accept") {
 		if ( rules.count(name) )
 			return error( "add", "duplicate rule name: " + name );
@@ -51,6 +51,10 @@ struct Ruleset : TokenHelpers {
 
 
 	//  === run ruleset ===
+	int runpredef(const string& rule) {
+		// TODO
+		return true;
+	}
 
 
 	//  === helpers ===
