@@ -83,7 +83,7 @@ struct Parser : TokenHelpers {
 		tok.show();
 		// parse program
 		if ( !prule("$program") )
-			return error( "$program", "error parsing $program" );
+			return error( "$program", "unknown error parsing $program" );
 		printf("file parsed successfully!");
 		// ok
 		return true;
@@ -92,12 +92,13 @@ struct Parser : TokenHelpers {
 	int prule(const string& rulename) {
 		// built in rules
 		if ( rulename == "$eof" ) {
-			if (tok.eof())  return true;
+			if ( !tok.eof() )  return false;
 		}
 		// user defined rules
 		else if ( ruleset.rules.count(rulename) ) {
 			for (const auto& subrule : ruleset.rules[rulename].list)
-				prule( subrule );
+				if ( !prule( subrule ) )
+					return false;
 		}
 		else 
 			error( "prule", "missing rule: " + rulename );
