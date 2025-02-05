@@ -36,7 +36,8 @@ struct Ruleset : TokenHelpers {
 				return error( "validate", "missing entry rule $program" );
 			// check individual rules exist
 			for (auto& subrule : rule.list)
-				if      ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule ) != RULE_PREDEF.end() ) ;
+				if      ( subrule.length() && subrule[0] != '$' ) ;
+				else if ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule ) != RULE_PREDEF.end() ) ;
 				else if ( rules.count( subrule ) ) ;
 				else    return error( "validate", name + ": unknown subrule: " + subrule );
 		}
@@ -104,12 +105,17 @@ struct Parser : TokenHelpers {
 			tok.get();
 		}
 		// user defined rules
-		else if ( ruleset.rules.count(rulename) ) {
+		else if ( rulename.size() && rulename[0] == '$' ) {
+			if ( !ruleset.rules.count(rulename) )
+				return error( "prule", "missing rule: " + rulename );
 			for (const auto& subrule : ruleset.rules[rulename].list)
 				if (!prule( subrule ))  return false;
 		}
-		else 
-			error( "prule", "missing rule: " + rulename );
+		// match text
+		else {
+			if ( tok.peek() != rulename )  return false;
+			tok.get();
+		}
 		return true;
 	}
 
@@ -128,7 +134,8 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$identifier $eol $eof" );
+		ruleset.add( "$program", "$line $eof" );
+		ruleset.add( "$line", "print $identifier $eol" );
 		ruleset.show();
 		ruleset.validate();
 		return true;
