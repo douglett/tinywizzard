@@ -7,16 +7,18 @@ using namespace std;
 
 
 struct Ruleset : TokenHelpers {
-	struct Rule { string type; vector<string>list; };
+	struct Rule    { string type; vector<string>list; };
+	struct Subrule { string name; char expr; bool require; };
 	static inline const vector<string> 
-		RULE_TYPES      = { "accept", "require" },
-		RULE_PREDEF     = { "$eof", "$eol", "$identifier" };
+		RULE_TYPES       = { "and", "or" },
+		RULE_EXPRESSIONS = { "*" },
+		RULE_PREDEF      = { "$eof", "$eol", "$identifier" };
 	string name;
 	map<string, Rule> rules;
 
 
 	// === build ruleset ===
-	int add(const string& name, const string& list, const string& type = "accept") {
+	int add(const string& name, const string& list, const string& type = "and") {
 		if ( rules.count(name) )
 			return error( "add", "duplicate rule name: " + name );
 		rules[ name ] = { type, splitstr(list) };
@@ -35,11 +37,15 @@ struct Ruleset : TokenHelpers {
 			if ( !rules.count("$program") )
 				return error( "validate", "missing entry rule $program" );
 			// check individual rules exist
-			for (auto& subrule : rule.list)
-				if      ( subrule.length() && subrule[0] != '$' ) ;
-				else if ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule ) != RULE_PREDEF.end() ) ;
-				else if ( rules.count( subrule ) ) ;
-				else    return error( "validate", name + ": unknown subrule: " + subrule );
+			for (auto& subrulestr : rule.list) {
+				auto subrule = splitsubrule(subrulestr);
+				if      ( subrule.name.length() && subrule.name[0] != '$' ) ;
+				else if ( !isidentifier(subrule.name.substr(1)) )
+					return error("validate", name + ": invalid subrule name: " + subrule.name);
+				else if ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule.name ) != RULE_PREDEF.end() ) ;
+				else if ( rules.count( subrule.name ) ) ;
+				else    return error( "validate", name + ": unknown subrule: " + subrule.name );
+			}
 		}
 		printf("ruleset validated!\n");
 		return true;
@@ -51,6 +57,16 @@ struct Ruleset : TokenHelpers {
 		for (size_t i = 1; i < name.length(); i++)
 			if ( !isalphanum(name[i]) )  return false;
 		return true;
+	}
+
+	Subrule splitsubrule(string subrulestr) {
+		Subrule sr = { "", 0, 0 };
+		if (subrulestr.length() && subrulestr.back() == '!')
+			sr.require = true, subrulestr.pop_back();
+		if (subrulestr.length() && find( RULE_EXPRESSIONS.begin(), RULE_EXPRESSIONS.end(), string()+subrulestr.back() ) != RULE_EXPRESSIONS.end() )
+			sr.expr = subrulestr.back(), subrulestr.pop_back();
+		sr.name = subrulestr;
+		return sr;
 	}
 
 
@@ -134,7 +150,7 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$line $eof" );
+		ruleset.add( "$program", "$line* $eof" );
 		ruleset.add( "$line", "print $identifier $eol" );
 		ruleset.show();
 		ruleset.validate();
@@ -148,5 +164,5 @@ int main() {
 
 	TestlangParser parser;
 	parser.init();
-	parser.parse("test/test1.script");
+	// parser.parse("test/test1.script");
 }

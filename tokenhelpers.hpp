@@ -18,7 +18,7 @@ struct TokenHelpers {
 		if (s.length() == 0)  return 0;
 		if (!isalpha(s[0]) && s[0] != '_')  return 0;
 		for (size_t i = 1; i < s.length(); i++)
-			if ( !isalphanum(s[0]) )  return 0;
+			if ( !isalphanum(s[i]) )  return 0;
 		return 1;
 	}
 	static int isliteral(const string& s) {
