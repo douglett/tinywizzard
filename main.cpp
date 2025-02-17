@@ -41,6 +41,7 @@ struct Ruleset : TokenHelpers {
 				auto rex = splitruleexpr(rexstr);
 				if      ( ispredef( rex.name ) ) ;
 				else if ( isuserdef( rex.name ) ) ;
+				else if ( !isrulename( rex.name ) ) ;
 				else    return error( "validate", name + ": unknown or invalid rule: " + rex.name );
 			}
 		}
@@ -48,6 +49,9 @@ struct Ruleset : TokenHelpers {
 		return true;
 	}
 
+	int isrulename(const string& name) {
+		return name.length() && name[0] == '$';
+	}
 	int isvalidname(const string& name) {
 		if (name.length() < 2)  return false;
 		if (name[0] != '$')  return false;
@@ -119,7 +123,7 @@ struct Parser : TokenHelpers {
 	int pruleexpr(const string& ruleexpr) {
 		printf("parsing RuleExpr: '%s' @ '%s'\n", ruleexpr.c_str(), tok.peek().c_str());
 		auto rex = ruleset.splitruleexpr(ruleexpr);
-
+		// run the rule expression
 		switch (rex.expr) {
 			// match
 			case 0:
@@ -128,11 +132,15 @@ struct Parser : TokenHelpers {
 			case '*':
 				while ( prule(rex.name) ) ;
 				return true;
-			// unknown
-			default:
-				return error("pruleexpr", "unexpected error");
+			// 1-to-many
+			// case '+':
+			// 	if (!prule(rex.name))
+			// 		return false;
+			// 	while ( prule(rex.name) ) ;
+			// 	return true;
 		}
-
+		// unknown error
+		return error("pruleexpr", "unexpected error");
 	}
 
 	int prule(const string& name) {
@@ -146,25 +154,42 @@ struct Parser : TokenHelpers {
 			return false;
 		}
 		else if ( name == "$identifier" ) {
-			if (isidentifier( tok.peek() ))  
+			if (isidentifier(tok.peek()))  
 				return tok.get(), true;
 			return false;
 		}
 
 		// user defined rules
-		else if ( ruleset.isuserdef( name )  ) {
+		else if ( ruleset.isuserdef(name)  ) {
 			const auto& rule = ruleset.rules[name];
+			int pos = tok.pos;
 			// and
-			for (auto& subrule : rule.list)
-				if ( !pruleexpr(subrule) )
-					return false;
-			return true;
+			if (rule.type == "and") {
+				for (auto& subrule : rule.list)
+					if ( !pruleexpr(subrule) )
+						return tok.pos = pos, false;
+				return true;
+			}
+			// or
+			else if (rule.type == "or") {
+				for (auto& subrule : rule.list)
+					if ( pruleexpr(subrule) )
+						return true;
+					else
+						tok.pos = pos;
+				return false;
+			}
+		}
+
+		// string match
+		else if ( !ruleset.isrulename(name) ) {
+			if (tok.peek() == name)
+				return tok.get(), true;
+			return false;
 		}
 
 		// unknown rule error
-		else {
-			return error("prule", "unexpected error");
-		}
+		return error("prule", "unexpected error");
 	}
 
 	// int prule(const string& rulename) {
@@ -211,8 +236,11 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$identifier* $eol $eof" );
-		// ruleset.add( "$line", "$identifier* $eol" );
+		ruleset.add( "$program", "$line* $eof" );
+		ruleset.add( "$line", "$emptyline $print", "or" );
+		ruleset.add( "$emptyline", "$eol" );
+		ruleset.add( "$print", "print $identifier $eol" );
+		// ruleset.add( "$statement", "$print" );
 		ruleset.show();
 		ruleset.validate();
 		return true;
