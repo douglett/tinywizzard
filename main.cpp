@@ -120,7 +120,47 @@ struct Parser : TokenHelpers {
 		printf("parsing RuleExpr: '%s' @ '%s'\n", ruleexpr.c_str(), tok.peek().c_str());
 		auto rex = ruleset.splitruleexpr(ruleexpr);
 
-		return false;
+		switch (rex.expr) {
+			// match
+			case 0:
+				return prule(rex.name);
+			// unknown
+			default:
+				return error("pruleexpr", "unknown");
+		}
+
+	}
+
+	int prule(const string& name) {
+		// built in rules
+		if ( name == "$eof" ) {
+			return tok.eof();
+		}
+		else if ( name == "$eol" ) {
+			if (tok.peek() == "$EOL")
+				return tok.get(), true;
+			return false;
+		}
+		else if ( name == "$identifier" ) {
+			if (isidentifier( tok.peek() ))  
+				return tok.get(), true;
+			return false;
+		}
+
+		// user defined rules
+		else if ( ruleset.isuserdef( name )  ) {
+			const auto& rule = ruleset.rules[name];
+			// and
+			for (auto& subrule : rule.list)
+				if ( !pruleexpr(subrule) )
+					return false;
+			return true;
+		}
+
+		// unknown rule error
+		else {
+			return error("prule", "unknown error");
+		}
 	}
 
 	// int prule(const string& rulename) {
@@ -167,7 +207,7 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$identifier* $eof" );
+		ruleset.add( "$program", "$identifier $eol $eof" );
 		// ruleset.add( "$line", "$identifier* $eol" );
 		ruleset.show();
 		ruleset.validate();
