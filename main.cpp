@@ -7,8 +7,8 @@ using namespace std;
 
 
 struct Ruleset : TokenHelpers {
-	struct Rule    { string type; vector<string>list; };
-	struct Subrule { string name; char expr; bool require; };
+	struct Rule     { string type; vector<string>list; };
+	struct RuleExpr { string name; char expr; bool require; };
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
 		RULE_EXPRESSIONS = { "*" },
@@ -37,14 +37,14 @@ struct Ruleset : TokenHelpers {
 			if ( !rules.count("$program") )
 				return error( "validate", "missing entry rule $program" );
 			// check individual rules exist
-			for (auto& subrulestr : rule.list) {
-				auto subrule = splitsubrule(subrulestr);
-				if      ( subrule.name.length() && subrule.name[0] != '$' ) ;
-				else if ( !isidentifier(subrule.name.substr(1)) )
-					return error("validate", name + ": invalid subrule name: " + subrule.name);
-				else if ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), subrule.name ) != RULE_PREDEF.end() ) ;
-				else if ( rules.count( subrule.name ) ) ;
-				else    return error( "validate", name + ": unknown subrule: " + subrule.name );
+			for (auto& rexstr : rule.list) {
+				auto rex = splitruleexpr(rexstr);
+				if      ( rex.name.length() && rex.name[0] != '$' ) ;
+				else if ( !isidentifier(rex.name.substr(1)) )
+					return error("validate", name + ": invalid rule name: " + rex.name);
+				else if ( find( RULE_PREDEF.begin(), RULE_PREDEF.end(), rex.name ) != RULE_PREDEF.end() ) ;
+				else if ( rules.count( rex.name ) ) ;
+				else    return error( "validate", name + ": unknown rule: " + rex.name );
 			}
 		}
 		printf("ruleset validated!\n");
@@ -59,14 +59,14 @@ struct Ruleset : TokenHelpers {
 		return true;
 	}
 
-	Subrule splitsubrule(string subrulestr) {
-		Subrule sr = { "", 0, 0 };
-		if (subrulestr.length() && subrulestr.back() == '!')
-			sr.require = true, subrulestr.pop_back();
-		if (subrulestr.length() && find( RULE_EXPRESSIONS.begin(), RULE_EXPRESSIONS.end(), string()+subrulestr.back() ) != RULE_EXPRESSIONS.end() )
-			sr.expr = subrulestr.back(), subrulestr.pop_back();
-		sr.name = subrulestr;
-		return sr;
+	RuleExpr splitruleexpr(string rexstr) {
+		RuleExpr rex = { "", 0, 0 };
+		if (rexstr.length() && rexstr.back() == '!')
+			rex.require = true, rexstr.pop_back();
+		if (rexstr.length() && find( RULE_EXPRESSIONS.begin(), RULE_EXPRESSIONS.end(), string()+rexstr.back() ) != RULE_EXPRESSIONS.end() )
+			rex.expr = rexstr.back(), rexstr.pop_back();
+		rex.name = rexstr;
+		return rex;
 	}
 
 
