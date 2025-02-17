@@ -124,9 +124,13 @@ struct Parser : TokenHelpers {
 			// match
 			case 0:
 				return prule(rex.name);
+			// 0-to-many
+			case '*':
+				while ( prule(rex.name) ) ;
+				return true;
 			// unknown
 			default:
-				return error("pruleexpr", "unknown");
+				return error("pruleexpr", "unexpected error");
 		}
 
 	}
@@ -159,7 +163,7 @@ struct Parser : TokenHelpers {
 
 		// unknown rule error
 		else {
-			return error("prule", "unknown error");
+			return error("prule", "unexpected error");
 		}
 	}
 
@@ -207,7 +211,7 @@ struct TestlangParser : Parser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$identifier $eol $eof" );
+		ruleset.add( "$program", "$identifier* $eol $eof" );
 		// ruleset.add( "$line", "$identifier* $eol" );
 		ruleset.show();
 		ruleset.validate();
