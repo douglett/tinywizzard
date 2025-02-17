@@ -113,8 +113,8 @@ struct Parser : TokenHelpers {
 			error("parse", tok.errormsg);
 		tok.show();
 		// parse program
-		if ( !pruleexpr("$program") )
-			return error( "$program", "unknown error parsing $program" );
+		if (!pruleexpr("$program"))
+			return error("$program", "unknown error parsing $program");
 		printf("file parsed successfully!");
 		// ok
 		return true;
@@ -130,50 +130,50 @@ struct Parser : TokenHelpers {
 				return prule(rex.name);
 			// 0-to-many
 			case '*':
-				while ( prule(rex.name) ) ;
+				while (prule(rex.name)) ;
 				return true;
 			// 1-to-many
 			// case '+':
 			// 	if (!prule(rex.name))
 			// 		return false;
-			// 	while ( prule(rex.name) ) ;
+			// 	while (prule(rex.name)) ;
 			// 	return true;
 		}
 		// unknown error
-		return error("pruleexpr", "unexpected error");
+		return error( "pruleexpr", "unexpected error" );
 	}
 
 	int prule(const string& name) {
 		// built in rules
-		if ( name == "$eof" ) {
+		if (name == "$eof") {
 			return tok.eof();
 		}
-		else if ( name == "$eol" ) {
+		else if (name == "$eol") {
 			if (tok.peek() == "$EOL")
 				return tok.get(), true;
 			return false;
 		}
-		else if ( name == "$identifier" ) {
+		else if (name == "$identifier") {
 			if (isidentifier(tok.peek()))  
 				return tok.get(), true;
 			return false;
 		}
 
 		// user defined rules
-		else if ( ruleset.isuserdef(name)  ) {
+		else if (ruleset.isuserdef(name)) {
 			const auto& rule = ruleset.rules[name];
 			int pos = tok.pos;
 			// and
 			if (rule.type == "and") {
 				for (auto& subrule : rule.list)
-					if ( !pruleexpr(subrule) )
+					if (!pruleexpr(subrule))
 						return tok.pos = pos, false;
 				return true;
 			}
 			// or
 			else if (rule.type == "or") {
 				for (auto& subrule : rule.list)
-					if ( pruleexpr(subrule) )
+					if (pruleexpr(subrule))
 						return true;
 					else
 						tok.pos = pos;
@@ -182,7 +182,7 @@ struct Parser : TokenHelpers {
 		}
 
 		// string match
-		else if ( !ruleset.isrulename(name) ) {
+		else if (!ruleset.isrulename(name)) {
 			if (tok.peek() == name)
 				return tok.get(), true;
 			return false;
@@ -192,37 +192,8 @@ struct Parser : TokenHelpers {
 		return error("prule", "unexpected error");
 	}
 
-	// int prule(const string& rulename) {
-	// 	printf("parsing rule: %s %s\n", rulename.c_str(), tok.peek().c_str());
-	// 	// built in rules
-	// 	if ( rulename == "$eof" ) {
-	// 		if (!tok.eof())  return false;
-	// 	}
-	// 	else if ( rulename == "$eol" ) {
-	// 		if (tok.peek() != "$EOL")  return false;
-	// 		tok.get();
-	// 	}
-	// 	else if ( rulename == "$identifier" ) {
-	// 		if (!isidentifier( tok.peek() ))  return false;
-	// 		tok.get();
-	// 	}
-	// 	// user defined rules
-	// 	else if ( rulename.size() && rulename[0] == '$' ) {
-	// 		if ( !ruleset.rules.count(rulename) )
-	// 			return error( "prule", "missing rule: " + rulename );
-	// 		for (const auto& subrule : ruleset.rules[rulename].list)
-	// 			if (!prule( subrule ))  return false;
-	// 	}
-	// 	// match text
-	// 	else {
-	// 		if ( tok.peek() != rulename )  return false;
-	// 		tok.get();
-	// 	}
-	// 	return true;
-	// }
-
 	int error(const string& rule, const string& msg) {
-		throw runtime_error( rule + " error: " + msg );
+		throw runtime_error(rule + " error: " + msg);
 		return false;
 	}
 };
