@@ -121,7 +121,7 @@ struct Parser : TokenHelpers {
 	}
 
 	int pruleexpr(const string& ruleexpr) {
-		printf("parsing RuleExpr: '%s' @ '%s'\n", ruleexpr.c_str(), tok.peek().c_str());
+		printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
 		auto rex = ruleset.splitruleexpr(ruleexpr);
 		// run the rule expression
 		switch (rex.expr) {
