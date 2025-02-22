@@ -1,6 +1,6 @@
 OUT = main.out
 SRC = main.cpp
-HEAD = tokenhelpers.hpp tokenizer.hpp
+HEAD = tokenizer.hpp ruleparser.hpp
 
 $(OUT): $(SRC) $(HEAD)
 	g++ -std=c++17 -Wall -o $(OUT) $(SRC)
