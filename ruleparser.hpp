@@ -11,7 +11,7 @@ struct Ruleset : TokenHelpers {
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
 		RULE_EXPRESSIONS = { "*" },
-		RULE_PREDEF      = { "$eof", "$eol", "$identifier" };
+		RULE_PREDEF      = { "$eof", "$eol", "$identifier", "$stringliteral" };
 	string name;
 	map<string, Rule> rules;
 
@@ -120,26 +120,35 @@ struct Parser : TokenHelpers {
 	}
 
 	int pruleexpr(const string& ruleexpr) {
-		printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
+		// printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
+		bool found = false;
 		auto rex = ruleset.splitruleexpr(ruleexpr);
 		// run the rule expression
 		switch (rex.expr) {
 			// match
 			case 0:
-				return prule(rex.name);
+				found = prule(rex.name);
+				break;
 			// 0-to-many
 			case '*':
 				while (prule(rex.name)) ;
-				return true;
+				found = true;
+				break;
 			// 1-to-many
 			// case '+':
 			// 	if (!prule(rex.name))
 			// 		return false;
 			// 	while (prule(rex.name)) ;
 			// 	return true;
+			// unknown error
+			default:
+				return error( "pruleexpr", "unexpected error" );
 		}
-		// unknown error
-		return error( "pruleexpr", "unexpected error" );
+		// found action
+		if (found) {
+			printf("found RuleExpr: '%s' @ Line %d\n", ruleexpr.c_str(), tok.linepos());
+		}
+		return found;
 	}
 
 	int prule(const string& name) {
@@ -154,6 +163,11 @@ struct Parser : TokenHelpers {
 		}
 		else if (name == "$identifier") {
 			if (isidentifier(tok.peek()))  
+				return tok.get(), true;
+			return false;
+		}
+		else if (name == "$stringliteral") {
+			if (isliteral(tok.peek()))
 				return tok.get(), true;
 			return false;
 		}
