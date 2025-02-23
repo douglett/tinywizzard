@@ -34,14 +34,18 @@ struct TinybasicParser : Parser {
 		ruleset.add( "$program", "$line* $eof" );
 		ruleset.add( "$line", "$integer? $statement? $eol" );
 		// statements
-		ruleset.add( "$statement", "$print $input $if $let $goto $gosub", "or" );
-		ruleset.add( "$print", "PRINT $stringliteral" );
+		ruleset.add( "$statement", "$print $input $if $let $goto $gosub $return $end", "or" );
+		ruleset.add( "$print", "PRINT $print_val $print2*" );
+		ruleset.add( "$print2", ", $print_val" );
+		ruleset.add( "$print_val", "$stringliteral $variable", "or" );
 		ruleset.add( "$input", "INPUT $variable $input2*" );
 		ruleset.add( "$input2", ", $variable" );
 		ruleset.add( "$goto", "GOTO $integer" );
 		ruleset.add( "$gosub", "GOSUB $integer" );
 		ruleset.add( "$if", "IF $comparison THEN $statement" );
 		ruleset.add( "$let", "LET $variable = $expression" );
+		ruleset.add( "$return", "RETURN" );
+		ruleset.add( "$end", "END" );
 		// comparison expression
 		ruleset.add( "$comparison", "$expression $comparison_op $expression" );
 		ruleset.add( "$comparison_op", "$lte < $gte > = $noteq", "or" );
