@@ -10,8 +10,8 @@ struct Ruleset : TokenHelpers {
 	struct RuleExpr { string name; char expr; bool require; };
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
-		RULE_EXPRESSIONS = { "*" },
-		RULE_PREDEF      = { "$eof", "$eol", "$identifier", "$stringliteral" };
+		RULE_EXPRESSIONS = { "*", "?" },
+		RULE_PREDEF      = { "$eof", "$eol", "$identifier", "$stringliteral", "$integer" };
 	string name;
 	map<string, Rule> rules;
 
@@ -134,6 +134,11 @@ struct Parser : TokenHelpers {
 				while (prule(rex.name)) ;
 				found = true;
 				break;
+			// 0-to-1
+			case '?':
+				prule(rex.name);
+				found = true;
+				break;
 			// 1-to-many
 			// case '+':
 			// 	if (!prule(rex.name))
@@ -168,6 +173,11 @@ struct Parser : TokenHelpers {
 		}
 		else if (name == "$stringliteral") {
 			if (isliteral(tok.peek()))
+				return tok.get(), true;
+			return false;
+		}
+		else if (name == "$integer") {
+			if (isnumber(tok.peek()))
 				return tok.get(), true;
 			return false;
 		}
