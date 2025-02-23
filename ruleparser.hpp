@@ -2,6 +2,7 @@
 #include <map>
 #include <exception>
 #include <algorithm>
+#include <cassert>
 using namespace std;
 
 
@@ -101,9 +102,16 @@ struct Ruleset : TokenHelpers {
 };
 
 
+struct Json {
+	enum JTYPE { JNULL, JNUMBER, JSTRING, JARRAY, JOBJECT };
+	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj;
+};
+
+
 struct Parser : TokenHelpers {
 	Tokenizer tok;
 	Ruleset ruleset;
+	Json ast;
 
 	int parse(const string& fname) {
 		// tokenize
@@ -113,14 +121,15 @@ struct Parser : TokenHelpers {
 			error("parse", tok.errormsg);
 		tok.show();
 		// parse program
-		if (!pruleexpr("$program"))
+		ast = { Json::JARRAY };
+		if (!pruleexpr("$program", ast))
 			return error("$program", "unknown error parsing $program");
-		printf("file parsed successfully!");
+		printf("file parsed successfully!\n");
 		// ok
 		return true;
 	}
 
-	int pruleexpr(const string& ruleexpr) {
+	int pruleexpr(const string& ruleexpr, Json& parent) {
 		// printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
 		bool found = false;
 		auto rex = ruleset.splitruleexpr(ruleexpr);
@@ -128,21 +137,21 @@ struct Parser : TokenHelpers {
 		switch (rex.expr) {
 			// match
 			case 0:
-				found = prule(rex.name);
+				found = prule(rex.name, parent);
 				break;
 			// 0-to-many
 			case '*':
-				while (prule(rex.name)) ;
+				while (prule(rex.name, parent)) ;
 				found = true;
 				break;
 			// 0-to-1
 			case '?':
-				prule(rex.name);
+				prule(rex.name, parent);
 				found = true;
 				break;
 			// 1-to-many
 			case '+':
-				while (prule(rex.name))
+				while (prule(rex.name, parent))
 					found = true;
 				break;
 			// unknown error
@@ -150,54 +159,56 @@ struct Parser : TokenHelpers {
 				return error( "pruleexpr", "unexpected error" );
 		}
 		// found action
-		if (found) {
+		if (found)
 			printf("found RuleExpr: '%s' @ Line %d\n", ruleexpr.c_str(), tok.linepos());
-		}
 		return found;
 	}
 
-	int prule(const string& name) {
+	int prule(const string& name, Json& parent) {
 		// built in rules
 		if (name == "$eof")
-			return tok.eof() ? paccepttok() : false;
+			return tok.eof() ? paccepttok(parent) : false;
 		else if (name == "$eol")
-			return tok.peek() == "$EOL" ? paccepttok() : false;
+			return tok.peek() == "$EOL" ? paccepttok(parent) : false;
 		else if (name == "$opplus")
-			return tok.peek() == "+" ? paccepttok() : false;
+			return tok.peek() == "+" ? paccepttok(parent) : false;
 		else if (name == "$opmultiply")
-			return tok.peek() == "*" ? paccepttok() : false;
+			return tok.peek() == "*" ? paccepttok(parent) : false;
 		else if (name == "$opdollar")
-			return tok.peek() == "$" ? paccepttok() : false;
+			return tok.peek() == "$" ? paccepttok(parent) : false;
 		else if (name == "$identifier")
-			return isidentifier(tok.peek()) ? paccepttok() : false;
+			return isidentifier(tok.peek()) ? paccepttok(parent) : false;
 		else if (name == "$stringliteral")
-			return isliteral(tok.peek()) ? paccepttok() : false;
+			return isliteral(tok.peek()) ? paccepttok(parent) : false;
 		else if (name == "$integer")
-			return isnumber(tok.peek()) ? paccepttok() : false;
+			return isnumber(tok.peek()) ? paccepttok(parent) : false;
 
 		// string match
 		else if (!ruleset.isrulename(name))
-			return tok.peek() == name ? paccepttok() : false;
+			return tok.peek() == name ? paccepttok(parent) : false;
 
 		// user defined rules
 		else if (ruleset.isuserdef(name)) {
 			const auto& rule = ruleset.rules[name];
 			int pos = tok.pos;
+			parent.arr.push_back({ Json::JARRAY });
+			auto& js = parent.arr.back();
+			js.arr.push_back({ Json::JSTRING, 0, name });
 			// and
 			if (rule.type == "and") {
 				for (auto& subrule : rule.list)
-					if (!pruleexpr(subrule))
-						return tok.pos = pos, false;
+					if (!pruleexpr(subrule, js))
+						return tok.pos = pos, parent.arr.pop_back(), false;
 				return true;
 			}
 			// or
 			else if (rule.type == "or") {
 				for (auto& subrule : rule.list)
-					if (pruleexpr(subrule))
+					if (pruleexpr(subrule, js))
 						return true;
 					else
 						tok.pos = pos;
-				return false;
+				return parent.arr.pop_back(), false;
 			}
 		}
 
@@ -205,11 +216,38 @@ struct Parser : TokenHelpers {
 		return error("prule", "unexpected error");
 	}
 
-	int paccepttok() {
+	int paccepttok(Json& parent) {
+		assert(parent.type == Json::JARRAY);
 		int lpos = tok.linepos();
 		auto token = tok.get();
+		parent.arr.push_back({ Json::JSTRING, 0, token });
 		printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
 		return true;
+	}
+
+	//  === helpers ===
+	void show() {
+		showjson(ast);
+	}
+	void showjson(const Json& json, int ind=0) {
+		string indent(ind, '.');
+		switch (json.type) {
+			case Json::JNULL:
+				printf("%sNULL\n", indent.c_str());
+				break;
+			case Json::JSTRING:
+				printf("%s%s\n", indent.c_str(), json.str.c_str());
+				break;
+			case Json::JNUMBER:
+				printf("%s%f\n", indent.c_str(), json.num);
+				break;
+			case Json::JARRAY:
+				for (auto& js : json.arr)
+					showjson(js, ind+1);
+				break;
+			case Json::JOBJECT:
+				break;
+		}
 	}
 
 	int error(const string& rule, const string& msg) {

@@ -81,4 +81,5 @@ int main() {
 	TinybasicParser parser;
 	parser.init();
 	parser.parse("basic/hurkle.bas");
+	parser.show();
 }
