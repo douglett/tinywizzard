@@ -11,7 +11,7 @@ struct Ruleset : TokenHelpers {
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
 		RULE_EXPRESSIONS = { "*", "?", "+" },
-		RULE_PREDEF      = { "$eof", "$eol", "$identifier", "$stringliteral", "$integer" };
+		RULE_PREDEF      = { "$eof", "$eol", "$opplus", "$opmultiply", "$opdollar", "$identifier", "$stringliteral", "$integer" };
 	string name;
 	map<string, Rule> rules;
 
@@ -38,7 +38,8 @@ struct Ruleset : TokenHelpers {
 			// check individual rules exist
 			for (auto& rexstr : rule.list) {
 				auto rex = splitruleexpr(rexstr);
-				if      ( ispredef( rex.name ) ) ;
+				if      ( rex.name == "" )  return error( "validate", name + ": empty rule" );
+				else if ( ispredef( rex.name ) ) ;
 				else if ( isuserdef( rex.name ) ) ;
 				else if ( !isrulename( rex.name ) ) ;
 				else    return error( "validate", name + ": unknown or invalid rule: " + rex.name );
@@ -49,7 +50,7 @@ struct Ruleset : TokenHelpers {
 	}
 
 	int isrulename(const string& name) {
-		return name.length() && name[0] == '$';
+		return name.length() >= 2 && name[0] == '$';
 	}
 	int isvalidname(const string& name) {
 		if (name.length() < 2)  return false;
@@ -162,6 +163,21 @@ struct Parser : TokenHelpers {
 		}
 		else if (name == "$eol") {
 			if (tok.peek() == "$EOL")
+				return tok.get(), true;
+			return false;
+		}
+		else if (name == "$opplus") {
+			if (tok.peek() == "+")
+				return tok.get(), true;
+			return false;
+		}
+		else if (name == "$opmultiply") {
+			if (tok.peek() == "*")
+				return tok.get(), true;
+			return false;
+		}
+		else if (name == "$opdollar") {
+			if (tok.peek() == "$")
 				return tok.get(), true;
 			return false;
 		}

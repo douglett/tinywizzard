@@ -49,11 +49,11 @@ struct TinybasicParser : Parser {
 		// expressions
 		ruleset.add( "$expression", "$add" );
 		ruleset.add( "$add", "$mul $add2*" );  // $mul ((+ -)^ $mul)*
-		ruleset.add( "$add2", "$add_op $atom" );
-		ruleset.add( "$add_op", "+ -", "or" );
+		ruleset.add( "$add2", "$add_op $mul" );
+		ruleset.add( "$add_op", "$opplus -", "or" );
 		ruleset.add( "$mul", "$atom $mul2*" );
 		ruleset.add( "$mul2", "$mul_op $atom" );
-		ruleset.add( "$mul_op", "* /", "or" );
+		ruleset.add( "$mul_op", "$opmultiply /", "or" );
 		ruleset.add( "$atom", "$variable $integer $brackets", "or" );
 		ruleset.add( "$brackets", "( $expression )" );
 		ruleset.add( "$variable", "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z", "or" );
@@ -74,5 +74,5 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	parser.parse("basic/hurkle.bas");
+	parser.parse("basic/test1.bas");
 }
