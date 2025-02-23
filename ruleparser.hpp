@@ -10,7 +10,7 @@ struct Ruleset : TokenHelpers {
 	struct RuleExpr { string name; char expr; bool require; };
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
-		RULE_EXPRESSIONS = { "*", "?" },
+		RULE_EXPRESSIONS = { "*", "?", "+" },
 		RULE_PREDEF      = { "$eof", "$eol", "$identifier", "$stringliteral", "$integer" };
 	string name;
 	map<string, Rule> rules;
@@ -140,11 +140,10 @@ struct Parser : TokenHelpers {
 				found = true;
 				break;
 			// 1-to-many
-			// case '+':
-			// 	if (!prule(rex.name))
-			// 		return false;
-			// 	while (prule(rex.name)) ;
-			// 	return true;
+			case '+':
+				while (prule(rex.name))
+					found = true;
+				break;
 			// unknown error
 			default:
 				return error( "pruleexpr", "unexpected error" );
