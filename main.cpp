@@ -39,14 +39,23 @@ struct TinybasicParser : Parser {
 		ruleset.add( "$input", "INPUT $variable" );
 		ruleset.add( "$gosub", "GOSUB $integer" );
 		ruleset.add( "$if", "IF $comparison THEN $let" );
-		ruleset.add( "$let", "LET $variable = $integer" );
-		// expressions
+		ruleset.add( "$let", "LET $variable = $expression" );
+		// comparison expression
 		ruleset.add( "$comparison", "$expression $comparison_op $expression" );
-		ruleset.add( "$expression", "$variable $integer", "or" );
 		ruleset.add( "$comparison_op", "= < $lte > $gte $noteq", "or" );
 		ruleset.add( "$lte", "< =" );
 		ruleset.add( "$gte", "> =" );
 		ruleset.add( "$noteq", "< >" );
+		// expressions
+		ruleset.add( "$expression", "$add" );
+		ruleset.add( "$add", "$mul $add2*" );  // $mul ((+ -)^ $mul)*
+		ruleset.add( "$add2", "$add_op $atom" );
+		ruleset.add( "$add_op", "+ -", "or" );
+		ruleset.add( "$mul", "$atom $mul2*" );
+		ruleset.add( "$mul2", "$mul_op $atom" );
+		ruleset.add( "$mul_op", "* /", "or" );
+		ruleset.add( "$atom", "$variable $integer $brackets", "or" );
+		ruleset.add( "$brackets", "( $expression )" );
 		ruleset.add( "$variable", "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z", "or" );
 
 		ruleset.show();
