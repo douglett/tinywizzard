@@ -158,44 +158,26 @@ struct Parser : TokenHelpers {
 
 	int prule(const string& name) {
 		// built in rules
-		if (name == "$eof") {
-			return tok.eof();
-		}
-		else if (name == "$eol") {
-			if (tok.peek() == "$EOL")
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$opplus") {
-			if (tok.peek() == "+")
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$opmultiply") {
-			if (tok.peek() == "*")
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$opdollar") {
-			if (tok.peek() == "$")
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$identifier") {
-			if (isidentifier(tok.peek()))  
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$stringliteral") {
-			if (isliteral(tok.peek()))
-				return tok.get(), true;
-			return false;
-		}
-		else if (name == "$integer") {
-			if (isnumber(tok.peek()))
-				return tok.get(), true;
-			return false;
-		}
+		if (name == "$eof")
+			return tok.eof() ? paccepttok() : false;
+		else if (name == "$eol")
+			return tok.peek() == "$EOL" ? paccepttok() : false;
+		else if (name == "$opplus")
+			return tok.peek() == "+" ? paccepttok() : false;
+		else if (name == "$opmultiply")
+			return tok.peek() == "*" ? paccepttok() : false;
+		else if (name == "$opdollar")
+			return tok.peek() == "$" ? paccepttok() : false;
+		else if (name == "$identifier")
+			return isidentifier(tok.peek()) ? paccepttok() : false;
+		else if (name == "$stringliteral")
+			return isliteral(tok.peek()) ? paccepttok() : false;
+		else if (name == "$integer")
+			return isnumber(tok.peek()) ? paccepttok() : false;
+
+		// string match
+		else if (!ruleset.isrulename(name))
+			return tok.peek() == name ? paccepttok() : false;
 
 		// user defined rules
 		else if (ruleset.isuserdef(name)) {
@@ -219,15 +201,15 @@ struct Parser : TokenHelpers {
 			}
 		}
 
-		// string match
-		else if (!ruleset.isrulename(name)) {
-			if (tok.peek() == name)
-				return tok.get(), true;
-			return false;
-		}
-
 		// unknown rule error
 		return error("prule", "unexpected error");
+	}
+
+	int paccepttok() {
+		int lpos = tok.linepos();
+		auto token = tok.get();
+		printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
+		return true;
 	}
 
 	int error(const string& rule, const string& msg) {

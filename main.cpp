@@ -32,17 +32,19 @@ struct TinybasicParser : Parser {
 		// initialise ruleset
 		ruleset.name = "testlang";
 		ruleset.add( "$program", "$line* $eof" );
-		ruleset.add( "$line", "$statement? $eol" );
+		ruleset.add( "$line", "$integer? $statement? $eol" );
 		// statements
-		ruleset.add( "$statement", "$print $input $if $let $gosub", "or" );
+		ruleset.add( "$statement", "$print $input $if $let $goto $gosub", "or" );
 		ruleset.add( "$print", "PRINT $stringliteral" );
-		ruleset.add( "$input", "INPUT $variable" );
+		ruleset.add( "$input", "INPUT $variable $input2*" );
+		ruleset.add( "$input2", ", $variable" );
+		ruleset.add( "$goto", "GOTO $integer" );
 		ruleset.add( "$gosub", "GOSUB $integer" );
-		ruleset.add( "$if", "IF $comparison THEN $let" );
+		ruleset.add( "$if", "IF $comparison THEN $statement" );
 		ruleset.add( "$let", "LET $variable = $expression" );
 		// comparison expression
 		ruleset.add( "$comparison", "$expression $comparison_op $expression" );
-		ruleset.add( "$comparison_op", "= < $lte > $gte $noteq", "or" );
+		ruleset.add( "$comparison_op", "$lte < $gte > = $noteq", "or" );
 		ruleset.add( "$lte", "< =" );
 		ruleset.add( "$gte", "> =" );
 		ruleset.add( "$noteq", "< >" );
@@ -74,5 +76,5 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	parser.parse("basic/test1.bas");
+	parser.parse("basic/hurkle.bas");
 }
