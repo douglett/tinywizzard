@@ -167,33 +167,35 @@ struct Parser : TokenHelpers {
 	int prule(const string& name, Json& parent) {
 		// built in rules
 		if (name == "$eof")
-			return tok.eof() ? paccepttok(parent) : false;
+			return tok.eof() ? paccepttok(parent, name) : false;
 		else if (name == "$eol")
-			return tok.peek() == "$EOL" ? paccepttok(parent) : false;
+			return tok.peek() == "$EOL" ? paccepttok(parent, name) : false;
 		else if (name == "$opplus")
-			return tok.peek() == "+" ? paccepttok(parent) : false;
+			return tok.peek() == "+" ? paccepttok(parent, name) : false;
 		else if (name == "$opmultiply")
-			return tok.peek() == "*" ? paccepttok(parent) : false;
+			return tok.peek() == "*" ? paccepttok(parent, name) : false;
 		else if (name == "$opdollar")
-			return tok.peek() == "$" ? paccepttok(parent) : false;
+			return tok.peek() == "$" ? paccepttok(parent, name) : false;
 		else if (name == "$identifier")
-			return isidentifier(tok.peek()) ? paccepttok(parent) : false;
+			return isidentifier(tok.peek()) ? paccepttok(parent, name) : false;
 		else if (name == "$stringliteral")
-			return isliteral(tok.peek()) ? paccepttok(parent) : false;
+			return isliteral(tok.peek()) ? paccepttok(parent, name) : false;
 		else if (name == "$integer")
-			return isnumber(tok.peek()) ? paccepttok(parent) : false;
+			return isnumber(tok.peek()) ? paccepttok(parent, name) : false;
 
 		// string match
 		else if (!ruleset.isrulename(name))
-			return tok.peek() == name ? paccepttok(parent) : false;
+			return tok.peek() == name ? paccepttok(parent, name) : false;
 
 		// user defined rules
 		else if (ruleset.isuserdef(name)) {
 			const auto& rule = ruleset.rules[name];
 			int pos = tok.pos;
-			parent.arr.push_back({ Json::JARRAY });
-			auto& js = parent.arr.back();
-			js.arr.push_back({ Json::JSTRING, 0, name });
+			parent.arr.push_back({ Json::JOBJECT });
+			auto& obj = parent.arr.back();
+			obj.obj["type"] = { Json::JSTRING, 0, name };
+			obj.obj["value"] = { Json::JARRAY };
+			auto& js = obj.obj["value"]; 
 			// and
 			if (rule.type == "and") {
 				for (auto& subrule : rule.list)
@@ -216,11 +218,14 @@ struct Parser : TokenHelpers {
 		return error("prule", "unexpected error");
 	}
 
-	int paccepttok(Json& parent) {
+	int paccepttok(Json& parent, const string& type) {
 		assert(parent.type == Json::JARRAY);
 		int lpos = tok.linepos();
 		auto token = tok.get();
-		parent.arr.push_back({ Json::JSTRING, 0, token });
+		parent.arr.push_back({ Json::JOBJECT });
+		auto& obj = parent.arr.back();
+		obj.obj["type"] = { Json::JSTRING, 0, type };
+		obj.obj["value"] = { Json::JSTRING, 0, token };
 		printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
 		return true;
 	}
@@ -233,19 +238,42 @@ struct Parser : TokenHelpers {
 		string indent(ind, '.');
 		switch (json.type) {
 			case Json::JNULL:
-				printf("%sNULL\n", indent.c_str());
+				printf("NULL");
 				break;
 			case Json::JSTRING:
-				printf("%s%s\n", indent.c_str(), json.str.c_str());
+				printf("%s", json.str.c_str());
 				break;
 			case Json::JNUMBER:
-				printf("%s%f\n", indent.c_str(), json.num);
+				printf("%f", json.num);
 				break;
 			case Json::JARRAY:
-				for (auto& js : json.arr)
-					showjson(js, ind+1);
+				for (size_t i = 0; i < json.arr.size(); i++) {
+					auto& js = json.arr[i];
+					printf("%s.%d: ", indent.c_str(), int(i));
+					if (js.type == Json::JNULL || js.type == Json::JSTRING || js.type == Json::JNUMBER)
+						showjson(js, ind+1),
+						printf("\n");
+					else if (js.type == Json::JARRAY)
+						printf("[Array]\n"),
+						showjson(js, ind+1);
+					else if (js.type == Json::JOBJECT)
+						printf("[Object]\n"),
+						showjson(js, ind+1);
+				}
 				break;
 			case Json::JOBJECT:
+				for (auto& pair : json.obj) {
+					printf("%s.%s: ", indent.c_str(), pair.first.c_str());
+					if (pair.second.type == Json::JNULL || pair.second.type == Json::JSTRING || pair.second.type == Json::JNUMBER)
+						showjson(pair.second, ind+1),
+						printf("\n");
+					else if (pair.second.type == Json::JARRAY)
+						printf("[Array]\n"),
+						showjson(pair.second, ind+1);
+					else if (pair.second.type == Json::JOBJECT)
+						printf("[Object]\n"),
+						showjson(pair.second, ind+1);
+				}
 				break;
 		}
 	}
