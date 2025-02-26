@@ -232,48 +232,43 @@ struct Parser : TokenHelpers {
 
 	//  === helpers ===
 	void show() {
-		showjson(ast);
+		fstream fs("output.json", ios::out);
+		if (ast.arr.size())
+			jsonserialize(ast.arr.at(0), fs);
+		else
+			fs << "(json empty)\n";
 	}
-	void showjson(const Json& json, int ind=0) {
-		string indent(ind, '.');
+	void jsonserialize(const Json& json, ostream& os, int ind=0) {
+		static const char INDENTCHAR = ' ';
+		string indent(ind, INDENTCHAR);
 		switch (json.type) {
 			case Json::JNULL:
-				printf("NULL");
+				os << "NULL" << ",\n";
 				break;
 			case Json::JSTRING:
-				printf("%s", json.str.c_str());
+				if (isliteral(json.str))
+					os << json.str << "\n";
+				else
+					os << '"' << json.str << "\",\n";
 				break;
 			case Json::JNUMBER:
-				printf("%f", json.num);
+				os << json.num << ",\n";
 				break;
 			case Json::JARRAY:
-				for (size_t i = 0; i < json.arr.size(); i++) {
-					auto& js = json.arr[i];
-					printf("%s.%d: ", indent.c_str(), int(i));
-					if (js.type == Json::JNULL || js.type == Json::JSTRING || js.type == Json::JNUMBER)
-						showjson(js, ind+1),
-						printf("\n");
-					else if (js.type == Json::JARRAY)
-						printf("[Array]\n"),
-						showjson(js, ind+1);
-					else if (js.type == Json::JOBJECT)
-						printf("[Object]\n"),
-						showjson(js, ind+1);
+				os << "[\n";
+				for (auto& js : json.arr) {
+					os << indent << INDENTCHAR;
+					jsonserialize(js, os, ind+1);
 				}
+				os << indent << "],\n";
 				break;
 			case Json::JOBJECT:
+				os << "{\n";
 				for (auto& pair : json.obj) {
-					printf("%s.%s: ", indent.c_str(), pair.first.c_str());
-					if (pair.second.type == Json::JNULL || pair.second.type == Json::JSTRING || pair.second.type == Json::JNUMBER)
-						showjson(pair.second, ind+1),
-						printf("\n");
-					else if (pair.second.type == Json::JARRAY)
-						printf("[Array]\n"),
-						showjson(pair.second, ind+1);
-					else if (pair.second.type == Json::JOBJECT)
-						printf("[Object]\n"),
-						showjson(pair.second, ind+1);
+					os << indent << INDENTCHAR << '"' << pair.first << "\": ";
+					jsonserialize(pair.second, os, ind+1);
 				}
+				os << indent << "},\n";
 				break;
 		}
 	}
