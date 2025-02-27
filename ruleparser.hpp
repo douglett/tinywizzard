@@ -130,6 +130,7 @@ struct Parser : TokenHelpers {
 	}
 
 	int pruleexpr(const string& ruleexpr, Json& parent) {
+		assert(parent.type == Json::JARRAY);
 		// printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
 		bool found = false;
 		auto rex = ruleset.splitruleexpr(ruleexpr);
@@ -137,21 +138,21 @@ struct Parser : TokenHelpers {
 		switch (rex.expr) {
 			// match
 			case 0:
-				found = prule(rex.name, parent);
+				found = pruleformat(rex.name, parent);
 				break;
 			// 0-to-many
 			case '*':
-				while (prule(rex.name, parent)) ;
+				while (pruleformat(rex.name, parent)) ;
 				found = true;
 				break;
 			// 0-to-1
 			case '?':
-				prule(rex.name, parent);
+				pruleformat(rex.name, parent);
 				found = true;
 				break;
 			// 1-to-many
 			case '+':
-				while (prule(rex.name, parent))
+				while (pruleformat(rex.name, parent))
 					found = true;
 				break;
 			// unknown error
@@ -164,7 +165,23 @@ struct Parser : TokenHelpers {
 		return found;
 	}
 
+	int pruleformat(const string& name, Json& parent) {
+		assert(parent.type == Json::JARRAY);
+		if (!prule(name, parent))
+			return false;
+		assert(parent.arr.size() > 0);
+		// format results, removing anything that was formatted to NULL
+		auto& json = parent.arr.back();
+		formatjsonrule(json);
+		if (json.type == Json::JNULL)
+			parent.arr.pop_back();
+		return true;
+	}
+
+	virtual void formatjsonrule(Json& json) {}
+
 	int prule(const string& name, Json& parent) {
+		assert(parent.type == Json::JARRAY);
 		// built in rules
 		if (name == "$eof")
 			return tok.eof() ? paccepttok(parent, name) : false;
@@ -255,12 +272,16 @@ struct Parser : TokenHelpers {
 				os << json.num << ",\n";
 				break;
 			case Json::JARRAY:
-				os << "[\n";
-				for (auto& js : json.arr) {
-					os << indent << INDENTCHAR;
-					jsonserialize(js, os, ind+1);
+				if (json.arr.size() == 0)
+					os << "[],\n";
+				else {
+					os << "[\n";
+					for (auto& js : json.arr) {
+						os << indent << INDENTCHAR;
+						jsonserialize(js, os, ind+1);
+					}
+					os << indent << "],\n";
 				}
-				os << indent << "],\n";
 				break;
 			case Json::JOBJECT:
 				os << "{\n";

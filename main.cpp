@@ -68,6 +68,18 @@ struct TinybasicParser : Parser {
 		ruleset.validate();
 		return true;
 	}
+
+	virtual void formatjsonrule(Json& json) {
+		assert(json.type == Json::JOBJECT);
+		string objtype = json.obj["type"].str;
+		// cull direct text matches
+		if (objtype.at(0) != '$')
+			json = { Json::JNULL };
+		// cull these rules totally
+		vector<string> cull = splitstr("$eof $eol");
+		if ( find(cull.begin(), cull.end(), objtype) != cull.end() )
+			json = { Json::JNULL };
+	}
 };
 
 
