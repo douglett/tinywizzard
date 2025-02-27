@@ -43,6 +43,7 @@ struct Ruleset : TokenHelpers {
 				else if ( ispredef( rex.name ) ) ;
 				else if ( isuserdef( rex.name ) ) ;
 				else if ( !isrulename( rex.name ) ) ;
+				else if ( rex.name == "$dsym" && rex.expr == 0 && !rex.require ) ;
 				else    return error( "validate", name + ": unknown or invalid rule: " + rex.name );
 			}
 		}
@@ -216,14 +217,18 @@ struct Parser : TokenHelpers {
 			// and
 			if (rule.type == "and") {
 				for (auto& subrule : rule.list)
-					if (!pruleexpr(subrule, js))
+					if (subrule == "$dsym")
+						obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
+					else if (!pruleexpr(subrule, js))
 						return tok.pos = pos, parent.arr.pop_back(), false;
 				return true;
 			}
 			// or
 			else if (rule.type == "or") {
 				for (auto& subrule : rule.list)
-					if (pruleexpr(subrule, js))
+					if (subrule == "$dsym")
+						obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
+					else if (pruleexpr(subrule, js))
 						return true;
 					else
 						tok.pos = pos;

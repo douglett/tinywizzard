@@ -32,7 +32,7 @@ struct TinybasicParser : Parser {
 		// initialise ruleset
 		ruleset.name = "testlang";
 		ruleset.add( "$program", "$line* $eof" );
-		ruleset.add( "$line", "$integer? $statement? $eol" );
+		ruleset.add( "$line", "$dsym $integer? $statement? $eol" );
 		// statements
 		ruleset.add( "$statement", "$print $input $if $let $goto $gosub $return $end", "or" );
 		ruleset.add( "$print", "PRINT $print_val $print2*" );
