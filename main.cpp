@@ -70,30 +70,29 @@ struct TinybasicParser : Parser {
 	}
 
 	virtual void formatjsonrule(Json& json) {
-		static const vector<string> CULL = splitstr("$eof $eol");
+		static const vector<string> CULL = splitstr(
+			"$eof $eol "
+			"PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = " );
 		static const vector<string> FIRST_CHILD = splitstr("$statement $print_val");
-		// 
+		// begin
 		assert(json.type == Json::JOBJECT);
 		string type = json.obj["type"].str;
 		auto& value = json.obj["value"].arr;
-		// cull all direct text matches (all keywords)
-		if (type.at(0) != '$')
-			json = { Json::JNULL };
 		// cull these rules totally
-		else if ( find(CULL.begin(), CULL.end(), type) != CULL.end() )
+		if ( find(CULL.begin(), CULL.end(), type) != CULL.end() )
 			json = { Json::JNULL };
 		// cull empty lines
 		else if (type == "$line" && value.size() == 0)
 			json = { Json::JNULL };
 		// take first child as the value
-		else if ( find(FIRST_CHILD.begin(), FIRST_CHILD.end(), type) != FIRST_CHILD.end() ) {
-			if (value.size() != 1) {
-				jsonserialize(json, cout);
-				error("formatjsonrule", "first-child: additional values: " + to_string(value.size()));
-			}
-			auto js = value[0];
-			json = js;
-		}
+		// else if ( find(FIRST_CHILD.begin(), FIRST_CHILD.end(), type) != FIRST_CHILD.end() ) {
+		// 	if (value.size() != 1) {
+		// 		jsonserialize(json, cout);
+		// 		error("formatjsonrule", "first-child: additional values: " + to_string(value.size()));
+		// 	}
+		// 	auto js = value[0];
+		// 	json = js;
+		// }
 	}
 };
 
@@ -107,6 +106,6 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	parser.parse("basic/hurkle.bas");
+	parser.parse("basic/lander.bas");
 	parser.show();
 }
