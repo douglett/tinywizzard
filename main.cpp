@@ -70,29 +70,53 @@ struct TinybasicParser : Parser {
 	}
 
 	virtual void formatjsonrule(Json& json) {
-		static const vector<string> CULL = splitstr(
-			"$eof $eol "
-			"PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = " );
-		static const vector<string> FIRST_CHILD = splitstr("$statement $print_val");
+		static const vector<string> CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = , ( )");
+		static const vector<string> FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 ");
+		static const vector<string> FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $lte $gte $noteq $goto ");
+
 		// begin
 		assert(json.type == Json::JOBJECT);
-		string type = json.obj["type"].str;
+		string& type = json.obj["type"].str;
 		auto& value = json.obj["value"].arr;
 		// cull these rules totally
 		if ( find(CULL.begin(), CULL.end(), type) != CULL.end() )
 			json = { Json::JNULL };
-		// cull empty lines
-		else if (type == "$line" && value.size() == 0)
-			json = { Json::JNULL };
-		// take first child as the value
-		// else if ( find(FIRST_CHILD.begin(), FIRST_CHILD.end(), type) != FIRST_CHILD.end() ) {
-		// 	if (value.size() != 1) {
-		// 		jsonserialize(json, cout);
-		// 		error("formatjsonrule", "first-child: additional values: " + to_string(value.size()));
-		// 	}
-		// 	auto js = value[0];
-		// 	json = js;
-		// }
+		
+		// replace whole json object with the first child
+		else if ( find(FIRST_CHILD.begin(), FIRST_CHILD.end(), type) != FIRST_CHILD.end() ) {
+			if (value.size() == 1) {
+				auto var = value.at(0);
+				json = var;
+			}
+		}
+		// take first child value as the value
+		else if ( find(FIRST_VALUE.begin(), FIRST_VALUE.end(), type) != FIRST_VALUE.end() ) {
+			if (value.size() == 1) {
+				auto var = value.at(0).obj.at("value");
+				json.obj["value"] = var;
+			}
+		}
+
+		// format line statements
+		else if (type == "$line") {
+			if (value.size() == 2) {
+				auto linenumber = value.at(0).obj.at("value");
+				auto var = value.at(1);
+				json = var;
+				json.obj["linenumber"] = linenumber;
+			}
+			else if (value.size() == 1) {
+				auto var = value.at(0);
+				json = var;
+			}
+			else if (value.size() == 0)
+				json = { Json::JNULL };
+		}
+
+		// expressions
+		else if (type == "$integer") {
+			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
+		}
 	}
 };
 
