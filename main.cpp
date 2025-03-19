@@ -64,41 +64,24 @@ struct TinybasicParser : Parser {
 		ruleset.add( "$brackets", "( $expression )" );
 		ruleset.add( "$variable", "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z", "or" );
 
+		// basic formatting rules
+		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = , ( )");
+		FMT_FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 ");
+		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $lte $gte $noteq $goto ");
+
 		ruleset.show();
 		ruleset.validate();
 		return true;
 	}
 
-	virtual void formatjsonrule(Json& json) {
-		static const vector<string> CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = , ( )");
-		static const vector<string> FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 ");
-		static const vector<string> FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $lte $gte $noteq $goto ");
-
+	virtual void formatjson(Json& json) {
 		// begin
 		assert(json.type == Json::JOBJECT);
 		string& type = json.obj["type"].str;
-		auto& value = json.obj["value"].arr;
-		// cull these rules totally
-		if ( find(CULL.begin(), CULL.end(), type) != CULL.end() )
-			json = { Json::JNULL };
-		
-		// replace whole json object with the first child
-		else if ( find(FIRST_CHILD.begin(), FIRST_CHILD.end(), type) != FIRST_CHILD.end() ) {
-			if (value.size() == 1) {
-				auto var = value.at(0);
-				json = var;
-			}
-		}
-		// take first child value as the value
-		else if ( find(FIRST_VALUE.begin(), FIRST_VALUE.end(), type) != FIRST_VALUE.end() ) {
-			if (value.size() == 1) {
-				auto var = value.at(0).obj.at("value");
-				json.obj["value"] = var;
-			}
-		}
 
 		// format line statements
-		else if (type == "$line") {
+		if (type == "$line") {
+			auto& value = json.obj["value"].arr;
 			if (value.size() == 2) {
 				auto linenumber = value.at(0).obj.at("value");
 				auto var = value.at(1);
@@ -115,6 +98,7 @@ struct TinybasicParser : Parser {
 
 		// expressions
 		else if (type == "$integer") {
+			printf("[%s]\n", json.obj["value"].str.c_str());
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
 		}
 	}

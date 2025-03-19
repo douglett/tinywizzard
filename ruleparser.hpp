@@ -113,6 +113,8 @@ struct Parser : TokenHelpers {
 	Tokenizer tok;
 	Ruleset ruleset;
 	Json ast;
+	// json formatting rules
+	vector<string> FMT_CULL, FMT_FIRST_CHILD, FMT_FIRST_VALUE;
 
 	int parse(const string& fname) {
 		// tokenize
@@ -170,16 +172,43 @@ struct Parser : TokenHelpers {
 		assert(parent.type == Json::JARRAY);
 		if (!prule(name, parent))
 			return false;
+		
+		// apply some basic formatting
 		assert(parent.arr.size() > 0);
-		// format results, removing anything that was formatted to NULL
 		auto& json = parent.arr.back();
-		formatjsonrule(json);
+		// take values from the json object
+		assert(json.type == Json::JOBJECT);
+		string& type = json.obj["type"].str;
+		auto& value = json.obj["value"].arr;
+
+		// cull these rules totally
+		if ( find(FMT_CULL.begin(), FMT_CULL.end(), type) != FMT_CULL.end() )
+			json = { Json::JNULL };
+		// replace whole json object with the first child
+		else if ( find(FMT_FIRST_CHILD.begin(), FMT_FIRST_CHILD.end(), type) != FMT_FIRST_CHILD.end() ) {
+			if (value.size() == 1) {
+				auto var = value.at(0);
+				json = var;
+			}
+		}
+		// take first child value as the value
+		else if ( find(FMT_FIRST_VALUE.begin(), FMT_FIRST_VALUE.end(), type) != FMT_FIRST_VALUE.end() ) {
+			if (value.size() == 1) {
+				auto var = value.at(0).obj.at("value");
+				json.obj["value"] = var;
+			}
+		}
+		// user override custom formatting
+		else
+			formatjson(json);
+		
+		// cull anything formatted to null
 		if (json.type == Json::JNULL)
 			parent.arr.pop_back();
 		return true;
 	}
 
-	virtual void formatjsonrule(Json& json) {}
+	virtual void formatjson(Json& json) {}
 
 	int prule(const string& name, Json& parent) {
 		assert(parent.type == Json::JARRAY);
