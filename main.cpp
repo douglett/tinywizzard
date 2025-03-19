@@ -82,15 +82,18 @@ struct TinybasicParser : Parser {
 		// format line statements
 		if (type == "$line") {
 			auto& value = json.obj["value"].arr;
+			auto dsym = json.obj["dsym"];
 			if (value.size() == 2) {
 				auto linenumber = value.at(0).obj.at("value");
 				auto var = value.at(1);
 				json = var;
+				json.obj["dsym"] = dsym;
 				json.obj["linenumber"] = linenumber;
 			}
 			else if (value.size() == 1) {
 				auto var = value.at(0);
 				json = var;
+				json.obj["dsym"] = dsym;
 			}
 			else if (value.size() == 0)
 				json = { Json::JNULL };
@@ -98,7 +101,7 @@ struct TinybasicParser : Parser {
 
 		// expressions
 		else if (type == "$integer") {
-			printf("[%s]\n", json.obj["value"].str.c_str());
+			// jsonserialize(json, cout);
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
 		}
 	}

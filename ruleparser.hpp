@@ -198,7 +198,7 @@ struct Parser : TokenHelpers {
 				json.obj["value"] = var;
 			}
 		}
-		// user override custom formatting
+		// otherwise, apply user override custom formatting
 		else
 			formatjson(json);
 		
