@@ -122,6 +122,7 @@ int main() {
 	parser.show();
 
 	Compiler comp;
-	comp.compile(parser.ast.arr.at(0));
+	comp.init();
+	comp.compile(parser.ast.at(0));
 	comp.show();
 }
