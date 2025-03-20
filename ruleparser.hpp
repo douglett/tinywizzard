@@ -113,6 +113,7 @@ struct Parser : TokenHelpers {
 	Tokenizer tok;
 	Ruleset ruleset;
 	Json ast;
+	bool trace = false;
 	// json formatting rules
 	vector<string> FMT_CULL, FMT_FIRST_CHILD, FMT_FIRST_VALUE;
 
@@ -125,6 +126,7 @@ struct Parser : TokenHelpers {
 		tok.show();
 		// parse program
 		ast = { Json::JARRAY };
+		printf("parsing file...\n");
 		if (!pruleexpr("$program", ast))
 			return error("$program", "unknown error parsing $program");
 		printf("file parsed successfully!\n");
@@ -163,7 +165,7 @@ struct Parser : TokenHelpers {
 				return error( "pruleexpr", "unexpected error" );
 		}
 		// found action
-		if (found)
+		if (found && trace)
 			printf("found RuleExpr: '%s' @ Line %d\n", ruleexpr.c_str(), tok.linepos());
 		return found;
 	}
@@ -277,7 +279,8 @@ struct Parser : TokenHelpers {
 		auto& obj = parent.arr.back();
 		obj.obj["type"] = { Json::JSTRING, 0, type };
 		obj.obj["value"] = { Json::JSTRING, 0, token };
-		printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
+		if (trace)
+			printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
 		return true;
 	}
 
@@ -330,6 +333,42 @@ struct Parser : TokenHelpers {
 
 	int error(const string& rule, const string& msg) {
 		throw runtime_error(rule + " error: " + msg);
+		return false;
+	}
+};
+
+
+struct Compiler : TokenHelpers {
+	stringstream output;
+
+	int compile(const Json& json) {
+		assert(json.type == Json::JOBJECT);
+		auto& type = json.obj.at("type").str;
+
+		if (json.obj.count("dsym"))
+			output << "# dsym: line " << json.obj.at("dsym").num << "\n";
+
+		if (type == "$program") {
+			for (auto& line : json.obj.at("value").arr)
+				compile(line);
+		}
+		else if (type == "$end") {
+			output << "end\n";
+		}
+		else
+			error(type, "unknown rule");
+
+		return true;
+	}
+
+	void show() {
+		fstream fs("output.asm", ios::out);
+		fs << output.str();
+	}
+
+	int error(const string& type, const string& msg) {
+		// throw runtime_error("compiler error in " + type + ": " + msg);
+		cout << "compiler error in " + type + ": " + msg << endl;
 		return false;
 	}
 };

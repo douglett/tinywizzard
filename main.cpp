@@ -119,4 +119,8 @@ int main() {
 	parser.init();
 	parser.parse("basic/lander.bas");
 	parser.show();
+
+	Compiler comp;
+	comp.compile(parser.ast.arr.at(0));
+	comp.show();
 }
