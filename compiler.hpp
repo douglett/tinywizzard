@@ -31,11 +31,17 @@ struct Compiler : TokenHelpers {
 			for (auto& line : json.at("value").arr)
 				compile(line);
 		}
+		else if (type == "$end") {
+			output << "	end\n";
+		}
+		else if (type == "$goto") {
+			output << "	goto BASIC_LINE_" << json.at("value").num << "\n";
+		}
 		else if (type == "$integer") {
 			output << "	push " << json.at("value").num << "\n";
 		}
-		else if (type == "$end") {
-			output << "	end\n";
+		else if (type == "$variable") {
+			output << "	get " << json.at("value").str << "\n";  // get from memory
 		}
 		else if (type == "$let") {
 			compile(json.at("value").at(1));  // handle expression
@@ -43,7 +49,6 @@ struct Compiler : TokenHelpers {
 		}
 		else if (type == "$print") {
 			for (auto& printval : json.at("value").arr) {
-				// compile(printval);
 				if (printval.at("type").str == "$stringliteral") {
 					literals.push_back(printval.at("value").str);
 					output << "	prints STRING_LIT_" << (literals.size() - 1) << "\n";
@@ -53,6 +58,10 @@ struct Compiler : TokenHelpers {
 				else
 					error(type, "unknown print rule");
 			}
+		}
+		else if (type == "$input") {
+			assert(json.at("value").size() == 1);  // check for multiple inputs
+			output << "	input " << json.at("value").at(0).at("value").str << "\n";
 		}
 		else
 			error(type, "unknown rule");
