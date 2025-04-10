@@ -12,6 +12,7 @@ struct Compiler : TokenHelpers {
 		header.str(""), header.clear();
 		output.str(""), output.clear();
 		literals = {};
+		header << "# control variables\n";
 		header << "	dim CONTROL TEMP\n";
 		header << "	dim A B C D E F G H I J K L M N O P Q R S T U V W X Y Z\n";
 		return true;
@@ -62,6 +63,7 @@ struct Compiler : TokenHelpers {
 	void show() {
 		fstream fs("output.asm", ios::out);
 		fs << header.str();
+		fs << "# define literals\n";
 		for (size_t i = 0; i < literals.size(); i++)
 			fs << "	dim STRING_LIT_" << i << " " << literals[i] << "\n";
 		fs << output.str();
