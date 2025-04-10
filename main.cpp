@@ -102,8 +102,18 @@ struct TinybasicParser : Parser {
 
 		// expressions
 		else if (type == "$integer") {
-			// jsonserialize(json, cout);
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
+		}
+
+		// add
+		else if (type == "$add") {
+			cout << "ADDADDADD\n";
+			auto& value = json.at("value");
+			// one item
+			if (value.size() == 1) {
+				auto var = value.at(0);
+				json.obj["value"] = var;
+			}
 		}
 	}
 };

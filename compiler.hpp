@@ -37,16 +37,6 @@ struct Compiler : TokenHelpers {
 		else if (type == "$goto") {
 			output << "	goto BASIC_LINE_" << json.at("value").num << "\n";
 		}
-		else if (type == "$integer") {
-			output << "	push " << json.at("value").num << "\n";
-		}
-		else if (type == "$variable") {
-			output << "	get " << json.at("value").str << "\n";  // get from memory
-		}
-		else if (type == "$let") {
-			compile(json.at("value").at(1));  // handle expression
-			output << "	put " << json.at("value").at(0).at("value").str << "\n";  // put in memory
-		}
 		else if (type == "$print") {
 			for (auto& printval : json.at("value").arr) {
 				if (printval.at("type").str == "$stringliteral") {
@@ -63,6 +53,22 @@ struct Compiler : TokenHelpers {
 			assert(json.at("value").size() == 1);  // check for multiple inputs
 			output << "	input " << json.at("value").at(0).at("value").str << "\n";
 		}
+		else if (type == "$let") {
+			compile(json.at("value").at(1));  // handle expression
+			output << "	put " << json.at("value").at(0).at("value").str << "\n";  // put in memory
+		}
+		// expressions
+		else if (type == "$integer") {
+			output << "	push " << json.at("value").num << "\n";
+		}
+		else if (type == "$variable") {
+			output << "	get " << json.at("value").str << "\n";  // get from memory
+		}
+		// else if (type == "$add") {
+		// 	compile(json.at("value").at(0));
+		// 	compile(json.at("value").at(1));
+		// 	output << "	add\n";
+		// }
 		else
 			error(type, "unknown rule");
 
