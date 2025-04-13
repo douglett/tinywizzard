@@ -69,8 +69,10 @@ struct Compiler : TokenHelpers {
 			compile(json.at("value").at(0));
 			compile(json.at("value").at(1));
 			auto op = json.at("operator").str;
-			if      (op == "<")  output << "	compare_lt\n";
-			else if (op == ">")  output << "	compare_gt\n";
+			if      (op == "<" )  output << "	compare_lt\n";
+			else if (op == ">" )  output << "	compare_gt\n";
+			else if (op == "<=")  output << "	compare_lte\n";
+			else if (op == ">=")  output << "	compare_gte\n";
 			else    error(type, "unknown operator: " + op);
 		}
 		// expressions
