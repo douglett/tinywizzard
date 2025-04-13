@@ -105,12 +105,17 @@ struct TinybasicParser : Parser {
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
 		}
 
-		// add and multiply - pick out operator
+		// pick out operators
 		else if (type == "$add2" || type == "$mul2") {
 			auto& value = json.at("value");
 			json.obj["operator"] = value.at(0).at("value");
 			auto var = value.at(1);
 			value = var;
+		}
+		else if (type == "$comparison") {
+			auto& value = json.at("value");
+			json.obj["operator"] = value.at(1).at("value");
+			value.arr.erase(value.arr.begin() + 1);
 		}
 	}
 };
@@ -125,7 +130,8 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	parser.parse("basic/lander.bas");
+	parser.parse("basic/test1.bas");
+	// parser.parse("basic/lander.bas");
 	parser.show();
 
 	Compiler comp;

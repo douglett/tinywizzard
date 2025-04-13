@@ -7,11 +7,13 @@ using namespace std;
 struct Compiler : TokenHelpers {
 	stringstream header, output;
 	vector<string> literals;
+	int ifcount = 0;
 
 	int init() {
 		header.str(""), header.clear();
 		output.str(""), output.clear();
 		literals = {};
+		ifcount = 0;
 		header << "# control variables\n";
 		header << "	dim CONTROL TEMP\n";
 		header << "	dim A B C D E F G H I J K L M N O P Q R S T U V W X Y Z\n";
@@ -31,12 +33,14 @@ struct Compiler : TokenHelpers {
 			for (auto& line : json.at("value").arr)
 				compile(line);
 		}
+		// basic commands
 		else if (type == "$end") {
 			output << "	end\n";
 		}
 		else if (type == "$goto") {
 			output << "	goto BASIC_LINE_" << json.at("value").num << "\n";
 		}
+		// I/O
 		else if (type == "$print") {
 			for (auto& printval : json.at("value").arr) {
 				if (printval.at("type").str == "$stringliteral") {
@@ -53,11 +57,27 @@ struct Compiler : TokenHelpers {
 			assert(json.at("value").size() == 1);  // check for multiple inputs
 			output << "	input " << json.at("value").at(0).at("value").str << "\n";
 		}
+		// control structures
+		else if (type == "$if") {
+			int ifid = ++ifcount;
+			compile(json.at("value").at(0));
+			output << "	goto_ifn BASIC_POSTIF_" << ifid << "\n";
+			compile(json.at("value").at(1));
+			output << "BASIC_POSTIF_" << ifid << ":\n";
+		}
+		else if (type == "$comparison") {
+			compile(json.at("value").at(0));
+			compile(json.at("value").at(1));
+			auto op = json.at("operator").str;
+			if      (op == "<")  output << "	compare_lt\n";
+			else if (op == ">")  output << "	compare_gt\n";
+			else    error(type, "unknown operator: " + op);
+		}
+		// expressions
 		else if (type == "$let") {
 			compile(json.at("value").at(1));  // handle expression
 			output << "	put " << json.at("value").at(0).at("value").str << "\n";  // put in memory
 		}
-		// expressions
 		else if (type == "$integer") {
 			output << "	push " << json.at("value").num << "\n";
 		}
@@ -74,6 +94,7 @@ struct Compiler : TokenHelpers {
 				else if (op == "-")  output << "	sub\n";
 				else if (op == "*")  output << "	mul\n";
 				else if (op == "/")  output << "	div\n";
+				else    error(type, "unknown operator: " + op);
 			}
 		}
 		else
