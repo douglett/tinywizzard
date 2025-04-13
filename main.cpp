@@ -105,15 +105,12 @@ struct TinybasicParser : Parser {
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
 		}
 
-		// add
-		else if (type == "$add") {
-			cout << "ADDADDADD\n";
+		// add and multiply - pick out operator
+		else if (type == "$add2" || type == "$mul2") {
 			auto& value = json.at("value");
-			// one item
-			if (value.size() == 1) {
-				auto var = value.at(0);
-				json.obj["value"] = var;
-			}
+			json.obj["operator"] = value.at(0).at("value");
+			auto var = value.at(1);
+			value = var;
 		}
 	}
 };

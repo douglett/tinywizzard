@@ -64,11 +64,18 @@ struct Compiler : TokenHelpers {
 		else if (type == "$variable") {
 			output << "	get " << json.at("value").str << "\n";  // get from memory
 		}
-		// else if (type == "$add") {
-		// 	compile(json.at("value").at(0));
-		// 	compile(json.at("value").at(1));
-		// 	output << "	add\n";
-		// }
+		else if (type == "$add" || type == "$mul") {
+			auto& value = json.at("value");
+			compile(value.at(0));
+			for (int i = 1; i < value.size(); i++) {
+				compile(value.at(i).at("value"));
+				auto op = value.at(i).at("operator").str;
+				if      (op == "+")  output << "	add\n";
+				else if (op == "-")  output << "	sub\n";
+				else if (op == "*")  output << "	mul\n";
+				else if (op == "/")  output << "	div\n";
+			}
+		}
 		else
 			error(type, "unknown rule");
 
