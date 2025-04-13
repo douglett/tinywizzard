@@ -100,6 +100,12 @@ struct TinybasicParser : Parser {
 				json = { Json::JNULL };
 		}
 
+		// format let
+		else if (type == "$let") {
+			auto& val = json.at("value").arr;
+			val.erase(val.begin() + 1);  // delete equals operator (redundant)
+		}
+
 		// expressions
 		else if (type == "$integer") {
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
@@ -136,8 +142,8 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	parser.parse("basic/test1.bas");
-	// parser.parse("basic/lander.bas");
+	// parser.parse("basic/test1.bas");
+	parser.parse("basic/lander.bas");
 	parser.show();
 
 	Compiler comp;
