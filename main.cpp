@@ -66,7 +66,7 @@ struct TinybasicParser : Parser {
 		ruleset.add( "$variable", "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z", "or" );
 
 		// basic formatting rules
-		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN , ( )");
+		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = , ( )");
 		FMT_FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 ");
 		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $noteq $goto ");
 
@@ -100,12 +100,6 @@ struct TinybasicParser : Parser {
 				json = { Json::JNULL };
 		}
 
-		// format let
-		else if (type == "$let") {
-			auto& val = json.at("value").arr;
-			val.erase(val.begin() + 1);  // delete equals operator (redundant)
-		}
-
 		// expressions
 		else if (type == "$integer") {
 			json.obj["value"] = { Json::JNUMBER, stod(json.obj["value"].str) };
@@ -126,7 +120,7 @@ struct TinybasicParser : Parser {
 		}
 		else if (type == "$comparison") {
 			auto& value = json.at("value");
-			json.obj["operator"] = value.at(1).at("value");
+			json.obj["operator"] = value.at(1).at("value");  // pick out comparison operator
 			value.arr.erase(value.arr.begin() + 1);
 		}
 	}
