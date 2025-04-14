@@ -110,7 +110,7 @@ struct Compiler : TokenHelpers {
 		fs << header.str();
 		fs << "# define literals\n";
 		for (size_t i = 0; i < literals.size(); i++)
-			fs << "	dim STRING_LIT_" << i << " " << literals[i] << "\n";
+			fs << "	data STRING_LIT_" << i << " " << literals[i] << "\n";
 		fs << output.str();
 	}
 
