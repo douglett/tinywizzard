@@ -1,4 +1,5 @@
 #include "tokenizer.hpp"
+#include "json.hpp"
 #include <map>
 #include <exception>
 #include <algorithm>
@@ -6,6 +7,10 @@
 using namespace std;
 
 
+/**
+ * Language Ruleset
+ * Contains a formatted set of rules only for our language.
+ */
 struct Ruleset : TokenHelpers {
 	struct Rule     { string type; vector<string>list; };
 	struct RuleExpr { string name; char expr; bool require; };
@@ -103,19 +108,10 @@ struct Ruleset : TokenHelpers {
 };
 
 
-struct Json {
-	enum JTYPE { JNULL, JNUMBER, JSTRING, JARRAY, JOBJECT };
-	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj;
-
-	Json& at(const string& key) { assert(type == JOBJECT);  return obj.at(key); }
-	Json& at(size_t key)        { assert(type == JARRAY);   return arr.at(key); }
-	const Json& at(const string& key) const { assert(type == JOBJECT);  return obj.at(key); }
-	const Json& at(size_t key)        const { assert(type == JARRAY);   return arr.at(key); }
-	int count(const string& key) const { return type != JOBJECT ? 0 : obj.count(key); }
-	int size() const { return type == JOBJECT ? obj.size() : type == JARRAY ? arr.size() : 0; }
-};
-
-
+/**
+ * Language Parser
+ * Uses a defined Rulset to parse a file to json output AST.
+ */
 struct Parser : TokenHelpers {
 	Tokenizer tok;
 	Ruleset ruleset;
