@@ -11,7 +11,7 @@ struct Compiler : TokenHelpers {
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_LT, IN_GT, IN_LTE, IN_GTE,
 		IN_JUMPIF, IN_JUMPIFN
 	};
-	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; };
+	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; int argi; };
 	vector<Instruction> inheader, inprogram;
 	int ifcount = 0, litcount = 0;
 
@@ -31,7 +31,7 @@ struct Compiler : TokenHelpers {
 		auto& type = json.at("type").str;
 
 		if (json.count("dsym")) {
-			inprogram.push_back({ IN_DSYM, { to_string((int)json.at("dsym").num) } });
+			inprogram.push_back({ IN_DSYM, {}, int(json.at("dsym").num) });
 		}
 		if (json.count("linenumber")) {
 			inprogram.push_back({ IN_LABEL, { "BASIC_LINE_" + to_string((int)json.at("linenumber").num) } });
@@ -96,7 +96,7 @@ struct Compiler : TokenHelpers {
 			inprogram.push_back({ IN_GET, { json.at("value").str } });  // get from memory
 		}
 		else if (type == "$integer") {
-			inprogram.push_back({ IN_PUSH, { to_string((int)json.at("value").num) } });
+			inprogram.push_back({ IN_PUSH, {}, int(json.at("value").num) });
 		}
 		else if (type == "$add" || type == "$mul") {
 			auto& value = json.at("value");
@@ -130,7 +130,7 @@ struct Compiler : TokenHelpers {
 		switch (in.type) {
 			// pseudo-instructions
 			case IN_NOOP:      s = in.args.size() ? in.args.at(0) : "";  break;
-			case IN_DSYM:      s = "# dsym: line " + in.args.at(0);  break;
+			case IN_DSYM:      s = "# dsym: line " + to_string(in.argi);  break;
 			case IN_LABEL:     s = in.args.at(0) + ":";  break;
 			// data
 			case IN_DIM:
@@ -151,7 +151,7 @@ struct Compiler : TokenHelpers {
 			case IN_INPUT:     s += "input " + in.args.at(0);  break;
 			case IN_PUT:       s += "put " + in.args.at(0);  break;
 			case IN_GET:       s += "get " + in.args.at(0);  break;
-			case IN_PUSH:      s += "push " + in.args.at(0);  break;
+			case IN_PUSH:      s += "push " + to_string(in.argi);  break;
 			// maths
 			case IN_ADD:       s += "add";  break;
 			case IN_SUB:       s += "sub";  break;
