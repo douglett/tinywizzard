@@ -5,7 +5,7 @@ using namespace std;
 
 
 struct Compiler : TokenHelpers {
-	enum INSTRUCTION_TYPE { IN_NOOP, IN_DSYM, IN_LABEL, IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT };
+	enum INSTRUCTION_TYPE { IN_NOOP, IN_DSYM, IN_LABEL, IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT, IN_PUT, IN_GET, IN_PUSH };
 	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; };
 	vector<Instruction> inheader, inprogram;
 
@@ -27,6 +27,7 @@ struct Compiler : TokenHelpers {
 		inheader.push_back({ IN_NOOP, { "# control variables" }});
 		inheader.push_back({ IN_DIM,  splitstr("CONTROL TEMP") });
 		inheader.push_back({ IN_DIM,  splitstr("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z") });
+		inheader.push_back({ IN_NOOP, { "# literals and other data" }});
 
 		return true;
 	}
@@ -64,7 +65,7 @@ struct Compiler : TokenHelpers {
 					// literals.push_back(printval.at("value").str);
 					// output << "	prints STRING_LIT_" << (literals.size() - 1) << "\n";
 					string strid = "STRING_LIT_" + to_string(++litcount);
-					inheader.push_back({ IN_DATA, { strid } });
+					inheader.push_back({ IN_DATA, { strid, printval.at("value").str } });
 					inprogram.push_back({ IN_PRINTS, { strid } });
 				}
 				else if (printval.at("type").str == "$variable") {
@@ -101,13 +102,16 @@ struct Compiler : TokenHelpers {
 		// expressions
 		else if (type == "$let") {
 			compile(json.at("value").at(1));  // handle expression
-			output << "	put " << json.at("value").at(0).at("value").str << "\n";  // put in memory
-		}
-		else if (type == "$integer") {
-			output << "	push " << json.at("value").num << "\n";
+			// output << "	put " << json.at("value").at(0).at("value").str << "\n";  // put in memory
+			inprogram.push_back({ IN_PUT, { json.at("value").at(0).at("value").str } });  // put in memory
 		}
 		else if (type == "$variable") {
-			output << "	get " << json.at("value").str << "\n";  // get from memory
+			// output << "	get " << json.at("value").str << "\n";  // get from memory
+			inprogram.push_back({ IN_GET, { json.at("value").str } });  // get from memory
+		}
+		else if (type == "$integer") {
+			// output << "	push " << json.at("value").num << "\n";
+			inprogram.push_back({ IN_PUSH, { to_string((int)json.at("value").num) } });
 		}
 		else if (type == "$add" || type == "$mul") {
 			auto& value = json.at("value");
@@ -115,11 +119,16 @@ struct Compiler : TokenHelpers {
 			for (int i = 1; i < value.size(); i++) {
 				compile(value.at(i).at("value"));
 				auto op = value.at(i).at("operator").str;
-				if      (op == "+")  output << "	add\n";
-				else if (op == "-")  output << "	sub\n";
-				else if (op == "*")  output << "	mul\n";
-				else if (op == "/")  output << "	div\n";
-				else    error(type, "unknown operator: " + op);
+				// if      (op == "+")  output << "	add\n";
+				// else if (op == "-")  output << "	sub\n";
+				// else if (op == "*")  output << "	mul\n";
+				// else if (op == "/")  output << "	div\n";
+				// else    error(type, "unknown operator: " + op);
+				// if      (op == "+")  output << "	add\n";
+				// else if (op == "-")  output << "	sub\n";
+				// else if (op == "*")  output << "	mul\n";
+				// else if (op == "/")  output << "	div\n";
+				// else    error(type, "unknown operator: " + op);
 			}
 		}
 		else
@@ -181,6 +190,16 @@ struct Compiler : TokenHelpers {
 				break;
 			case IN_INPUT:
 				s += "input " + in.args.at(0);
+				break;
+			case IN_PUT:
+				s += "put " + in.args.at(0);
+				break;
+			case IN_GET:
+				s += "get " + in.args.at(0);
+				break;
+			case IN_PUSH:
+				s += "push " + in.args.at(0);
+				break;
 		}
 		return s;
 	}
