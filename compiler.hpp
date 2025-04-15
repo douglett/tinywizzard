@@ -5,7 +5,12 @@ using namespace std;
 
 
 struct Compiler : TokenHelpers {
-	enum INSTRUCTION_TYPE { IN_NOOP, IN_DSYM, IN_LABEL, IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT, IN_PUT, IN_GET, IN_PUSH };
+	enum INSTRUCTION_TYPE {
+		IN_NOOP, IN_DSYM, IN_LABEL,
+		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
+		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_LT, IN_GT, IN_LTE, IN_GTE,
+		IN_JUMPIF, IN_JUMPIFN
+	};
 	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; };
 	vector<Instruction> inheader, inprogram;
 
@@ -83,20 +88,27 @@ struct Compiler : TokenHelpers {
 		}
 		// control structures
 		else if (type == "$if") {
-			int ifid = ++ifcount;
+			string ifid = "BASIC_POSTIF_" + to_string(++ifcount);
 			compile(json.at("value").at(0));
-			output << "	goto_ifn BASIC_POSTIF_" << ifid << "\n";
+			// output << "	goto_ifn BASIC_POSTIF_" << ifid << "\n";
+			inprogram.push_back({ IN_JUMPIFN, { ifid } });
 			compile(json.at("value").at(1));
-			output << "BASIC_POSTIF_" << ifid << ":\n";
+			// output << "BASIC_POSTIF_" << ifid << ":\n";
+			inprogram.push_back({ IN_LABEL, { ifid } });
 		}
 		else if (type == "$comparison") {
 			compile(json.at("value").at(0));
 			compile(json.at("value").at(1));
 			auto op = json.at("operator").str;
-			if      (op == "<" )  output << "	compare_lt\n";
-			else if (op == ">" )  output << "	compare_gt\n";
-			else if (op == "<=")  output << "	compare_lte\n";
-			else if (op == ">=")  output << "	compare_gte\n";
+			// if      (op == "<" )  output << "	compare_lt\n";
+			// else if (op == ">" )  output << "	compare_gt\n";
+			// else if (op == "<=")  output << "	compare_lte\n";
+			// else if (op == ">=")  output << "	compare_gte\n";
+			// else    error(type, "unknown operator: " + op);
+			if      (op == "<" )  inprogram.push_back({ IN_LT });
+			else if (op == ">" )  inprogram.push_back({ IN_GT });
+			else if (op == "<=")  inprogram.push_back({ IN_LTE });
+			else if (op == ">=")  inprogram.push_back({ IN_GTE });
 			else    error(type, "unknown operator: " + op);
 		}
 		// expressions
@@ -124,11 +136,11 @@ struct Compiler : TokenHelpers {
 				// else if (op == "*")  output << "	mul\n";
 				// else if (op == "/")  output << "	div\n";
 				// else    error(type, "unknown operator: " + op);
-				// if      (op == "+")  output << "	add\n";
-				// else if (op == "-")  output << "	sub\n";
-				// else if (op == "*")  output << "	mul\n";
-				// else if (op == "/")  output << "	div\n";
-				// else    error(type, "unknown operator: " + op);
+				if      (op == "+")  inprogram.push_back({ IN_ADD });
+				else if (op == "-")  inprogram.push_back({ IN_SUB });
+				else if (op == "*")  inprogram.push_back({ IN_MUL });
+				else if (op == "/")  inprogram.push_back({ IN_DIV });
+				else    error(type, "unknown operator: " + op);
 			}
 		}
 		else
@@ -157,15 +169,9 @@ struct Compiler : TokenHelpers {
 	string showinstruction(const Instruction& in) {
 		string s = "\t";
 		switch (in.type) {
-			case IN_NOOP:
-				s = in.args.size() ? in.args.at(0) : "";
-				break;
-			case IN_DSYM:
-				s = "# dsym: line " + in.args.at(0);
-				break;
-			case IN_LABEL:
-				s = in.args.at(0) + ":";
-				break;
+			case IN_NOOP:      s = in.args.size() ? in.args.at(0) : "";  break;
+			case IN_DSYM:      s = "# dsym: line " + in.args.at(0);  break;
+			case IN_LABEL:     s = in.args.at(0) + ":";  break;
 			case IN_DIM:
 				s += "dim ";
 				for (const auto& arg : in.args)
@@ -176,30 +182,24 @@ struct Compiler : TokenHelpers {
 				for (const auto& arg : in.args)
 					s += arg + " ";
 				break;
-			case IN_END:
-				s += "end";
-				break;
-			case IN_JUMP:
-				s += "jump " + in.args.at(0);
-				break;
-			case IN_PRINTS:
-				s += "prints " + in.args.at(0);
-				break;
-			case IN_PRINTV:
-				s += "printv " + in.args.at(0);
-				break;
-			case IN_INPUT:
-				s += "input " + in.args.at(0);
-				break;
-			case IN_PUT:
-				s += "put " + in.args.at(0);
-				break;
-			case IN_GET:
-				s += "get " + in.args.at(0);
-				break;
-			case IN_PUSH:
-				s += "push " + in.args.at(0);
-				break;
+			case IN_END:       s += "end";  break;
+			case IN_JUMP:      s += "jump " + in.args.at(0);  break;
+			case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
+			case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
+			case IN_INPUT:     s += "input " + in.args.at(0);  break;
+			case IN_PUT:       s += "put " + in.args.at(0);  break;
+			case IN_GET:       s += "get " + in.args.at(0);  break;
+			case IN_PUSH:      s += "push " + in.args.at(0);  break;
+			case IN_ADD:       s += "add";  break;
+			case IN_SUB:       s += "sub";  break;
+			case IN_MUL:       s += "mul";  break;
+			case IN_DIV:       s += "div";  break;
+			case IN_LT:        s += "compare_lt";  break;
+			case IN_GT:        s += "compare_gt";  break;
+			case IN_LTE:       s += "compare_lte";  break;
+			case IN_GTE:       s += "compare_gte";  break;
+			case IN_JUMPIF:    s += "jump_if";  break;
+			case IN_JUMPIFN:   s += "jump_ifn";  break;
 		}
 		return s;
 	}
