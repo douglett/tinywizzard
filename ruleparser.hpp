@@ -291,47 +291,9 @@ struct Parser : TokenHelpers {
 	void show() {
 		fstream fs("output.json", ios::out);
 		if (ast.arr.size())
-			jsonserialize(ast.arr.at(0), fs);
+			fs << ast.at(0);
 		else
 			fs << "(json empty)\n";
-	}
-	void jsonserialize(const Json& json, ostream& os, int ind=0) {
-		static const char INDENTCHAR = ' ';
-		string indent(ind, INDENTCHAR);
-		switch (json.type) {
-			case Json::JNULL:
-				os << "NULL" << ",\n";
-				break;
-			case Json::JSTRING:
-				if (isliteral(json.str))
-					os << json.str << "\n";
-				else
-					os << '"' << json.str << "\",\n";
-				break;
-			case Json::JNUMBER:
-				os << json.num << ",\n";
-				break;
-			case Json::JARRAY:
-				if (json.arr.size() == 0)
-					os << "[],\n";
-				else {
-					os << "[\n";
-					for (auto& js : json.arr) {
-						os << indent << INDENTCHAR;
-						jsonserialize(js, os, ind+1);
-					}
-					os << indent << "],\n";
-				}
-				break;
-			case Json::JOBJECT:
-				os << "{\n";
-				for (auto& pair : json.obj) {
-					os << indent << INDENTCHAR << '"' << pair.first << "\": ";
-					jsonserialize(pair.second, os, ind+1);
-				}
-				os << indent << "},\n";
-				break;
-		}
 	}
 
 	int error(const string& rule, const string& msg) {
