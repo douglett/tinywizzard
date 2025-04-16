@@ -145,6 +145,7 @@ int main() {
 	comp.init();
 	comp.compile(parser.ast.at(0));
 	comp.show();
+	printf("compiled successfully!\n");
 
 	Runtime run;
 	run.program.insert(run.program.end(), comp.inheader.begin(), comp.inheader.end());
