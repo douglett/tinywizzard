@@ -1,6 +1,6 @@
 OUT = main.exe
 SRC = main.cpp
-HEAD = tokenizer.hpp json.hpp ruleparser.hpp compiler.hpp
+HEAD = tokenizer.hpp json.hpp ruleparser.hpp compiler.hpp runtime.hpp
 
 $(OUT): $(SRC) $(HEAD)
 	g++ -std=c++17 -O0 -gdwarf -Wall -o $(OUT) $(SRC)

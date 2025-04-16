@@ -1,5 +1,6 @@
 #include "ruleparser.hpp"
 #include "compiler.hpp"
+#include "runtime.hpp"
 using namespace std;
 
 
@@ -144,4 +145,9 @@ int main() {
 	comp.init();
 	comp.compile(parser.ast.at(0));
 	comp.show();
+
+	Runtime run;
+	run.program.insert(run.program.end(), comp.inheader.begin(), comp.inheader.end());
+	run.program.insert(run.program.end(), comp.inprogram.begin(), comp.inprogram.end());
+	run.run();
 }

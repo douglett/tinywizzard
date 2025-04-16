@@ -1,3 +1,4 @@
+#pragma once
 #include "tokenizer.hpp"
 #include "json.hpp"
 #include <map>

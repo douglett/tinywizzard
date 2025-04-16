@@ -1,28 +1,23 @@
+#pragma once
 #include "tokenizer.hpp"
+#include "runtime.hpp"
 #include <exception>
 #include <cassert>
 using namespace std;
 
 
-struct Compiler : TokenHelpers {
-	enum INSTRUCTION_TYPE {
-		IN_NOOP, IN_DSYM, IN_LABEL,
-		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
-		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_LT, IN_GT, IN_LTE, IN_GTE,
-		IN_JUMPIF, IN_JUMPIFN
-	};
-	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; int argi; };
+struct Compiler : TokenHelpers, RuntimeBase {
 	vector<Instruction> inheader, inprogram;
 	int ifcount = 0, litcount = 0;
 
 	int init() {
+		printf("initialising compiler...\n");
 		ifcount = litcount = 0;
 		inheader = inprogram = {};
 		inheader.push_back({ IN_NOOP, { "# control variables" }});
 		inheader.push_back({ IN_DIM,  splitstr("CONTROL TEMP") });
 		inheader.push_back({ IN_DIM,  splitstr("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z") });
 		inheader.push_back({ IN_NOOP, { "# literals and other data" }});
-
 		return true;
 	}
 
