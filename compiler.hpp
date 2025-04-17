@@ -7,13 +7,25 @@ using namespace std;
 
 
 struct Compiler : TokenHelpers, RuntimeBase {
-	vector<Instruction> inheader, inprogram;
+	vector<Instruction> program, inheader, inprogram;
 	int ifcount = 0, litcount = 0;
 
-	int init() {
+	int compile(const Json& json) {
+		printf("compiling program...\n");
+		initheader();      // initialise program header
+		assert(json.at("type").str == "$program");  // make sure first item is a $program
+		compileast(json);  // compile program
+		// assemble program
+		program.insert(program.end(), inheader.begin(), inheader.end());
+		program.insert(program.end(), inprogram.begin(), inprogram.end());
+		printf("compiled successfully!\n");
+		return true;
+	}
+
+	int initheader() {
 		printf("initialising compiler...\n");
 		ifcount = litcount = 0;
-		inheader = inprogram = {};
+		program = inheader = inprogram = {};
 		inheader.push_back({ IN_NOOP, { "# control variables" }});
 		inheader.push_back({ IN_DIM,  splitstr("CONTROL TEMP") });
 		inheader.push_back({ IN_DIM,  splitstr("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z") });
@@ -21,7 +33,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		return true;
 	}
 
-	int compile(const Json& json) {
+	int compileast(const Json& json) {
 		assert(json.type == Json::JOBJECT);
 		auto& type = json.at("type").str;
 
@@ -32,9 +44,10 @@ struct Compiler : TokenHelpers, RuntimeBase {
 			inprogram.push_back({ IN_LABEL, { "BASIC_LINE_" + to_string((int)json.at("linenumber").num) } });
 		}
 
+		// program entry
 		if (type == "$program") {
 			for (auto& line : json.at("value").arr)
-				compile(line);
+				compileast(line);
 		}
 		// basic commands
 		else if (type == "$end") {
@@ -67,14 +80,14 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		// control structures
 		else if (type == "$if") {
 			string ifid = "BASIC_POSTIF_" + to_string(++ifcount);
-			compile(json.at("value").at(0));
+			compileast(json.at("value").at(0));
 			inprogram.push_back({ IN_JUMPIFN, { ifid } });
-			compile(json.at("value").at(1));
+			compileast(json.at("value").at(1));
 			inprogram.push_back({ IN_LABEL, { ifid } });
 		}
 		else if (type == "$comparison") {
-			compile(json.at("value").at(0));
-			compile(json.at("value").at(1));
+			compileast(json.at("value").at(0));
+			compileast(json.at("value").at(1));
 			auto op = json.at("operator").str;
 			if      (op == "<" )  inprogram.push_back({ IN_LT });
 			else if (op == ">" )  inprogram.push_back({ IN_GT });
@@ -84,7 +97,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		}
 		// expressions
 		else if (type == "$let") {
-			compile(json.at("value").at(1));  // handle expression
+			compileast(json.at("value").at(1));  // handle expression
 			inprogram.push_back({ IN_PUT, { json.at("value").at(0).at("value").str } });  // put in memory
 		}
 		else if (type == "$variable") {
@@ -95,9 +108,9 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		}
 		else if (type == "$add" || type == "$mul") {
 			auto& value = json.at("value");
-			compile(value.at(0));
+			compileast(value.at(0));
 			for (int i = 1; i < value.size(); i++) {
-				compile(value.at(i).at("value"));
+				compileast(value.at(i).at("value"));
 				auto op = value.at(i).at("operator").str;
 				if      (op == "+")  inprogram.push_back({ IN_ADD });
 				else if (op == "-")  inprogram.push_back({ IN_SUB });

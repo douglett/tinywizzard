@@ -142,13 +142,10 @@ int main() {
 	parser.show();
 
 	Compiler comp;
-	comp.init();
 	comp.compile(parser.ast.at(0));
 	comp.show();
-	printf("compiled successfully!\n");
 
 	Runtime run;
-	run.program.insert(run.program.end(), comp.inheader.begin(), comp.inheader.end());
-	run.program.insert(run.program.end(), comp.inprogram.begin(), comp.inprogram.end());
+	run.program = comp.program;
 	run.run();
 }
