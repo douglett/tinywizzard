@@ -1,3 +1,2 @@
-REM -- LET G=R-(R/10*10)
-
-IF B>=0 THEN IF B<=30 THEN IF B<=F THEN GOTO 120
+LET A = 123
+PRINT "hello world: ", A

@@ -30,6 +30,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		inheader.push_back({ IN_DIM,  splitstr("CONTROL TEMP") });
 		inheader.push_back({ IN_DIM,  splitstr("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z") });
 		inheader.push_back({ IN_NOOP, { "# literals and other data" }});
+		inheader.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
 		return true;
 	}
 
@@ -62,7 +63,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 				// print string literal data
 				if (printval.at("type").str == "$stringliteral") {
 					string strid = "STRING_LIT_" + to_string(++litcount);
-					inheader.push_back({ IN_DATA, { strid, printval.at("value").str } });
+					inheader.push_back({ IN_DATA, { strid, stripliteral(printval.at("value").str) } });
 					inprogram.push_back({ IN_PRINTS, { strid } });
 				}
 				// print variable as number
@@ -72,6 +73,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 				else
 					error(type, "unknown print rule");
 			}
+			inprogram.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });  // add newline character
 		}
 		else if (type == "$input") {
 			assert(json.at("value").size() == 1);  // check for multiple inputs
@@ -125,6 +127,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		return true;
 	}
 
+	//  === helpers ===
 	void show() {
 		fstream fs("output2.asm", ios::out);
 		for (const auto& in : inheader)

@@ -61,17 +61,20 @@ struct Runtime : RuntimeBase {
 	vector<Instruction> program;
 	map<string, string> data;
 	map<string, int> variables;
+	vector<int> stack;
 	size_t PC = 0;
 
 	int run() {
 		printf("running program...\n");
 
-		while (true) {
+		while (PC < program.size()) {
 			const auto& instr = program.at(PC);
 			switch (instr.type) {
+				// pseudo-instructions
 				case IN_NOOP:   break;
 				case IN_DSYM:   break;
 				case IN_LABEL:  break;
+				// data
 				case IN_DIM:
 					for (auto& vname : instr.args)
 						variables[vname] = 0;
@@ -79,6 +82,12 @@ struct Runtime : RuntimeBase {
 				case IN_DATA:
 					data[instr.args.at(0)] = instr.args.at(1);
 					break;
+				// control
+				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
+				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
+				// maths
+				case IN_PUT:     variables.at(instr.args.at(0)) = stack.back();  stack.pop_back();  break;
+				case IN_PUSH:    stack.push_back(instr.argi);  break;
 				default:
 					error("unhandled-instruction", showinstruction(instr));
 			}
@@ -87,6 +96,7 @@ struct Runtime : RuntimeBase {
 		}
 
 		// OK
+		printf("end of program: program terminated\n");
 		return true;
 	}
 

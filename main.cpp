@@ -137,8 +137,8 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	// parser.parse("basic/test1.bas");
-	parser.parse("basic/lander.bas");
+	parser.parse("basic/test1.bas");
+	// parser.parse("basic/lander.bas");
 	parser.show();
 
 	Compiler comp;
