@@ -58,6 +58,12 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		else if (type == "$goto") {
 			inprogram.push_back({ IN_JUMP, { "BASIC_LINE_" + to_string((int)json.at("value").num) } });
 		}
+		else if (type == "$gosub") {
+			inprogram.push_back({ IN_CALL, { "BASIC_LINE_" + to_string((int)json.at("value").num) } });
+		}
+		else if (type == "$return") {
+			inprogram.push_back({ IN_RETURN });
+		}
 		// I/O
 		else if (type == "$print") {
 			for (auto& printval : json.at("value").arr) {
@@ -77,12 +83,9 @@ struct Compiler : TokenHelpers, RuntimeBase {
 			inprogram.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });  // add newline character
 		}
 		else if (type == "$input") {
-			// assert(json.at("value").size() == 1);  // check for multiple inputs
-			// inprogram.push_back({ IN_INPUT, { json.at("value").at(0).at("value").str } });
-
-			inprogram.push_back({ IN_GETLINE });
+			inprogram.push_back({ IN_GETLINE });  // get current line into buffer
 			for (auto& var : json.at("value").arr)
-				inprogram.push_back({ IN_INPUT, { var.at("value").str } });
+				inprogram.push_back({ IN_INPUT, { var.at("value").str } });  // get integers from line
 		}
 		// control structures
 		else if (type == "$if") {
@@ -96,7 +99,9 @@ struct Compiler : TokenHelpers, RuntimeBase {
 			compileast(json.at("value").at(0));
 			compileast(json.at("value").at(1));
 			auto op = json.at("operator").str;
-			if      (op == "<" )  inprogram.push_back({ IN_LT });
+			if      (op == "=" )  inprogram.push_back({ IN_EQ });
+			else if (op == "<>")  inprogram.push_back({ IN_NEQ });
+			else if (op == "<" )  inprogram.push_back({ IN_LT });
 			else if (op == ">" )  inprogram.push_back({ IN_GT });
 			else if (op == "<=")  inprogram.push_back({ IN_LTE });
 			else if (op == ">=")  inprogram.push_back({ IN_GTE });

@@ -1,14 +1,15 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <sstream>
 using namespace std;
 
 
 struct RuntimeBase {
 		enum INSTRUCTION_TYPE {
 		IN_NOOP, IN_DSYM, IN_LABEL,
-		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_GETLINE, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
-		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_LT, IN_GT, IN_LTE, IN_GTE,
+		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_PRINTS, IN_PRINTV, IN_GETLINE, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
+		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_EQ, IN_NEQ, IN_LT, IN_GT, IN_LTE, IN_GTE,
 		IN_JUMPIF, IN_JUMPIFN
 	};
 	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; int argi; };
@@ -34,6 +35,8 @@ struct RuntimeBase {
 			// control
 			case IN_END:       s += "end";  break;
 			case IN_JUMP:      s += "jump " + in.args.at(0);  break;
+			case IN_CALL:      s += "call " + in.args.at(0);  break;
+			case IN_RETURN:    s += "return";  break;
 			case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
 			case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
 			case IN_GETLINE:   s += "getline";  break;
@@ -46,6 +49,8 @@ struct RuntimeBase {
 			case IN_SUB:       s += "sub";  break;
 			case IN_MUL:       s += "mul";  break;
 			case IN_DIV:       s += "div";  break;
+			case IN_EQ:        s += "compare_eq";  break;
+			case IN_NEQ:       s += "compare_neq";  break;
 			case IN_LT:        s += "compare_lt";  break;
 			case IN_GT:        s += "compare_gt";  break;
 			case IN_LTE:       s += "compare_lte";  break;
@@ -62,7 +67,9 @@ struct Runtime : RuntimeBase {
 	vector<Instruction> program;
 	map<string, string> data;
 	map<string, int> variables;
-	vector<int> stack;
+	vector<int> stack, callstack;
+	stringstream ss;
+	string s;
 	size_t PC = 0;
 
 	int run() {
@@ -87,9 +94,12 @@ struct Runtime : RuntimeBase {
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
+				case IN_CALL:      callstack.push_back(PC);  jump(instr.args.at(0));  break;
+				case IN_RETURN:    PC = callstack.back();  callstack.pop_back();  break;
 				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
 				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
-				case IN_INPUT:     cin >> a; variables.at(instr.args.at(0)) = a;  break;
+				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
+				case IN_INPUT:     a = 0; ss >> a; variables.at(instr.args.at(0)) = a;  break;
 				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
 				case IN_GET:       push( variables.at(instr.args.at(0)) );  break;
 				case IN_PUSH:      push(instr.argi);  break;
@@ -98,6 +108,8 @@ struct Runtime : RuntimeBase {
 				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;
 				case IN_MUL:       b = pop(), a = pop(), push(a *  b);  break;
 				case IN_DIV:       b = pop(), a = pop(), push(a /  b);  break;
+				case IN_EQ:        b = pop(), a = pop(), push(a == b);  break;
+				case IN_NEQ:       b = pop(), a = pop(), push(a != b);  break;
 				case IN_LT:        b = pop(), a = pop(), push(a <  b);  break;
 				case IN_GT:        b = pop(), a = pop(), push(a >  b);  break;
 				case IN_LTE:       b = pop(), a = pop(), push(a <= b);  break;
