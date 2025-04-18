@@ -151,11 +151,9 @@ int main() {
 	// parser.parse("basic/test1.bas");
 	// parser.parse("basic/lander.bas");
 	parser.parse("basic/hurkle.bas");
-	parser.show();
 
 	Compiler comp;
 	comp.compile(parser.ast.at(0));
-	comp.show();
 
 	Runtime run;
 	run.program = comp.program;

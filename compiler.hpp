@@ -11,6 +11,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 	int errcount = 0, ifcount = 0, litcount = 0;
 
 	int compile(const Json& json) {
+		printf("-----\n");
 		printf("compiling program...\n");
 		assert(json.at("type").str == "$program");  // make sure first item is a $program
 		initheader();      // initialise program header
@@ -19,6 +20,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 		// assemble program
 		program.insert(program.end(), inheader.begin(), inheader.end());
 		program.insert(program.end(), inprogram.begin(), inprogram.end());
+		show();
 		printf("compiled successfully!\n");
 		return true;
 	}
@@ -139,6 +141,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 
 	//  === helpers ===
 	void show() {
+		printf("outputting compiled ASM to output.asm...\n");
 		fstream fs("output.asm", ios::out);
 		for (const auto& in : inheader)
 			fs << showinstruction(in) << endl;

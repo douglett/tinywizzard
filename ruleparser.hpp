@@ -133,6 +133,7 @@ struct Parser : TokenHelpers {
 		printf("parsing file...\n");
 		if (!pruleexpr("$program", ast))
 			return error("$program", "unknown error parsing $program");
+		show();
 		printf("file parsed successfully!\n");
 		// ok
 		return true;
@@ -290,6 +291,7 @@ struct Parser : TokenHelpers {
 
 	//  === helpers ===
 	void show() {
+		printf("outputting program AST to output.json...\n");
 		fstream fs("output.json", ios::out);
 		if (ast.arr.size())
 			fs << ast.at(0);

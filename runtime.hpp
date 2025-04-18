@@ -73,6 +73,7 @@ struct Runtime : RuntimeBase {
 	size_t PC = 0;
 
 	int run() {
+		printf("-----\n");
 		printf("running program...\n");
 		int a = 0, b = 0;
 
@@ -144,7 +145,6 @@ struct Runtime : RuntimeBase {
 	}
 
 	int error(const string& type, const string& msg) {
-		// cout << type + ": " + msg << endl;
 		throw runtime_error(type + ": " + msg);
 		return false;
 	}
