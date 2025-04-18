@@ -7,7 +7,7 @@ using namespace std;
 struct RuntimeBase {
 		enum INSTRUCTION_TYPE {
 		IN_NOOP, IN_DSYM, IN_LABEL,
-		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
+		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_PRINTS, IN_PRINTV, IN_GETLINE, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_LT, IN_GT, IN_LTE, IN_GTE,
 		IN_JUMPIF, IN_JUMPIFN
 	};
@@ -36,6 +36,7 @@ struct RuntimeBase {
 			case IN_JUMP:      s += "jump " + in.args.at(0);  break;
 			case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
 			case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
+			case IN_GETLINE:   s += "getline";  break;
 			case IN_INPUT:     s += "input " + in.args.at(0);  break;
 			case IN_PUT:       s += "put " + in.args.at(0);  break;
 			case IN_GET:       s += "get " + in.args.at(0);  break;

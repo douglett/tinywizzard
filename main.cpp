@@ -68,8 +68,8 @@ struct TinybasicParser : Parser {
 
 		// basic formatting rules
 		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN = , ( )");
-		FMT_FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 ");
-		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $noteq $goto ");
+		FMT_FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 $input2");
+		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $noteq $goto");
 
 		ruleset.show();
 		ruleset.validate();
@@ -138,7 +138,8 @@ int main() {
 	TinybasicParser parser;
 	parser.init();
 	// parser.parse("basic/test1.bas");
-	parser.parse("basic/lander.bas");
+	// parser.parse("basic/lander.bas");
+	parser.parse("basic/hurkle.bas");
 	parser.show();
 
 	Compiler comp;

@@ -8,13 +8,14 @@ using namespace std;
 
 struct Compiler : TokenHelpers, RuntimeBase {
 	vector<Instruction> program, inheader, inprogram;
-	int ifcount = 0, litcount = 0;
+	int errcount = 0, ifcount = 0, litcount = 0;
 
 	int compile(const Json& json) {
 		printf("compiling program...\n");
-		initheader();      // initialise program header
 		assert(json.at("type").str == "$program");  // make sure first item is a $program
+		initheader();      // initialise program header
 		compileast(json);  // compile program
+		if (errcount)  error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// assemble program
 		program.insert(program.end(), inheader.begin(), inheader.end());
 		program.insert(program.end(), inprogram.begin(), inprogram.end());
@@ -24,7 +25,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 
 	int initheader() {
 		printf("initialising compiler...\n");
-		ifcount = litcount = 0;
+		errcount = ifcount = litcount = 0;
 		program = inheader = inprogram = {};
 		inheader.push_back({ IN_NOOP, { "# control variables" }});
 		inheader.push_back({ IN_DIM,  splitstr("CONTROL TEMP") });
@@ -71,13 +72,17 @@ struct Compiler : TokenHelpers, RuntimeBase {
 					inprogram.push_back({ IN_PRINTV, { printval.at("value").str } });
 				}
 				else
-					error(type, "unknown print rule");
+					errorc(type, "unknown print rule");
 			}
 			inprogram.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });  // add newline character
 		}
 		else if (type == "$input") {
-			assert(json.at("value").size() == 1);  // check for multiple inputs
-			inprogram.push_back({ IN_INPUT, { json.at("value").at(0).at("value").str } });
+			// assert(json.at("value").size() == 1);  // check for multiple inputs
+			// inprogram.push_back({ IN_INPUT, { json.at("value").at(0).at("value").str } });
+
+			inprogram.push_back({ IN_GETLINE });
+			for (auto& var : json.at("value").arr)
+				inprogram.push_back({ IN_INPUT, { var.at("value").str } });
 		}
 		// control structures
 		else if (type == "$if") {
@@ -95,7 +100,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 			else if (op == ">" )  inprogram.push_back({ IN_GT });
 			else if (op == "<=")  inprogram.push_back({ IN_LTE });
 			else if (op == ">=")  inprogram.push_back({ IN_GTE });
-			else    error(type, "unknown operator: " + op);
+			else    errorc(type, "unknown operator: " + op);
 		}
 		// expressions
 		else if (type == "$let") {
@@ -118,26 +123,32 @@ struct Compiler : TokenHelpers, RuntimeBase {
 				else if (op == "-")  inprogram.push_back({ IN_SUB });
 				else if (op == "*")  inprogram.push_back({ IN_MUL });
 				else if (op == "/")  inprogram.push_back({ IN_DIV });
-				else    error(type, "unknown operator: " + op);
+				else    errorc(type, "unknown operator: " + op);
 			}
 		}
 		else
-			error(type, "unknown rule");
+			errorc(type, "unknown rule");
 
-		return true;
+		return errcount;
 	}
 
 	//  === helpers ===
 	void show() {
-		fstream fs("output2.asm", ios::out);
+		fstream fs("output.asm", ios::out);
 		for (const auto& in : inheader)
 			fs << showinstruction(in) << endl;
 		for (const auto& in : inprogram)
 			fs << showinstruction(in) << endl;
 	}
 
-	int error(const string& type, const string& msg) {
+	int errorc(const string& type, const string& msg) {
 		cout << "compiler error in " + type + ": " + msg << endl;
+		errcount++;
+		return false;
+	}
+
+	int error(const string& type, const string& msg) {
+		throw runtime_error(type + ": " + msg);
 		return false;
 	}
 };
