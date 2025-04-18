@@ -1,12 +1,12 @@
 #pragma once
-#include "core/tokenizer.hpp"
-#include "core/runtime.hpp"
+#include "../core/tokenizer.hpp"
+#include "../core/runtime.hpp"
 #include <exception>
 #include <cassert>
 using namespace std;
 
 
-struct Compiler : TokenHelpers, RuntimeBase {
+struct TinybasicCompiler : TokenHelpers, RuntimeBase {
 	vector<Instruction> program, inheader, inprogram;
 	int errcount = 0, ifcount = 0, litcount = 0;
 

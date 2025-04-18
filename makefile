@@ -1,7 +1,8 @@
 OUT = main.exe
 SRC = main.cpp
-CORE = core/tokenizer.hpp core/json.hpp core/ruleparser.hpp core/runtime.hpp
-HEAD = $(CORE) compiler.hpp
+CORE = core/core.hpp core/tokenizer.hpp core/json.hpp core/ruleparser.hpp core/runtime.hpp
+TINYBASIC = tinybasic/tinybasicparser.hpp tinybasic/tinybasiccompiler.hpp
+HEAD = $(CORE) $(TINYBASIC)
 
 $(OUT): $(SRC) $(HEAD)
 	g++ -std=c++17 -O0 -gdwarf -Wall -o $(OUT) $(SRC)
