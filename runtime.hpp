@@ -116,8 +116,7 @@ struct Runtime : RuntimeBase {
 				case IN_GTE:       b = pop(), a = pop(), push(a >= b);  break;
 				case IN_JUMPIF:    if (pop())  jump(instr.args.at(0));  break;
 				case IN_JUMPIFN:   if (!pop()) jump(instr.args.at(0));  break;
-				default:
-					error("unhandled-instruction", showinstruction(instr));
+				default:           error("unhandled-instruction", showinstruction(instr));
 			}
 			// next instruction
 			PC++;
