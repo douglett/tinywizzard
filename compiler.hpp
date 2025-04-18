@@ -1,6 +1,6 @@
 #pragma once
-#include "tokenizer.hpp"
-#include "runtime.hpp"
+#include "core/tokenizer.hpp"
+#include "core/runtime.hpp"
 #include <exception>
 #include <cassert>
 using namespace std;

@@ -1,6 +1,6 @@
-#include "ruleparser.hpp"
+#include "core/ruleparser.hpp"
+#include "core/runtime.hpp"
 #include "compiler.hpp"
-#include "runtime.hpp"
 using namespace std;
 
 
