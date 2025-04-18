@@ -1,14 +1,13 @@
 #pragma once
-#include "../core/tokenizer.hpp"
-#include "../core/runtimebase.hpp"
+#include "../core/compiler.hpp"
 #include <exception>
 #include <cassert>
 using namespace std;
 
 
-struct TinybasicCompiler : TokenHelpers, RuntimeBase {
-	vector<Instruction> program, inheader, inprogram;
-	int errcount = 0, ifcount = 0, litcount = 0;
+struct TinybasicCompiler : Compiler {
+	vector<Instruction> inheader, inprogram;
+	int ifcount = 0, litcount = 0;
 
 	int compile(const Json& json) {
 		printf("-----\n");
@@ -137,26 +136,5 @@ struct TinybasicCompiler : TokenHelpers, RuntimeBase {
 			errorc(type, "unknown rule");
 
 		return errcount;
-	}
-
-	//  === helpers ===
-	void show() {
-		printf("outputting compiled ASM to output.asm...\n");
-		fstream fs("output.asm", ios::out);
-		for (const auto& in : inheader)
-			fs << showinstruction(in) << endl;
-		for (const auto& in : inprogram)
-			fs << showinstruction(in) << endl;
-	}
-
-	int errorc(const string& type, const string& msg) {
-		cout << "compiler error in " + type + ": " + msg << endl;
-		errcount++;
-		return false;
-	}
-
-	int error(const string& type, const string& msg) {
-		throw runtime_error(type + ": " + msg);
-		return false;
 	}
 };
