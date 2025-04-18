@@ -66,6 +66,7 @@ struct Runtime : RuntimeBase {
 
 	int run() {
 		printf("running program...\n");
+		int a = 0, b = 0;
 
 		while (PC < program.size()) {
 			const auto& instr = program.at(PC);
@@ -83,11 +84,25 @@ struct Runtime : RuntimeBase {
 					data[instr.args.at(0)] = instr.args.at(1);
 					break;
 				// control
+				case IN_END:       return true;
+				case IN_JUMP:      jump(instr.args.at(0));  break;
 				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
 				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
+				case IN_INPUT:     cin >> a; variables.at(instr.args.at(0)) = a;  break;
+				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
+				case IN_GET:       push( variables.at(instr.args.at(0)) );  break;
+				case IN_PUSH:      push(instr.argi);  break;
 				// maths
-				case IN_PUT:     variables.at(instr.args.at(0)) = stack.back();  stack.pop_back();  break;
-				case IN_PUSH:    stack.push_back(instr.argi);  break;
+				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
+				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;
+				case IN_MUL:       b = pop(), a = pop(), push(a *  b);  break;
+				case IN_DIV:       b = pop(), a = pop(), push(a /  b);  break;
+				case IN_LT:        b = pop(), a = pop(), push(a <  b);  break;
+				case IN_GT:        b = pop(), a = pop(), push(a >  b);  break;
+				case IN_LTE:       b = pop(), a = pop(), push(a <= b);  break;
+				case IN_GTE:       b = pop(), a = pop(), push(a >= b);  break;
+				case IN_JUMPIF:    if (pop())  jump(instr.args.at(0));  break;
+				case IN_JUMPIFN:   if (!pop()) jump(instr.args.at(0));  break;
 				default:
 					error("unhandled-instruction", showinstruction(instr));
 			}
@@ -98,6 +113,22 @@ struct Runtime : RuntimeBase {
 		// OK
 		printf("end of program: program terminated\n");
 		return true;
+	}
+
+	int pop() {
+		int t = stack.back();
+		stack.pop_back();
+		return t;
+	}
+	int push(int t) {
+		stack.push_back(t);
+		return t;
+	}
+	int jump(const string& label) {
+		for (size_t i = 0; i < program.size(); i++)
+			if (program[i].type == IN_LABEL && program[i].args.at(0) == label)
+				return PC = i;
+		return error("jump", "missing label: " + label);
 	}
 
 	int error(const string& type, const string& msg) {
