@@ -7,6 +7,10 @@
 using namespace std;
 
 
+/**
+ * Tokenizer base class.
+ * Contains generally useful token parsing and string functions.
+ */ 
 struct TokenHelpers {
 	// parsing
 	static int isalphanum(char c) {
@@ -55,6 +59,10 @@ struct TokenHelpers {
 };
 
 
+/**
+ * Tokenizer class
+ * Takes a file and processes it into a token stream
+ */
 struct Tokenizer : public TokenHelpers {
 	struct Tok { string str; int lpos; int hpos; };
 	const Tok TOK_EOF = { "$EOF", -1, -1 };
