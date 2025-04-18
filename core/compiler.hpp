@@ -1,6 +1,8 @@
 #pragma once
 #include "tokenizer.hpp"
 #include "runtimebase.hpp"
+#include <vector>
+#include <exception>
 using namespace std;
 
 /**
