@@ -6,7 +6,7 @@ using namespace std;
 /**
  * Parses TinyBasic language file to json AST
  */
-struct TinybasicParser : Parser {
+struct TinybasicParser : RuleParser {
 	int init() {
 		// tokenizer settings
 		tok.lcomment = "REM";
