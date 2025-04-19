@@ -31,10 +31,10 @@ struct TinybasicParser : RuleParser {
 		ruleset.add( "$end", "END" );
 		// comparison expression
 		ruleset.add( "$comparison", "$expression $comparison_op $expression" );
-		ruleset.add( "$comparison_op", "$lte < $gte > = $noteq", "or" );
+		ruleset.add( "$comparison_op", "$lte $gte $neq < > =", "or" );
 		ruleset.add( "$lte", "< =" );
 		ruleset.add( "$gte", "> =" );
-		ruleset.add( "$noteq", "< >" );
+		ruleset.add( "$neq", "< >" );
 		// expressions
 		ruleset.add( "$expression", "$add" );
 		ruleset.add( "$add", "$mul $add2*" );  // $mul ((+ -)^ $mul)*
@@ -53,7 +53,7 @@ struct TinybasicParser : RuleParser {
 		// basic formatting rules
 		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN , ( )");
 		FMT_FIRST_CHILD = splitstr("$statement $expression $brackets $atom $add $mul $print_val $print2 $input2");
-		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $noteq $goto $gosub");
+		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $goto $gosub");
 
 		ruleset.show();
 		ruleset.validate();
@@ -113,6 +113,9 @@ struct TinybasicParser : RuleParser {
 		}
 		else if (type == "$gte") {
 			json.at("value") = { Json::JSTRING, 0, ">=" };
+		}
+		else if (type == "$neq") {
+			json.at("value") = { Json::JSTRING, 0, "<>" };
 		}
 		else if (type == "$comparison") {
 			auto& value = json.at("value");
