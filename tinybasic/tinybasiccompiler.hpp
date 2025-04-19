@@ -41,7 +41,8 @@ struct TinybasicCompiler : Compiler {
 		auto& type = json.at("type").str;
 
 		if (json.count("dsym")) {
-			inprogram.push_back({ IN_DSYM, {}, int(json.at("dsym").num) });
+			dsym = json.at("dsym").num;
+			inprogram.push_back({ IN_DSYM, {}, dsym });
 		}
 		if (json.count("linenumber")) {
 			inprogram.push_back({ IN_LABEL, { "BASIC_LINE_" + to_string((int)json.at("linenumber").num) } });

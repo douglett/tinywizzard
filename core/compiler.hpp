@@ -11,7 +11,7 @@ using namespace std;
  */
 struct Compiler : TokenHelpers, RuntimeBase {
 	vector<Instruction> program;
-	int errcount = 0;
+	int errcount = 0, dsym = 0;
 
 	// stub
 	int compile(const Json& json) {
@@ -29,7 +29,9 @@ struct Compiler : TokenHelpers, RuntimeBase {
 
 	// error and continue
 	int errorc(const string& type, const string& msg) {
-		cout << "compiler error in " + type + ": " + msg << endl;
+		cout << "compiler error in " << type << ": " + msg 
+			<< " (line " << dsym << ")"
+			<< endl;
 		errcount++;
 		return false;
 	}
