@@ -41,7 +41,7 @@ struct RuleParser : TokenHelpers {
 		assert(parent.type == Json::JARRAY);
 		// printf("parsing RuleExpr: '%s' @ Line %d '%s'\n", ruleexpr.c_str(), tok.linepos(), tok.peek().c_str());
 		bool found = false;
-		auto rex = ruleset.splitruleexpr(ruleexpr);
+		Ruleset::RuleExpr rex = ruleset.splitruleexpr(ruleexpr);
 		// run the rule expression
 		switch (rex.expr) {
 			// match
@@ -70,6 +70,8 @@ struct RuleParser : TokenHelpers {
 		// found action
 		if (found && trace)
 			printf("found RuleExpr: '%s' @ Line %d\n", ruleexpr.c_str(), tok.linepos());
+		if (!found && rex.require)
+			error("pruleexpr", "required rule: " + rex.name);
 		return found;
 	}
 
@@ -176,14 +178,14 @@ struct RuleParser : TokenHelpers {
 
 	int paccepttok(Json& parent, const string& type) {
 		assert(parent.type == Json::JARRAY);
-		int lpos = tok.linepos();
+		int linepos = tok.linepos();
 		auto token = tok.get();
 		parent.arr.push_back({ Json::JOBJECT });
 		auto& obj = parent.arr.back();
 		obj.obj["type"] = { Json::JSTRING, 0, type };
 		obj.obj["value"] = { Json::JSTRING, 0, token };
 		if (trace)
-			printf("  accept-tok: %s  (line %d)\n", token.c_str(), lpos);
+			printf("  accept-tok: %s  (line %d)\n", token.c_str(), linepos);
 		return true;
 	}
 
@@ -198,7 +200,9 @@ struct RuleParser : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error(rule + " error: " + msg);
+		throw runtime_error(rule + " error: " + msg 
+			+ " (line " + to_string(tok.linepos()) 
+			+ ", at '" + tok.peek() + "')" );
 		return false;
 	}
 };

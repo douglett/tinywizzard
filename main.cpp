@@ -13,9 +13,9 @@ int main() {
 
 	TinybasicParser parser;
 	parser.init();
-	// parser.parse("tinybasic/scripts/test1.bas");
+	parser.parse("tinybasic/scripts/test1.bas");
 	// parser.parse("tinybasic/scripts/lander.bas");
-	parser.parse("tinybasic/scripts/hurkle.bas");
+	// parser.parse("tinybasic/scripts/hurkle.bas");
 
 	TinybasicCompiler comp;
 	comp.compile(parser.ast.at(0));

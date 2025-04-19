@@ -18,7 +18,8 @@ struct Ruleset : TokenHelpers {
 		RULE_EXPRESSIONS = { "*", "?", "+" },
 		RULE_PREDEF      = { "$eof", "$eol", "$opplus", "$opmultiply", "$opdollar", "$identifier", "$stringliteral", "$integer" };
 	string name;
-	map<string, Rule> rules;
+	map<string, Rule>   rules;
+	map<string, string> ruleerrors;
 
 
 	// === build ruleset ===

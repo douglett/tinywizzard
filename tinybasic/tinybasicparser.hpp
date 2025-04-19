@@ -14,7 +14,7 @@ struct TinybasicParser : RuleParser {
 
 		// initialise ruleset
 		ruleset.name = "testlang";
-		ruleset.add( "$program", "$line* $eof" );
+		ruleset.add( "$program", "$line* $eof!" );
 		ruleset.add( "$line", "$dsym $integer? $statement? $eol" );
 		// statements
 		ruleset.add( "$statement", "$print $input $if $let $goto $gosub $return $end", "or" );
@@ -46,6 +46,9 @@ struct TinybasicParser : RuleParser {
 		ruleset.add( "$atom", "$variable $integer $brackets", "or" );
 		ruleset.add( "$brackets", "( $expression )" );
 		ruleset.add( "$variable", "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z", "or" );
+
+		// error messages
+		ruleset.ruleerrors["$program"] = "unknown keyword or command";
 
 		// basic formatting rules
 		FMT_CULL        = splitstr("$eof $eol PRINT INPUT IF THEN LET GOSUB GOTO END RETURN , ( )");
