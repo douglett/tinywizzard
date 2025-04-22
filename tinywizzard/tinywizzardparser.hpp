@@ -26,11 +26,13 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$typeid",           "int" );
 		ruleset.add( "$block",            "{ $line* }!" );
 		ruleset.add( "$line",             "$dsym $statement ;!" );
-		ruleset.add( "$statement",        "$print", "or" );
-		ruleset.add( "$print",            "print $printval! $print2*" );
-		ruleset.add( "$printval",         "$integer $variable", "or" );
-		ruleset.add( "$print2",           ", $printval!" );
+		// statements
+		ruleset.add( "$statement",        "$print $assign", "or" );
+		ruleset.add( "$print",            "print $value! $print2*" );
+		ruleset.add( "$print2",           ", $value!" );
+		ruleset.add( "$assign",           "$variable =! $value!" );
 		// expressions
+		ruleset.add( "$value",            "$integer $variable", "or" );
 		ruleset.add( "$variable",         "$identifier" );
 
 		// error messages
@@ -40,7 +42,7 @@ struct TinyWizzardParser : ASTParser {
 
 		// basic formatting rules: FIRST_CHILD (replace with first-child), FIRST_VALUE (replace value with value first-child)
 		FMT_CULL        = splitstr("$eof class print ; , ( ) { }");
-		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $printval");
+		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $value");
 		FMT_FIRST_VALUE = splitstr("$name $typeid $variable");
 
 		ruleset.show();
@@ -50,6 +52,11 @@ struct TinyWizzardParser : ASTParser {
 	virtual void formatjson(Json& json) {
 		// begin
 		assert(json.type == Json::JOBJECT);
-		// string& type = json.at("type").str;
+		string& type = json.at("type").str;
+
+		if (type == "$assign") {
+			auto& arr = json.at("value").arr;
+			arr.erase(arr.begin() + 1);  // erase '=' punctuation
+		}
 	}
 };
