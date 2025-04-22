@@ -42,6 +42,14 @@ struct TokenHelpers {
 	static string stripliteral(const string& str) {
 		return isliteral(str) ? str.substr(1, str.length()-2) : str;
 	}
+	static string escapeliteral(const string& str) {
+		string s;
+		for (auto c : str)
+			if      (c == '\n')  s += "\\n";
+			else if (c == '"')  s += "\\\"";
+			else    s += c;
+		return s;
+	}
 	static vector<string> splitstr(const string str) {
 		vector<string> vs;
 		stringstream ss(str);

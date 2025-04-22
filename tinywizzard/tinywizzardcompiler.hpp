@@ -6,6 +6,7 @@ using namespace std;
 
 
 struct TinyWizzardCompiler : Compiler {
+	vector<Instruction> header;
 	string classname;
 
 	int compile(const Json& json) {
@@ -18,6 +19,7 @@ struct TinyWizzardCompiler : Compiler {
 		compileast(json);  // compile program
 		if (errcount)  error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// success
+		program.insert(program.begin(), header.begin(), header.end());
 		show();
 		printf("compiled successfully!\n");
 		return true;
@@ -26,10 +28,10 @@ struct TinyWizzardCompiler : Compiler {
 	void initheader() {
 		printf("initialising compiler...\n");
 		errcount = 0;
-		program = {};
-		program.push_back({ IN_NOOP, { "# literals and other data" }});
-		program.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
-		program.push_back({ IN_DATA, { "STRING_LIT_SPACE", " " } });
+		program = header = {};
+		header.push_back({ IN_NOOP, { "# literals and other data" } });
+		header.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
+		header.push_back({ IN_DATA, { "STRING_LIT_SPACE", " " } });
 	}
 
 	void compileast(const Json& json) {
@@ -55,6 +57,9 @@ struct TinyWizzardCompiler : Compiler {
 			string funcname = json.at("value").at(1).at("value").str;
 			printf("compiling function: %s\n", funcname.c_str());
 			compileast(json.at("value").at(2));
+		}
+		else if (type == "$dim") {
+			header.push_back({ IN_DIM, { json.at("value").at(1).at("value").str } });
 		}
 		else if (type == "$block") {
 			for (auto& stmt : json.at("value").arr)

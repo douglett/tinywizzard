@@ -17,14 +17,15 @@ struct TinyWizzardParser : ASTParser {
 
 		// initialise ruleset
 		ruleset.name = "TinyWizzard";
-		ruleset.add( "$program",          "$classdef! $function* $eof!" );
+		ruleset.add( "$program",          "$classdef! $classmember* $eof!" );
+		ruleset.add( "$classmember",      "$function $dim", "or" );
 		ruleset.add( "$classdef",         "static class $name ;" );
-		// ruleset.add( "$classmember", "" );
 		ruleset.add( "$function",         "$typeid $name ( )! $block!" );
+		ruleset.add( "$dim",              "$typeid $name ;!" );
 		ruleset.add( "$name",             "$identifier" );
 		ruleset.add( "$typeid",           "int" );
-		ruleset.add( "$block",            "{ $linestatement* }!" );
-		ruleset.add( "$linestatement",    "$dsym $statement ;!" );
+		ruleset.add( "$block",            "{ $line* }!" );
+		ruleset.add( "$line",             "$dsym $statement ;!" );
 		ruleset.add( "$statement",        "$print", "or" );
 		ruleset.add( "$print",            "print $integer! $printval*" );
 		ruleset.add( "$printval",         ", $integer!" );
@@ -36,7 +37,7 @@ struct TinyWizzardParser : ASTParser {
 
 		// basic formatting rules: FIRST_CHILD (replace with first-child), FIRST_VALUE (replace value with value first-child)
 		FMT_CULL        = splitstr("$eof class print ; , ( ) { }");
-		FMT_FIRST_CHILD = splitstr("$linestatement $statement $printval");
+		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $printval");
 		FMT_FIRST_VALUE = splitstr("$name $typeid");
 
 		ruleset.show();

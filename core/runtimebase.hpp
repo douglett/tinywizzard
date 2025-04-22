@@ -1,4 +1,5 @@
 #pragma once
+#include "tokenizer.hpp"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -32,9 +33,9 @@ struct RuntimeBase {
 					s += arg + " ";
 				break;
 			case IN_DATA:
-				s += "data ";
-				for (const auto& arg : in.args)
-					s += arg + " ";
+				s += "data "
+					+ in.args.at(0) 
+					+ " \"" + TokenHelpers::escapeliteral(in.args.at(1)) + "\"";
 				break;
 			// control
 			case IN_END:       s += "end";  break;
