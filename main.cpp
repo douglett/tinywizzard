@@ -6,6 +6,7 @@ using namespace std;
 
 
 void tinybasic() {
+	printf("Running tests for TinyBasic paser...\n");
 	TinybasicParser parser;
 	parser.init();
 	// parser.parse("tinybasic/scripts/test1.bas");
@@ -29,7 +30,6 @@ void tinywizzard() {
 
 
 int main() {
-	printf("hello world\n");
 	// tinybasic();
 	tinywizzard();
 }

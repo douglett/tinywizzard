@@ -56,7 +56,7 @@ struct TinybasicParser : ASTParser {
 		FMT_FIRST_VALUE = splitstr("$variable $add_op $mul_op $comparison_op $goto $gosub");
 
 		ruleset.show();
-		ruleset.validate();
+		ruleset.validate(true);
 		return true;
 	}
 

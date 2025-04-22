@@ -17,8 +17,23 @@ struct TinyWizzardParser : ASTParser {
 
 		// initialise ruleset
 		ruleset.name = "TinyWizzard";
-		ruleset.add( "$program", "$line* $eof!" );
+		ruleset.add( "$program", "$eof!" );
 
-		ruleset.validate();
+		// error messages
+		// ruleset.ruleerrors["$program"] = "";
+
+		// basic formatting rules
+		// FMT_CULL        = splitstr("");
+		// FMT_FIRST_CHILD = splitstr("");
+		// FMT_FIRST_VALUE = splitstr("");
+
+		ruleset.show();
+		ruleset.validate(true);
+	}
+
+	virtual void formatjson(Json& json) {
+		// begin
+		assert(json.type == Json::JOBJECT);
+		// string& type = json.at("type").str;
 	}
 };
