@@ -97,6 +97,9 @@ struct ASTParser : TokenHelpers {
 		else if ( find(FMT_FIRST_CHILD.begin(), FMT_FIRST_CHILD.end(), type) != FMT_FIRST_CHILD.end() ) {
 			if (value.size() == 1) {
 				auto var = value.at(0);
+				// preserve debug symbols if neccessary
+				if (json.count("dsym") && var.type == Json::JOBJECT && !var.count("dsym"))
+					var.obj["dsym"] = json.at("dsym");
 				json = var;
 			}
 		}
