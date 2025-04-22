@@ -1,0 +1,7 @@
+// basic printing
+
+static class test;
+
+int main() {
+	print 1, 2, 3;
+}

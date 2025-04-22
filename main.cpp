@@ -27,6 +27,7 @@ void tinywizzard() {
 	TinyWizzardParser parser;
 	parser.init();
 	parser.parse("tinywizzard/scripts/test.wizz");
+	// parser.parse("tinywizzard/scripts/01_basic/01_print.wizz");
 }
 
 

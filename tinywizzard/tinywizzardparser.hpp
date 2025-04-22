@@ -24,7 +24,7 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$name",       "$identifier" );
 		ruleset.add( "$typeid",     "int" );
 		ruleset.add( "$block",      "{ $print* }!" );
-		ruleset.add( "$print",      "print $stringliteral! ;!" );
+		ruleset.add( "$print",      "print $integer! ;!" );
 
 		// error messages
 		// ruleset.ruleerrors["$program"] = "";
