@@ -11,7 +11,7 @@ using namespace std;
  * Language Parser
  * Uses a defined Rulset to parse a file to json output AST.
  */
-struct RuleParser : TokenHelpers {
+struct ASTParser : TokenHelpers {
 	struct require_error : runtime_error { using runtime_error::runtime_error; };
 	Tokenizer tok;
 	Ruleset ruleset;
