@@ -29,6 +29,7 @@ struct TinyWizzardCompiler : Compiler {
 		program = {};
 		program.push_back({ IN_NOOP, { "# literals and other data" }});
 		program.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
+		program.push_back({ IN_DATA, { "STRING_LIT_SPACE", " " } });
 	}
 
 	void compileast(const Json& json) {
@@ -60,8 +61,15 @@ struct TinyWizzardCompiler : Compiler {
 				compileast(stmt);
 		}
 		else if (type == "$print") {
-			auto& printval = json.at("value").at(0);
-			program.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+			for (auto& printval : json.at("value").arr) {
+				// print value
+				if (printval.at("type").str == "$integer")
+					program.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+				else
+					error(type, "unknown type: " + printval.at("type").str);
+				// space-seperate values
+				program.push_back({ IN_PRINTS, { "STRING_LIT_SPACE" } });
+			}
 			program.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });
 		}
 		else

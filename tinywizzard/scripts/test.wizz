@@ -1,5 +1,5 @@
 static class hello;
 
 int main() {
-	print 123;
+	print 123, 1, 2;
 }
