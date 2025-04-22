@@ -32,6 +32,10 @@ void tinywizzard() {
 
 	TinyWizzardCompiler comp;
 	comp.compile(parser.ast.at(0));
+
+	Runtime run;
+	run.program = comp.program;
+	run.run();
 }
 
 

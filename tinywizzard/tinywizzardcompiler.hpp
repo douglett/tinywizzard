@@ -23,7 +23,13 @@ struct TinyWizzardCompiler : Compiler {
 		return true;
 	}
 
-	void initheader() {}
+	void initheader() {
+		printf("initialising compiler...\n");
+		errcount = 0;
+		program = {};
+		program.push_back({ IN_NOOP, { "# literals and other data" }});
+		program.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
+	}
 
 	void compileast(const Json& json) {
 		assert(json.type == Json::JOBJECT);
@@ -56,6 +62,7 @@ struct TinyWizzardCompiler : Compiler {
 		else if (type == "$print") {
 			auto& printval = json.at("value").at(0);
 			program.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+			program.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });
 		}
 		else
 			errorc(type, "unknown rule");

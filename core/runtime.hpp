@@ -43,8 +43,9 @@ struct Runtime : RuntimeBase {
 				case IN_JUMP:      jump(instr.args.at(0));  break;
 				case IN_CALL:      callstack.push_back(PC);  jump(instr.args.at(0));  break;
 				case IN_RETURN:    PC = callstack.back();  callstack.pop_back();  break;
-				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
+				case IN_PRINTI:    cout << instr.argi;  break;
 				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
+				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
 				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
 				case IN_INPUT:     a = 0; ss >> a; variables.at(instr.args.at(0)) = a;  break;
 				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
