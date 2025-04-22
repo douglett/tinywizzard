@@ -4,5 +4,5 @@ int a;
 // int b = 4;
 
 int main() {
-	print 123, 1, 2;
+	print 123, 1, 2, a;
 }

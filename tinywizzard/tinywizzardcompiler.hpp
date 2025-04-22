@@ -70,6 +70,8 @@ struct TinyWizzardCompiler : Compiler {
 				// print value
 				if (printval.at("type").str == "$integer")
 					program.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+				else if (printval.at("type").str == "$variable")
+					program.push_back({ IN_PRINTV, { printval.at("value").str } });
 				else
 					error(type, "unknown type: " + printval.at("type").str);
 				// space-seperate values

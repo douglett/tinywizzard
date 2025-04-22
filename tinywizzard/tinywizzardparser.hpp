@@ -27,8 +27,11 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$block",            "{ $line* }!" );
 		ruleset.add( "$line",             "$dsym $statement ;!" );
 		ruleset.add( "$statement",        "$print", "or" );
-		ruleset.add( "$print",            "print $integer! $printval*" );
-		ruleset.add( "$printval",         ", $integer!" );
+		ruleset.add( "$print",            "print $printval! $print2*" );
+		ruleset.add( "$printval",         "$integer $variable", "or" );
+		ruleset.add( "$print2",           ", $printval!" );
+		// expressions
+		ruleset.add( "$variable",         "$identifier" );
 
 		// error messages
 		// ruleset.ruleerrors["$program"] = "";
@@ -37,8 +40,8 @@ struct TinyWizzardParser : ASTParser {
 
 		// basic formatting rules: FIRST_CHILD (replace with first-child), FIRST_VALUE (replace value with value first-child)
 		FMT_CULL        = splitstr("$eof class print ; , ( ) { }");
-		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $printval");
-		FMT_FIRST_VALUE = splitstr("$name $typeid");
+		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $printval");
+		FMT_FIRST_VALUE = splitstr("$name $typeid $variable");
 
 		ruleset.show();
 		ruleset.validate(true);
