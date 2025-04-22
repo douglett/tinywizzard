@@ -1,16 +1,11 @@
 #include "core/core.hpp"
 #include "tinybasic/tinybasicparser.hpp"
 #include "tinybasic/tinybasiccompiler.hpp"
+#include "tinywizzard/tinywizzardparser.hpp"
 using namespace std;
 
 
-int main() {
-	printf("hello world\n");
-
-	// TestlangParser parser;
-	// parser.init();
-	// parser.parse("test/test1.script");
-
+void tinybasic() {
 	TinybasicParser parser;
 	parser.init();
 	// parser.parse("tinybasic/scripts/test1.bas");
@@ -24,4 +19,17 @@ int main() {
 	Runtime run;
 	run.program = comp.program;
 	run.run();
+}
+
+
+void tinywizzard() {
+	TinyWizzardParser parser;
+	parser.init();
+}
+
+
+int main() {
+	printf("hello world\n");
+	// tinybasic();
+	tinywizzard();
 }

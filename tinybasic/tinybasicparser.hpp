@@ -13,7 +13,7 @@ struct TinybasicParser : ASTParser {
 		tok.flag_eol = true;
 
 		// initialise ruleset
-		ruleset.name = "testlang";
+		ruleset.name = "TinyBasic";
 		ruleset.add( "$program", "$line* $eof!" );
 		ruleset.add( "$line", "$dsym $integer? $statement? $eol" );
 		// statements
