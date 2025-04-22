@@ -87,8 +87,8 @@ struct RuleParser : TokenHelpers {
 		auto& json = parent.arr.back();
 		// take values from the json object
 		assert(json.type == Json::JOBJECT);
-		string& type = json.obj["type"].str;
-		auto& value = json.obj["value"].arr;
+		string& type = json.at("type").str;
+		auto& value = json.at("value").arr;
 
 		// cull these rules totally
 		if ( find(FMT_CULL.begin(), FMT_CULL.end(), type) != FMT_CULL.end() )
@@ -177,9 +177,9 @@ struct RuleParser : TokenHelpers {
 			// if a custom rule contains a requirement, show the error here
 			catch (require_error& e) {
 				if (ruleset.ruleerrors.count(name))
-					error("prule-"+name, ruleset.ruleerrors.at(name));
+					error(name, ruleset.ruleerrors.at(name));
 				else
-					error("prule-"+name, "required: " + string(e.what()));
+					error(name, "required rule-expression: " + string(e.what()));
 			}
 		}
 
