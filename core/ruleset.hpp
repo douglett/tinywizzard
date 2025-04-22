@@ -44,12 +44,13 @@ struct Ruleset : TokenHelpers {
 			// check individual rules exist
 			for (auto& rexstr : rule.list) {
 				auto rex = splitruleexpr(rexstr);
-				if      ( rex.name == "" )  return error( "validate", name + ": empty rule" );
+				if      ( rex.name == "" )  error( "validate", name + ": empty rule" );
+				else if ( rex.require && (rex.expr == '*' || rex.expr == '?') )  error( "validate", "bad rule-expression arguments: " + rexstr );
 				else if ( ispredef( rex.name ) ) ;
 				else if ( isuserdef( rex.name ) ) ;
 				else if ( !isrulename( rex.name ) ) ;
 				else if ( rex.name == "$dsym" && rex.expr == 0 && !rex.require ) ;
-				else    return error( "validate", name + ": unknown or invalid rule: " + rex.name );
+				else    error( "validate", name + ": unknown or invalid rule: " + rex.name );
 			}
 		}
 		printf("ruleset validated!\n");
