@@ -12,6 +12,7 @@ using namespace std;
  * Uses a defined Rulset to parse a file to json output AST.
  */
 struct RuleParser : TokenHelpers {
+	struct require_error : runtime_error { using runtime_error::runtime_error; };
 	Tokenizer tok;
 	Ruleset ruleset;
 	Json ast;
@@ -71,7 +72,8 @@ struct RuleParser : TokenHelpers {
 		if (found && trace)
 			printf("found RuleExpr: '%s' @ Line %d\n", ruleexpr.c_str(), tok.linepos());
 		if (!found && rex.require)
-			error("pruleexpr", "required rule: " + rex.name);
+			// error("pruleexpr", "required rule: " + rex.name);
+			throw require_error(ruleexpr);
 		return found;
 	}
 
@@ -149,26 +151,35 @@ struct RuleParser : TokenHelpers {
 			auto& obj = parent.arr.back();
 			obj.obj["type"] = { Json::JSTRING, 0, name };
 			obj.obj["value"] = { Json::JARRAY };
-			auto& js = obj.obj["value"]; 
-			// and
-			if (rule.type == "and") {
-				for (auto& subrule : rule.list)
-					if (subrule == "$dsym")
-						obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
-					else if (!pruleexpr(subrule, js))
-						return tok.pos = pos, parent.arr.pop_back(), false;
-				return true;
+			auto& js = obj.at("value");
+			try {
+				// and
+				if (rule.type == "and") {
+					for (auto& subrule : rule.list)
+						if (subrule == "$dsym")
+							obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
+						else if (!pruleexpr(subrule, js))
+							return tok.pos = pos, parent.arr.pop_back(), false;
+					return true;
+				}
+				// or
+				else if (rule.type == "or") {
+					for (auto& subrule : rule.list)
+						if (subrule == "$dsym")
+							obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
+						else if (pruleexpr(subrule, js))
+							return true;
+						else
+							tok.pos = pos;
+					return parent.arr.pop_back(), false;
+				}
 			}
-			// or
-			else if (rule.type == "or") {
-				for (auto& subrule : rule.list)
-					if (subrule == "$dsym")
-						obj.obj["dsym"] = { Json::JNUMBER, double(tok.linepos()) };
-					else if (pruleexpr(subrule, js))
-						return true;
-					else
-						tok.pos = pos;
-				return parent.arr.pop_back(), false;
+			// if a custom rule contains a requirement, show the error here
+			catch (require_error& e) {
+				if (ruleset.ruleerrors.count(name))
+					error("prule-"+name, ruleset.ruleerrors.at(name));
+				else
+					error("prule-"+name, "required: " + string(e.what()));
 			}
 		}
 
@@ -200,9 +211,9 @@ struct RuleParser : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error(rule + " error: " + msg 
-			+ " (line " + to_string(tok.linepos()) 
-			+ ", at '" + tok.peek() + "')" );
+		throw runtime_error(rule + ": " + msg 
+			+ "\n\t\tline-" + to_string(tok.linepos()) 
+			+ " @ '" + tok.peek() + "'" );
 		return false;
 	}
 };

@@ -11,7 +11,7 @@ using namespace std;
  * Contains a formatted set of rules only for our language.
  */
 struct Ruleset : TokenHelpers {
-	struct Rule     { string type; vector<string>list; };
+	struct Rule     { string type; vector<string> list; };
 	struct RuleExpr { string name; char expr; bool require; };
 	static inline const vector<string> 
 		RULE_TYPES       = { "and", "or" },
