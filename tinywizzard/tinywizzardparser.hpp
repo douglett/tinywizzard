@@ -17,15 +17,22 @@ struct TinyWizzardParser : ASTParser {
 
 		// initialise ruleset
 		ruleset.name = "TinyWizzard";
-		ruleset.add( "$program", "$eof!" );
+		ruleset.add( "$program", "$classdef! $function* $eof!" );
+		ruleset.add( "$classdef", "static class $name ;" );
+		// ruleset.add( "$classmember", "" );
+		ruleset.add( "$function", "$typeid $name ( )! {! $block }!" );
+		ruleset.add( "$name", "$identifier" );
+		ruleset.add( "$typeid", "int" );
+		ruleset.add( "$block", "$print*" );
+		ruleset.add( "$print", "print $stringliteral ;" );
 
 		// error messages
 		// ruleset.ruleerrors["$program"] = "";
 
 		// basic formatting rules
-		// FMT_CULL        = splitstr("");
+		FMT_CULL        = splitstr("$eof class print ; ( ) { }");
 		// FMT_FIRST_CHILD = splitstr("");
-		// FMT_FIRST_VALUE = splitstr("");
+		FMT_FIRST_VALUE = splitstr("$name $typeid");
 
 		ruleset.show();
 		ruleset.validate(true);
