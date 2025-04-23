@@ -5,5 +5,7 @@ int a;
 
 int main() {
 	a = 12;
-	print 123, 1, 2, a;
+	print 123, 1, 2, a, "hello";
+	a = 34;
+	print a;
 }

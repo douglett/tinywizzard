@@ -32,7 +32,7 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$print2",           ", $value!" );
 		ruleset.add( "$assign",           "$variable =! $value!" );
 		// expressions
-		ruleset.add( "$value",            "$integer $variable", "or" );
+		ruleset.add( "$value",            "$integer $variable $stringliteral", "or" );
 		ruleset.add( "$variable",         "$identifier" );
 
 		// error messages

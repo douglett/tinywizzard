@@ -7,7 +7,8 @@ using namespace std;
 
 struct TinyWizzardCompiler : Compiler {
 	vector<Instruction> header;
-	string classname;
+	string classname, funcname;
+	int litcount = 0;
 
 	int compile(const Json& json) {
 		// begin
@@ -27,7 +28,7 @@ struct TinyWizzardCompiler : Compiler {
 
 	void initheader() {
 		printf("initialising compiler...\n");
-		errcount = 0;
+		errcount = litcount = 0;
 		program = header = {};
 		header.push_back({ IN_NOOP, { "# literals and other data" } });
 		header.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
@@ -54,11 +55,14 @@ struct TinyWizzardCompiler : Compiler {
 			printf("compiling class: %s\n", classname.c_str());
 		}
 		else if (type == "$function") {
-			string funcname = json.at("value").at(1).at("value").str;
+			funcname = json.at("value").at(1).at("value").str;
 			printf("compiling function: %s\n", funcname.c_str());
 			compileast(json.at("value").at(2));
+			funcname = "";
 		}
 		else if (type == "$dim") {
+			// TODO: only works for global DIM
+			assert(funcname == "");
 			header.push_back({ IN_DIM, { json.at("value").at(1).at("value").str } });
 		}
 		else if (type == "$block") {
@@ -67,11 +71,18 @@ struct TinyWizzardCompiler : Compiler {
 		}
 		else if (type == "$print") {
 			for (auto& printval : json.at("value").arr) {
-				// print value
+				// print integer
 				if (printval.at("type").str == "$integer")
 					program.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+				// print variable value
 				else if (printval.at("type").str == "$variable")
 					program.push_back({ IN_PRINTV, { printval.at("value").str } });
+				// print string literal
+				else if (printval.at("type").str == "$stringliteral") {
+					auto name = "STRING_LIT_" + to_string(++litcount);
+					header.push_back({ IN_DATA, { name, stripliteral(printval.at("value").str) } });
+					program.push_back({ IN_PRINTS, { name } });
+				}
 				else
 					error(type, "unknown type: " + printval.at("type").str);
 				// space-seperate values
@@ -81,7 +92,7 @@ struct TinyWizzardCompiler : Compiler {
 		}
 		else if (type == "$assign") {
 			compileast(json.at("value").at(1));
-			auto varname = json.at("value").at(0).at("value").str;
+			auto& varname = json.at("value").at(0).at("value").str;
 			program.push_back({ IN_PUT, { varname } });
 		}
 
