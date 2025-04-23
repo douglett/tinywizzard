@@ -8,4 +8,5 @@ int main() {
 	print 123, 1, 2, a, "hello";
 	a = 34;
 	print a;
+	// a = "hello";
 }

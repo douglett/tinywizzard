@@ -91,18 +91,25 @@ struct TinyWizzardCompiler : Compiler {
 			program.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });
 		}
 		else if (type == "$assign") {
-			compileast(json.at("value").at(1));
+			compileexpr(json.at("value").at(1));
 			auto& varname = json.at("value").at(0).at("value").str;
 			program.push_back({ IN_PUT, { varname } });
-		}
-
-		// expressions
-		else if (type == "$integer") {
-			program.push_back({ IN_PUSH, {}, int(json.at("value").num) });
 		}
 
 		// unknown 
 		else
 			errorc(type, "unknown rule");
+	}
+
+	// void compileblock(const Json& json) {}
+
+	void compileexpr(const Json& json) {
+		auto& type = json.at("type").str;
+		if (type == "$integer") {
+			program.push_back({ IN_PUSH, {}, int(json.at("value").num) });
+		}
+		// unknown 
+		else
+			errorc(type, "unexpected in expression");
 	}
 };
