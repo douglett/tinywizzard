@@ -1,7 +1,7 @@
 static class hello;
 
 int a;
-int b = 4;
+int b = 4+1;
 
 int main() {
 	a = 12;

@@ -124,6 +124,13 @@ struct TinyWizzardCompiler : Compiler {
 		if (type == "$integer") {
 			ilist.push_back({ IN_PUSH, {}, int(json.at("value").num) });
 		}
+		else if (type == "$add") {
+			compileexpr(json.at("value").at(0));
+			compileexpr(json.at("value").at(1));
+			auto& op = json.at("operator").str;
+			if      (op == "+")  ilist.push_back({ IN_ADD });
+			else if (op == "-")  ilist.push_back({ IN_SUB });
+		}
 		// unknown 
 		else
 			errorc(type, "unexpected in expression");
