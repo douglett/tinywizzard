@@ -6,7 +6,7 @@ using namespace std;
 
 
 struct TinyWizzardCompiler : Compiler {
-	vector<Instruction> header;
+	vector<Instruction> header, staticinit;
 	string classname, funcname;
 	int litcount = 0;
 
@@ -20,6 +20,7 @@ struct TinyWizzardCompiler : Compiler {
 		compileast(json);  // compile program
 		if (errcount)  error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// success
+		program.insert(program.begin(), staticinit.begin(), staticinit.end());
 		program.insert(program.begin(), header.begin(), header.end());
 		show();
 		printf("compiled successfully!\n");
@@ -30,9 +31,15 @@ struct TinyWizzardCompiler : Compiler {
 		printf("initialising compiler...\n");
 		errcount = litcount = 0;
 		program = header = {};
+		// header
 		header.push_back({ IN_NOOP, { "# literals and other data" } });
 		header.push_back({ IN_DATA, { "STRING_LIT_NEWLINE", "\n" } });
 		header.push_back({ IN_DATA, { "STRING_LIT_SPACE", " " } });
+		// static init section
+		staticinit.push_back({ IN_NOOP,  { "# static init section" } });
+		staticinit.push_back({ IN_LABEL, { "STATIC_INIT" } });
+		// program start
+		program.push_back({ IN_NOOP, { "# main program section" } });
 	}
 
 	void compileast(const Json& json) {
@@ -63,7 +70,14 @@ struct TinyWizzardCompiler : Compiler {
 		else if (type == "$dim") {
 			// TODO: only works for global DIM
 			assert(funcname == "");
-			header.push_back({ IN_DIM, { json.at("value").at(1).at("value").str } });
+			auto varname = json.at("value").at(1).at("value").str;
+			header.push_back({ IN_DIM, { varname } });
+			// dim and assign
+			if (json.at("value").size() == 3) {
+				compileexpr(json.at("value").at(2));
+				auto& target = funcname == "" ? staticinit : program;
+				target.push_back({ IN_PUT, { varname } });
+			}
 		}
 		else if (type == "$block") {
 			for (auto& stmt : json.at("value").arr)
@@ -105,8 +119,10 @@ struct TinyWizzardCompiler : Compiler {
 
 	void compileexpr(const Json& json) {
 		auto& type = json.at("type").str;
+		auto& ilist = funcname == "" ? staticinit : program;
+
 		if (type == "$integer") {
-			program.push_back({ IN_PUSH, {}, int(json.at("value").num) });
+			ilist.push_back({ IN_PUSH, {}, int(json.at("value").num) });
 		}
 		// unknown 
 		else

@@ -76,6 +76,7 @@ struct Runtime : RuntimeBase {
 	}
 
 	int pop() {
+		assert(stack.size() > 0);
 		int t = stack.back();
 		stack.pop_back();
 		return t;

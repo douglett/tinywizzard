@@ -21,7 +21,8 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$classmember",      "$function $dim", "or" );
 		ruleset.add( "$classdef",         "static class $name ;" );
 		ruleset.add( "$function",         "$typeid $name ( )! $block!" );
-		ruleset.add( "$dim",              "$typeid $name ;!" );
+		ruleset.add( "$dim",              "$typeid $name $dim2? ;!" );
+		ruleset.add( "$dim2",             "= $expr!" );
 		ruleset.add( "$name",             "$identifier" );
 		ruleset.add( "$typeid",           "int" );
 		ruleset.add( "$block",            "{ $line* }!" );
@@ -34,6 +35,9 @@ struct TinyWizzardParser : ASTParser {
 		// expressions
 		ruleset.add( "$value",            "$integer $variable $stringliteral", "or" );
 		ruleset.add( "$variable",         "$identifier" );
+		ruleset.add( "$expr",             "$add" );
+		ruleset.add( "$add",              "$value $add2?" );
+		ruleset.add( "$add2",             "$opplus $value" );
 
 		// error messages
 		// ruleset.ruleerrors["$program"] = "";
@@ -42,7 +46,7 @@ struct TinyWizzardParser : ASTParser {
 
 		// basic formatting rules: FIRST_CHILD (replace with first-child), FIRST_VALUE (replace value with value first-child)
 		FMT_CULL        = splitstr("$eof class print ; , ( ) { }");
-		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $value");
+		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $value $expr $add");
 		FMT_FIRST_VALUE = splitstr("$name $typeid $variable");
 
 		ruleset.show();
@@ -57,6 +61,10 @@ struct TinyWizzardParser : ASTParser {
 		if (type == "$assign") {
 			auto& arr = json.at("value").arr;
 			arr.erase(arr.begin() + 1);  // erase '=' punctuation
+		}
+		else if (type == "$dim2") {
+			auto var = json.at("value").at(1);
+			json = var;
 		}
 	}
 };
