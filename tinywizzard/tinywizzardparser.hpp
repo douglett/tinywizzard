@@ -36,8 +36,10 @@ struct TinyWizzardParser : ASTParser {
 		ruleset.add( "$value",            "$integer $variable $stringliteral", "or" );
 		ruleset.add( "$variable",         "$identifier" );
 		ruleset.add( "$expr",             "$add" );
-		ruleset.add( "$add",              "$value $add2?" );
-		ruleset.add( "$add2",             "$opplus $value!" );
+		ruleset.add( "$add",              "$mul $add2?" );
+		ruleset.add( "$add2",             "$opplus $mul!" );
+		ruleset.add( "$mul",              "$value $mul2?" );
+		ruleset.add( "$mul2",             "$opmultiply $value!" );
 
 		// error messages
 		// ruleset.ruleerrors["$program"] = "";
@@ -66,12 +68,13 @@ struct TinyWizzardParser : ASTParser {
 			auto val = json.at("value").at(1);
 			json = val;
 		}
-		else if (type == "$add") {
-			printf("here1234\n");
+		else if (type == "$add" || type == "$mul") {
+			// single value - just replace with value
 			if (json.at("value").size() == 1) {
 				auto val = json.at("value").at(0);
 				json = val;
 			}
+			// 2 values - multiply values in order
 			else {
 				auto& add2 = json.at("value").at(1);
 				auto op    = add2.at("value").at(0).at("value");

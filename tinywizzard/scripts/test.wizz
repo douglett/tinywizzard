@@ -2,11 +2,12 @@ static class hello;
 
 int a;
 int b = 4+1;
+int c = b * 2;
 
 int main() {
 	a = 12;
 	print 123, 1, 2, a, "hello";
 	a = 34;
-	print a, b;
+	print a, b, c;
 	// a = "hello";
 }
