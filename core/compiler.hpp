@@ -37,7 +37,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 	}
 
 	int error(const string& type, const string& msg) {
-		throw runtime_error(type + ": " + msg);
+		throw runtime_error("[compiler] " + type + ": " + msg);
 		return false;
 	}
 };

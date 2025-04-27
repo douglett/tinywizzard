@@ -104,7 +104,7 @@ struct Ruleset : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error( rule + " error: " + msg );
+		throw runtime_error( "[ruleset]" + rule + " error: " + msg );
 		return false;
 	}
 };

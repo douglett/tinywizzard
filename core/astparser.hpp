@@ -215,7 +215,7 @@ struct ASTParser : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error(rule + ": " + msg 
+		throw runtime_error("[ASTParser] " + rule + ": " + msg 
 			+ "\n\t\tline-" + to_string(tok.linepos()) 
 			+ " @ '" + tok.peek() + "'" );
 		return false;
