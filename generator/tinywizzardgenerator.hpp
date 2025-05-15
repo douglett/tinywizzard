@@ -10,10 +10,15 @@ struct TinyWizzardGenerator : Generator {
 	string classname, funcname;
 	int litcount = 0;
 
+	TinyWizzardGenerator() {
+		infolevel = 1;
+	}
+
 	int generate(const Json& json) {
 		// begin
-		printf("-----\n");
-		printf("compiling program...\n");
+		if (infolevel >= 1)
+			printf("-----\n"),
+			printf("generating classes...\n");
 		assert(json.at("type").str == "$program");  // make sure first item is a $program
 		// compile
 		initheader();      // initialise program header
@@ -23,12 +28,14 @@ struct TinyWizzardGenerator : Generator {
 		program.insert(program.begin(), staticinit.begin(), staticinit.end());
 		program.insert(program.begin(), header.begin(), header.end());
 		show();
-		printf("compiled successfully!\n");
+		if (infolevel >= 1)
+			printf("compiled successfully!\n");
 		return true;
 	}
 
 	void initheader() {
-		printf("initialising generator...\n");
+		if (infolevel >= 1)
+			printf("initialising generator...\n");
 		errcount = litcount = 0;
 		program = header = {};
 		// header
