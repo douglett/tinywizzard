@@ -1,5 +1,5 @@
 #pragma once
-#include "../core/core.hpp"
+#include "astparser.hpp"
 using namespace std;
 
 
@@ -51,8 +51,7 @@ struct TinyWizzardParser : ASTParser {
 		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $value $expr");
 		FMT_FIRST_VALUE = splitstr("$name $typeid $variable");
 
-		ruleset.show();
-		ruleset.validate(true);
+		ruleset.validate(false);
 	}
 
 	virtual void formatjson(Json& json) {

@@ -23,13 +23,13 @@ struct ASTParser : TokenHelpers {
 	int parse(const string& fname) {
 		// tokenize
 		printf("-----\n");
-		printf("loading file: %s\n", fname.c_str());
+		printf("loading file to token stream: %s\n", fname.c_str());
 		if ( !tok.tokenize(fname) )
 			error("parse", tok.errormsg);
-		tok.show();
+		// tok.show();
 		// parse program
 		ast = { Json::JARRAY };
-		printf("parsing file...\n");
+		printf("syntax parsing...\n");
 		if (!pruleexpr("$program", ast))
 			return error("$program", "unknown error parsing $program");
 		show();

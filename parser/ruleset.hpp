@@ -31,6 +31,8 @@ struct Ruleset : TokenHelpers {
 	}
 
 	int validate(bool report=false) {
+		if (report)
+			show();
 		for (const auto& [name, rule] : rules) {
 			// check name
 			if ( !isvalidname(name) )
