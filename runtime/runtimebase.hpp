@@ -1,5 +1,5 @@
 #pragma once
-#include "tokenizer.hpp"
+#include "../parser/tokenizer.hpp"
 #include <string>
 #include <vector>
 #include <sstream>

@@ -1,27 +1,29 @@
 #pragma once
-#include "tokenizer.hpp"
-#include "runtimebase.hpp"
+#include "../parser/tokenizer.hpp"
+#include "../runtime/runtimebase.hpp"
 #include <vector>
 #include <exception>
 using namespace std;
 
 /**
- * Language Compiler
- * Compiles from AST to ASM output
+ * Language Generator
+ * Generates ASM output from AST
  */
-struct Compiler : TokenHelpers, RuntimeBase {
+struct Generator : TokenHelpers, RuntimeBase {
 	vector<Instruction> program;
+	int infolevel = 1;
 	int errcount = 0, dsym = 0;
 
 	// stub
-	int compile(const Json& json) {
-		return error("compiler", "missing compile implementation");
+	int generate(const Json& json) {
+		return error("compiler", "missing generate implementation");
 	}
 
 
 	//  === helpers ===
 	void show() {
-		printf("outputting compiled ASM to output.asm...\n");
+		if (infolevel >= 1)
+			printf("outputting compiled ASM to output.asm...\n");
 		fstream fs("output.asm", ios::out);
 		for (const auto& in : program)
 			fs << showinstruction(in) << endl;

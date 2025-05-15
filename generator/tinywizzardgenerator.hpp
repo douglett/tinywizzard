@@ -1,16 +1,16 @@
 #pragma once
-#include "../core/compiler.hpp"
+#include "generator.hpp"
 #include <vector>
 #include <cassert>
 using namespace std;
 
 
-struct TinyWizzardCompiler : Compiler {
+struct TinyWizzardGenerator : Generator {
 	vector<Instruction> header, staticinit;
 	string classname, funcname;
 	int litcount = 0;
 
-	int compile(const Json& json) {
+	int generate(const Json& json) {
 		// begin
 		printf("-----\n");
 		printf("compiling program...\n");
@@ -28,7 +28,7 @@ struct TinyWizzardCompiler : Compiler {
 	}
 
 	void initheader() {
-		printf("initialising compiler...\n");
+		printf("initialising generator...\n");
 		errcount = litcount = 0;
 		program = header = {};
 		// header
