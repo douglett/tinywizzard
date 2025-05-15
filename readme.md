@@ -1,6 +1,8 @@
-Tiny basic parser and runtime
-=============================
+WizzardScript parser and runtime - version-2
+============================================
 
-A simple parser and runtime to test an AST parser method I have been working on.
+A simple parser and runtime for WizzardScript programming language.
 
-Should work with all simple scripts included, plus a few others.
+- Parses syntax to JSON AST (generic)
+- Compiles WizzardScript AST to special Wizzard assembly (custom)
+- Wizzard assembly runtime (custom)
