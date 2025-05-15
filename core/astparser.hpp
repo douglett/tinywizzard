@@ -97,6 +97,9 @@ struct ASTParser : TokenHelpers {
 		else if ( find(FMT_FIRST_CHILD.begin(), FMT_FIRST_CHILD.end(), type) != FMT_FIRST_CHILD.end() ) {
 			if (value.size() == 1) {
 				auto var = value.at(0);
+				// preserve debug symbols if neccessary
+				if (json.count("dsym") && var.type == Json::JOBJECT && !var.count("dsym"))
+					var.obj["dsym"] = json.at("dsym");
 				json = var;
 			}
 		}
@@ -137,7 +140,7 @@ struct ASTParser : TokenHelpers {
 		else if (name == "$stringliteral")
 			return isliteral(tok.peek()) ? paccepttok(parent, name) : false;
 		else if (name == "$integer")
-			return isnumber(tok.peek()) ? paccepttok(parent, name) : false;
+			return isnumber(tok.peek()) ? paccepttok(parent, name, true) : false;
 
 		// string match
 		else if (!ruleset.isrulename(name))
@@ -187,14 +190,15 @@ struct ASTParser : TokenHelpers {
 		return error("prule", "unexpected error");
 	}
 
-	int paccepttok(Json& parent, const string& type) {
+	int paccepttok(Json& parent, const string& type, bool isnumber=false) {
 		assert(parent.type == Json::JARRAY);
 		int linepos = tok.linepos();
 		auto token = tok.get();
 		parent.arr.push_back({ Json::JOBJECT });
 		auto& obj = parent.arr.back();
 		obj.obj["type"] = { Json::JSTRING, 0, type };
-		obj.obj["value"] = { Json::JSTRING, 0, token };
+		if    (isnumber)  obj.obj["value"] = { Json::JNUMBER, stod(token) };
+		else  obj.obj["value"] = { Json::JSTRING, 0, token };
 		if (trace)
 			printf("  accept-tok: %s  (line %d)\n", token.c_str(), linepos);
 		return true;
@@ -211,7 +215,7 @@ struct ASTParser : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error(rule + ": " + msg 
+		throw runtime_error("[ASTParser] " + rule + ": " + msg 
 			+ "\n\t\tline-" + to_string(tok.linepos()) 
 			+ " @ '" + tok.peek() + "'" );
 		return false;

@@ -30,7 +30,7 @@ struct Ruleset : TokenHelpers {
 		return true;
 	}
 
-	int validate() {
+	int validate(bool report=false) {
 		for (const auto& [name, rule] : rules) {
 			// check name
 			if ( !isvalidname(name) )
@@ -53,7 +53,8 @@ struct Ruleset : TokenHelpers {
 				else    error( "validate", name + ": unknown or invalid rule: " + rex.name );
 			}
 		}
-		printf("ruleset validated!\n");
+		if (report)
+			printf("%s ruleset validated!\n", name.c_str());
 		return true;
 	}
 
@@ -103,7 +104,7 @@ struct Ruleset : TokenHelpers {
 	}
 
 	int error(const string& rule, const string& msg) {
-		throw runtime_error( rule + " error: " + msg );
+		throw runtime_error( "[ruleset] " + rule + " error: " + msg );
 		return false;
 	}
 };

@@ -29,7 +29,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 
 	// error and continue
 	int errorc(const string& type, const string& msg) {
-		cout << "compiler error in " << type << ": " + msg 
+		cout << "[compiler] error in " << type << ": " + msg 
 			<< " (line " << dsym << ")"
 			<< endl;
 		errcount++;
@@ -37,7 +37,7 @@ struct Compiler : TokenHelpers, RuntimeBase {
 	}
 
 	int error(const string& type, const string& msg) {
-		throw runtime_error(type + ": " + msg);
+		throw runtime_error("[compiler] " + type + ": " + msg);
 		return false;
 	}
 };

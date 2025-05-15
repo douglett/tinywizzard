@@ -41,10 +41,11 @@ struct Runtime : RuntimeBase {
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
-				case IN_CALL:      callstack.push_back(PC);  jump(instr.args.at(0));  break;
-				case IN_RETURN:    PC = callstack.back();  callstack.pop_back();  break;
-				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
+				case IN_CALL:      pushst();  jump(instr.args.at(0));  break;
+				case IN_RETURN:    popst();  break;
+				case IN_PRINTI:    cout << instr.argi;  break;
 				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
+				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
 				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
 				case IN_INPUT:     a = 0; ss >> a; variables.at(instr.args.at(0)) = a;  break;
 				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
@@ -74,14 +75,25 @@ struct Runtime : RuntimeBase {
 		return true;
 	}
 
+	int push(int t) {
+		stack.push_back(t);
+		return t;
+	}
 	int pop() {
+		if (stack.size() == 0)
+			error("pop", "stack empty");
 		int t = stack.back();
 		stack.pop_back();
 		return t;
 	}
-	int push(int t) {
-		stack.push_back(t);
-		return t;
+	void pushst() {
+		callstack.push_back(PC);
+	}
+	void popst() {
+		if (stack.size() == 0)
+			error("popst", "callstack empty");
+		PC = callstack.back();
+		callstack.pop_back();
 	}
 	int jump(const string& label) {
 		for (size_t i = 0; i < program.size(); i++)
@@ -91,7 +103,7 @@ struct Runtime : RuntimeBase {
 	}
 
 	int error(const string& type, const string& msg) {
-		throw runtime_error(type + ": " + msg);
+		throw runtime_error("[runtime]: " + type + ": " + msg);
 		return false;
 	}
 };
