@@ -11,6 +11,8 @@ using namespace std;
  */
 struct TinyWizzardParser : ASTParser {
 	void init() {
+		infolevel = 1;
+
 		// tokenizer settings
 		tok.lcomment = "//";
 		tok.flag_eol = false;
@@ -51,7 +53,7 @@ struct TinyWizzardParser : ASTParser {
 		FMT_FIRST_CHILD = splitstr("$classmember $line $statement $print2 $value $expr");
 		FMT_FIRST_VALUE = splitstr("$name $typeid $variable");
 
-		ruleset.validate(false);
+		ruleset.validate(infolevel >= 2);
 	}
 
 	virtual void formatjson(Json& json) {

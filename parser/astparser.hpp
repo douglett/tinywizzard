@@ -17,23 +17,28 @@ struct ASTParser : TokenHelpers {
 	Ruleset ruleset;
 	Json ast;
 	bool trace = false;
+	int infolevel = 1;
 	// json formatting rules
 	vector<string> FMT_CULL, FMT_FIRST_CHILD, FMT_FIRST_VALUE;
 
 	int parse(const string& fname) {
 		// tokenize
-		printf("-----\n");
-		printf("loading file to token stream: %s\n", fname.c_str());
+		if (infolevel >= 1)
+			printf("-----\n"),
+			printf("loading file to token stream: %s\n", fname.c_str());
 		if ( !tok.tokenize(fname) )
 			error("parse", tok.errormsg);
-		// tok.show();
+		if (infolevel >= 2)
+			tok.show();
 		// parse program
 		ast = { Json::JARRAY };
-		printf("syntax parsing...\n");
+		if (infolevel >= 1)
+			printf("syntax parsing...\n");
 		if (!pruleexpr("$program", ast))
 			return error("$program", "unknown error parsing $program");
 		show();
-		printf("file parsed successfully!\n");
+		if (infolevel >= 1)
+			printf("file parsed successfully!\n");
 		// ok
 		return true;
 	}
@@ -206,7 +211,8 @@ struct ASTParser : TokenHelpers {
 
 	//  === helpers ===
 	void show() {
-		printf("outputting program AST to output.json...\n");
+		if (infolevel >= 1)
+			printf("outputting program AST to output.json...\n");
 		fstream fs("output.json", ios::out);
 		if (ast.arr.size())
 			fs << ast.at(0);
