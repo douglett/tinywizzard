@@ -1,9 +1,6 @@
 #include "parser/tinywizzardparser.hpp"
 #include "generator/tinywizzardgenerator.hpp"
 #include "runtime/runtime.hpp"
-// #include "tinywizzard/tinywizzardparser.hpp"
-// #include "tinywizzard/tinywizzardcompiler.hpp"
-// #include <stdexcept>
 using namespace std;
 
 
