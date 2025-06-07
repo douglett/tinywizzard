@@ -11,8 +11,7 @@ using namespace std;
  */
 struct Generator : TokenHelpers, RuntimeBase {
 	vector<Instruction> program;
-	int infolevel = 1;
-	int errcount = 0, dsym = 0;
+	int infolevel = 1, errcount = 0, dsym = 0;
 
 	// stub
 	int generate(const Json& json) {

@@ -18,7 +18,7 @@ struct TinyWizzardGenerator : Generator {
 		// begin
 		if (infolevel >= 1)
 			printf("-----\n"),
-			printf("generating classes...\n");
+			printf("generating single-class program...\n");
 		assert(json.at("type").str == "$program");  // make sure first item is a $program
 		// compile
 		initheader();      // initialise program header
