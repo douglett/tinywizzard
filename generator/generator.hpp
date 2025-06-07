@@ -18,6 +18,10 @@ struct Generator : TokenHelpers, RuntimeBase {
 		return error("compiler", "missing generate implementation");
 	}
 
+	void reset() {
+		errcount = dsym = 0;
+	}
+
 
 	//  === helpers ===
 	void show() {
