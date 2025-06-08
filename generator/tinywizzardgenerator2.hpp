@@ -19,16 +19,16 @@ struct TinyWizzardGenerator2 : Generator {
 		reset();
 		compileclass(json);
 		// error
-		// if (errcount)
-		// 	error("compiler", "compile failed with " + to_string(errcount) + " errors.");
+		if (errcount)
+			error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// success
 		program.insert(program.end(), functions["STATIC_INIT"].ilist.begin(), functions["STATIC_INIT"].ilist.end());
 		for (const auto& [name, fn] : functions)
 			if (name != "STATIC_INIT")
 				program.insert(program.end(), fn.ilist.begin(), fn.ilist.end());
 		show();
-		// if (infolevel >= 1)
-		// 	printf("compiled successfully!\n");
+		if (infolevel >= 1)
+			printf("compiled successfully!\n");
 		return true;
 	}
 
@@ -65,11 +65,11 @@ struct TinyWizzardGenerator2 : Generator {
 				}
 			}
 			else if (type == "$function") {
-				classname = value.at(1).at("value").str;
-				printf("compiling function: %s\n", classname.c_str());
-				functions[classname] = { classname, {{ IN_LABEL, {classname} }} };
+				funcname = value.at(1).at("value").str;
+				printf("compiling function: %s\n", funcname.c_str());
+				functions[funcname] = { funcname, {{ IN_LABEL, {funcname} }} };
 				compilestmt(value.at(2));
-				classname = "";
+				funcname = "";
 			}
 
 			// unknown
@@ -81,7 +81,7 @@ struct TinyWizzardGenerator2 : Generator {
 	void compilestmt(const Json& json) {
 		auto& type = json.at("type").str;
 		auto& value = json.at("value");
-		auto& ilist = functions.at(classname).ilist;
+		auto& ilist = functions.at(funcname).ilist;
 
 		if (json.count("dsym"))
 			dsym = json.at("dsym").num;
@@ -127,9 +127,8 @@ struct TinyWizzardGenerator2 : Generator {
 	void compileexpr(const Json& json) {
 		auto& type = json.at("type").str;
 		auto& value = json.at("value");
-		// TODO: fix this
-		auto& ilist = functions.at("STATIC_INIT").ilist;
-		// auto& ilist = classname == "" ? functions.at("STATIC_INIT").ilist : functions.at(classname).ilist;
+		// printf("%s\n", funcname.c_str());
+		auto& ilist = funcname == "" ? functions.at("STATIC_INIT").ilist : functions.at(funcname).ilist;
 
 		if (type == "$integer") {
 			ilist.push_back({ IN_PUSH, {}, int(value.num) });
