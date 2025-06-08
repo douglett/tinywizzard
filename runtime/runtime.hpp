@@ -21,6 +21,16 @@ struct Runtime : RuntimeBase {
 	int run() {
 		printf("-----\n");
 		printf("running program...\n");
+		return call("STATIC_INIT") && call("main");
+	}
+
+	int call(const string& funcname) {
+		pushst();
+		jump(funcname);
+		return run_instructions(true);
+	}
+
+	int run_instructions(bool external=false) {
 		int a = 0, b = 0;
 
 		while (PC < program.size()) {
@@ -42,7 +52,7 @@ struct Runtime : RuntimeBase {
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
 				case IN_CALL:      pushst();  jump(instr.args.at(0));  break;
-				case IN_RETURN:    popst();  break;
+				case IN_RETURN:    popst();  if (external) return true;  break;
 				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
 				case IN_INPUT:     a = 0; ss >> a; variables.at(instr.args.at(0)) = a;  break;
 				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
@@ -91,7 +101,7 @@ struct Runtime : RuntimeBase {
 		callstack.push_back(PC);
 	}
 	void popst() {
-		if (stack.size() == 0)
+		if (callstack.size() == 0)
 			error("popst", "callstack empty");
 		PC = callstack.back();
 		callstack.pop_back();

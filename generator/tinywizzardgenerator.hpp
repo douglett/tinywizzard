@@ -23,10 +23,7 @@ struct TinyWizzardGenerator : Generator {
 		if (errcount)
 			error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// success
-		program.insert(program.end(), functions["STATIC_INIT"].ilist.begin(), functions["STATIC_INIT"].ilist.end());
-		for (const auto& [name, fn] : functions)
-			if (name != "STATIC_INIT")
-				program.insert(program.end(), fn.ilist.begin(), fn.ilist.end());
+		outputfunctions();
 		show();
 		if (infolevel >= 1)
 			printf("compiled successfully!\n");
@@ -38,7 +35,15 @@ struct TinyWizzardGenerator : Generator {
 		classname = funcname = "";
 		functions = {};
 		litcount = 0;
-		functions["STATIC_INIT"] = { "STATIC_INIT", {{ IN_LABEL, {"STATIC_INIT"} }} };
+		functions["STATIC_INIT"] = { "STATIC_INIT" };
+	}
+
+	void outputfunctions() {
+		for (const auto& [name, fn] : functions) {
+			program.push_back({ IN_LABEL, {fn.name} });
+			program.insert(program.end(), fn.ilist.begin(), fn.ilist.end());
+			program.push_back({ IN_RETURN });
+		}
 	}
 
 	void compileclass(const Json& jclass) {
@@ -69,7 +74,7 @@ struct TinyWizzardGenerator : Generator {
 			else if (type == "$function") {
 				funcname = value.at(1).at("value").str;
 				printf("compiling function: %s\n", funcname.c_str());
-				functions[funcname] = { funcname, {{ IN_LABEL, {funcname} }} };
+				functions[funcname] = { funcname };
 				compilestmt(value.at(2));
 				funcname = "";
 			}
