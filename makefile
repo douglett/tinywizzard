@@ -1,6 +1,7 @@
 OUT = main.exe
 SRC = main.cpp
-PARSER = parser/tokenizer.hpp parser/json.hpp parser/ruleset.hpp parser/astparser.hpp parser/tinywizzardparser.hpp
+PARSER = parser/tokenizer.hpp parser/json.hpp parser/ruleset.hpp parser/astparser.hpp parser/tinywizzardparser.hpp \
+	parser/astparser2.hpp parser/tinywizzardparser2.hpp
 GENERATOR = generator/generator.hpp generator/tinywizzardgenerator.hpp
 RUNTIME = runtime/runtimebase.hpp runtime/runtime.hpp
 HEAD = $(PARSER) $(GENERATOR) $(RUNTIME)

@@ -10,3 +10,9 @@ A simple parser and runtime for WizzardScript programming language.
 - WizzardASM runtime (custom)
 
 https://www.geeksforgeeks.org/phases-of-a-compiler/
+
+
+TODO:
+-----
+- redo parser
+- local variables
