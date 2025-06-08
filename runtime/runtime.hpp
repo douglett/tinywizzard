@@ -54,13 +54,13 @@ struct Runtime : RuntimeBase {
 				case IN_CALL:      pushst();  jump(instr.args.at(0));  break;
 				case IN_RETURN:    popst();  if (external) return true;  break;
 				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
-				case IN_INPUT:     a = 0; ss >> a; variables.at(instr.args.at(0)) = a;  break;
-				case IN_PUT:       variables.at(instr.args.at(0)) = pop();  break;
-				case IN_GET:       push( variables.at(instr.args.at(0)) );  break;
+				case IN_INPUT:     a = 0; ss >> a; var(instr.args.at(0)) = a;  break;
+				case IN_PUT:       var(instr.args.at(0)) = pop();  break;
+				case IN_GET:       push( var(instr.args.at(0)) );  break;
 				case IN_PUSH:      push(instr.argi);  break;
 				case IN_PRINTI:    cout << instr.argi;  break;
 				case IN_PRINTC:    cout << (char)instr.argi;  break;
-				case IN_PRINTV:    cout << variables.at(instr.args.at(0));  break;
+				case IN_PRINTV:    cout << var(instr.args.at(0));  break;
 				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
@@ -86,6 +86,10 @@ struct Runtime : RuntimeBase {
 		return true;
 	}
 
+	int& var(const string& varname) {
+		if (!variables.count(varname)) error("var", "missing variable: " + varname);
+		return variables.at(varname);
+	}
 	int push(int t) {
 		stack.push_back(t);
 		return t;
