@@ -25,9 +25,14 @@ struct TinyWizzardParser : ASTParser2 {
 		if (infolevel >= INFO_TRACE)
 			printf("[trace] pclass\n");
 		ast = { Json::JOBJECT };
-		ast.obj["classname"] = { Json::JSTRING, 0, "ass" };
-		// ast.obj["static"] = { Json::JBOOL };
-		ast.obj["static"] = { Json::JNUMBER, 1 };
+		ast.obj["static"] = { Json::JBOOLEAN, true };
+
+		// require("static"), require("class"), require("$identifier"), require(";");
+		require("static"), require("class"), require("$identifier");
+		ast.obj["classname"] = { Json::JSTRING, 0, lasttok };
+		require(";");
+		require("$eof");
+
 		return true;
 	}
 };

@@ -7,7 +7,7 @@ using namespace std;
 
 
 struct Json {
-	enum JTYPE { JNULL, JNUMBER, JSTRING, JARRAY, JOBJECT };
+	enum JTYPE { JNULL, JNUMBER, JBOOLEAN, JSTRING, JARRAY, JOBJECT };
 	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj;
 
 	Json& at(const string& key) { assert(type == JOBJECT);  return obj.at(key); }
@@ -38,6 +38,9 @@ ostream& operator<<(ostream& os, const Json& json) {
 			break;
 		case Json::JNUMBER:
 			os << json.num << ",\n";
+			break;
+		case Json::JBOOLEAN:
+			os << (json.num ? "true" : "false") << ",\n";
 			break;
 		case Json::JARRAY:
 			if (json.arr.size() == 0)

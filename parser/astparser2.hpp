@@ -7,6 +7,7 @@ using namespace std;
 struct ASTParser2 : TokenHelpers {
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
+	string lasttok;
 	int infolevel = 1;
 
 	int parse(const string& fname) {
@@ -24,15 +25,29 @@ struct ASTParser2 : TokenHelpers {
 		return true;
 	}
 
-	//  === helpers ===
+	// === parsing primitives ===
+	int accept(const string& rule) {
+		assert(rule != "");
+		if (rule == "$eof" && tok.eof())
+			return lasttok = tok.get(), true;
+		else if (rule == "$identifier" && isidentifier(tok.peek()))
+			return lasttok = tok.get(), true;
+		else if (tok.peek() == rule)
+			return lasttok = tok.get(), true;
+		return false;
+	}
+
+	int require(const string& rule) {
+		if (accept(rule))
+			return true;
+		return error(rule, "syntax error");
+	}
+
+	// === helpers ===
 	void show() {
 		if (infolevel >= 1)
 			printf("outputting program AST to output.json...\n");
 		fstream fs("output.json", ios::out);
-		// if (ast.arr.size())
-		// 	fs << ast.at(0);
-		// else
-		// 	fs << "(json empty)\n";
 		fs << ast;
 	}
 

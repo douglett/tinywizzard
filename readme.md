@@ -15,4 +15,5 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 TODO:
 -----
 - redo parser
+- improve JSON printer
 - local variables
