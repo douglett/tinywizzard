@@ -22,8 +22,10 @@ struct TinyWizzardGenerator2 : Generator {
 		// if (errcount)
 		// 	error("compiler", "compile failed with " + to_string(errcount) + " errors.");
 		// success
-		printf("len: %d\n", (int)functions["STATIC_INIT"].ilist.size());
-		program.insert(program.begin(), functions["STATIC_INIT"].ilist.begin(), functions["STATIC_INIT"].ilist.end());
+		program.insert(program.end(), functions["STATIC_INIT"].ilist.begin(), functions["STATIC_INIT"].ilist.end());
+		for (const auto& [name, fn] : functions)
+			if (name != "STATIC_INIT")
+				program.insert(program.end(), fn.ilist.begin(), fn.ilist.end());
 		show();
 		// if (infolevel >= 1)
 		// 	printf("compiled successfully!\n");
@@ -42,7 +44,7 @@ struct TinyWizzardGenerator2 : Generator {
 		for (auto& json : jclass.at("value").arr) {
 			auto& type = json.at("type").str;
 			auto& value = json.at("value");
-			auto& ilist = functions["STATIC_INIT"].ilist;
+			auto& ilist = functions.at("STATIC_INIT").ilist;
 
 			if (json.count("dsym"))
 				dsym = json.at("dsym").num;
@@ -65,7 +67,9 @@ struct TinyWizzardGenerator2 : Generator {
 			else if (type == "$function") {
 				classname = value.at(1).at("value").str;
 				printf("compiling function: %s\n", classname.c_str());
+				functions[classname] = { classname, {{ IN_LABEL, {classname} }} };
 				compilestmt(value.at(2));
+				classname = "";
 			}
 
 			// unknown
@@ -77,7 +81,7 @@ struct TinyWizzardGenerator2 : Generator {
 	void compilestmt(const Json& json) {
 		auto& type = json.at("type").str;
 		auto& value = json.at("value");
-		auto& ilist = functions["STATIC_INIT"].ilist;
+		auto& ilist = functions.at(classname).ilist;
 
 		if (json.count("dsym"))
 			dsym = json.at("dsym").num;
@@ -92,6 +96,28 @@ struct TinyWizzardGenerator2 : Generator {
 			auto& varname = value.at(0).at("value").str;
 			ilist.push_back({ IN_PUT, { varname } });
 		}
+		else if (type == "$print") {
+			ilist.push_back({ IN_DSYM, {}, dsym });
+			for (auto& printval : value.arr) {
+				// print integer
+				if (printval.at("type").str == "$integer")
+					ilist.push_back({ IN_PRINTI, {}, int(printval.at("value").num) });
+				// print variable value
+				else if (printval.at("type").str == "$variable")
+					ilist.push_back({ IN_PRINTV, { printval.at("value").str } });
+				// print string literal
+				else if (printval.at("type").str == "$stringliteral") {
+					// auto name = "STRING_LIT_" + to_string(++litcount);
+					// header.push_back({ IN_DATA, { name, stripliteral(printval.at("value").str) } });
+					// ilist.push_back({ IN_PRINTS, { name } });
+				}
+				else
+					error(type, "unknown type: " + printval.at("type").str);
+				// space-seperate values
+				ilist.push_back({ IN_PRINTS, { "STRING_LIT_SPACE" } });
+			}
+			ilist.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });
+		}
 
 		// unknown
 		else
@@ -101,7 +127,9 @@ struct TinyWizzardGenerator2 : Generator {
 	void compileexpr(const Json& json) {
 		auto& type = json.at("type").str;
 		auto& value = json.at("value");
-		auto& ilist = functions["STATIC_INIT"].ilist;
+		// TODO: fix this
+		auto& ilist = functions.at("STATIC_INIT").ilist;
+		// auto& ilist = classname == "" ? functions.at("STATIC_INIT").ilist : functions.at(classname).ilist;
 
 		if (type == "$integer") {
 			ilist.push_back({ IN_PUSH, {}, int(value.num) });
