@@ -9,6 +9,7 @@ struct TinyWizzardGenerator2 : Generator {
 	struct Func { string name; vector<Instruction> ilist; };
 	map<string, Func> functions;
 	string classname, funcname;
+	int litcount = 0;
 
 	int generate(const Json& json) {
 		// begin
@@ -36,6 +37,7 @@ struct TinyWizzardGenerator2 : Generator {
 		Generator::reset();
 		classname = funcname = "";
 		functions = {};
+		litcount = 0;
 		functions["STATIC_INIT"] = { "STATIC_INIT", {{ IN_LABEL, {"STATIC_INIT"} }} };
 	}
 
@@ -107,16 +109,16 @@ struct TinyWizzardGenerator2 : Generator {
 					ilist.push_back({ IN_PRINTV, { printval.at("value").str } });
 				// print string literal
 				else if (printval.at("type").str == "$stringliteral") {
-					// auto name = "STRING_LIT_" + to_string(++litcount);
-					// header.push_back({ IN_DATA, { name, stripliteral(printval.at("value").str) } });
-					// ilist.push_back({ IN_PRINTS, { name } });
+					auto name = "STRING_LIT_" + to_string(++litcount);
+					functions.at("STATIC_INIT").ilist.push_back({ IN_DATA, { name, stripliteral(printval.at("value").str) } });
+					ilist.push_back({ IN_PRINTS, { name } });
 				}
 				else
 					error(type, "unknown type: " + printval.at("type").str);
 				// space-seperate values
-				ilist.push_back({ IN_PRINTS, { "STRING_LIT_SPACE" } });
+				ilist.push_back({ IN_PRINTC, {}, ' ' });
 			}
-			ilist.push_back({ IN_PRINTS, { "STRING_LIT_NEWLINE" } });
+			ilist.push_back({ IN_PRINTC, {}, '\n' });
 		}
 
 		// unknown
@@ -127,7 +129,6 @@ struct TinyWizzardGenerator2 : Generator {
 	void compileexpr(const Json& json) {
 		auto& type = json.at("type").str;
 		auto& value = json.at("value");
-		// printf("%s\n", funcname.c_str());
 		auto& ilist = funcname == "" ? functions.at("STATIC_INIT").ilist : functions.at(funcname).ilist;
 
 		if (type == "$integer") {
