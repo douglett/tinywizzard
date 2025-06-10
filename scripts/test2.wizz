@@ -1,1 +1,3 @@
 static class test2;
+
+int a;

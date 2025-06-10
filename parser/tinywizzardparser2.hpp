@@ -31,8 +31,30 @@ struct TinyWizzardParser : ASTParser2 {
 		require("static"), require("class"), require("$identifier");
 		ast.obj["classname"] = { Json::JSTRING, 0, lasttok };
 		require(";");
+		// class members
+		ast.obj["members"] = { Json::JARRAY };
+		while (!accept("$eof"))
+			if      (pfunction(ast.at("members"))) ;
+			else if (pdim(ast.at("members"))) ;
+			else    break;
+		// class end
 		require("$eof");
+		return true;
+	}
 
+	int pfunction(Json& parent) {
+		return false;
+	}
+
+	int pdim(Json& parent) {
+		if (infolevel >= INFO_TRACE)
+			printf("[trace] pdim\n");
+		int pos = tok.pos;
+		if (!accept("int") || !accept("$identifier"))
+			return tok.pos = pos, false;
+		auto& dim = parent.push({ Json::JOBJECT });
+		dim.obj["name"] = { Json::JSTRING, 0, lasttok };
+		require(";");
 		return true;
 	}
 };
