@@ -61,6 +61,13 @@ struct TinyWizzardParser : ASTParser2 {
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
 		json.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		json._order = { "name", "expression" };
+		// assignment
+		if (accept("=")) {
+			json.obj["expression"] = { Json::JOBJECT };
+			if (!pexpression(json.at("expression")))
+				error("syntax-error", "expected expression after '='");
+		}
 		require(";");
 		return true;
 	}
@@ -76,6 +83,8 @@ struct TinyWizzardParser : ASTParser2 {
 		require("}");
 		return true;
 	}
+
+	// === statements ===
 
 	int passign(Json& parent) {
 		log(4, "(trace) passign");
@@ -115,6 +124,14 @@ struct TinyWizzardParser : ASTParser2 {
 		return true;
 	}
 
+	// === expressions ===
+
+	// int prexpression(Json& json) {
+	// 	log(4, "(trace) prexpression");
+	// 	if (!pexpression(expr))
+	// 		error("syntax-error", "expected expression");
+	// }
+
 	int pexpression(Json& json) {
 		log(4, "(trace) pexpression");
 		// log(4, tok.peek());
@@ -137,4 +154,11 @@ struct TinyWizzardParser : ASTParser2 {
 		}
 		return false;
 	}
+
+	// int padd(Json& json, bool require=false) {
+	// 	log(4, "(trace) padd");
+	// 	if (!patom(json))  return false;
+	// 	if (!(accept("+") || accept("-")))  return false;
+
+	// }
 };
