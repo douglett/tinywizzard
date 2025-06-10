@@ -5,6 +5,7 @@ using namespace std;
 
 
 struct ASTParser2 : TokenHelpers {
+	// enum INFOLEVEL { INFO_NONE, INFO_BASIC, INFO_EXTRA, INFO_TRACE };
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
 	vector<string> presult;
@@ -32,6 +33,8 @@ struct ASTParser2 : TokenHelpers {
 			if (rule == "$eof" && tok.eof())
 				presult.push_back(tok.get());
 			else if (rule == "$identifier" && isidentifier(tok.peek()))
+				presult.push_back(tok.get());
+			else if (rule == "$number" && isnumber(tok.peek()))
 				presult.push_back(tok.get());
 			else if (tok.peek() == rule)
 				presult.push_back(tok.get());
