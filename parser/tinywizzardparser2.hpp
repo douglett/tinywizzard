@@ -21,7 +21,7 @@ struct TinyWizzardParser : ASTParser2 {
 		log(4, "(trace) pclass");
 		// create object
 		ast = { Json::JOBJECT };
-		ast.obj["static"] = { Json::JBOOLEAN, true };
+		ast.obj["static"]    = { Json::JBOOLEAN, true };
 		ast.obj["variables"] = { Json::JARRAY };
 		ast.obj["functions"] = { Json::JARRAY };
 		ast._order = { "classname", "static", "variables", "functions" };
@@ -44,9 +44,9 @@ struct TinyWizzardParser : ASTParser2 {
 			return false;
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
-		json.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		json.obj["name"]      = { Json::JSTRING, 0, presult.at(1) };
 		json.obj["arguments"] = { Json::JARRAY };
-		json.obj["block"] = { Json::JARRAY };
+		json.obj["block"]     = { Json::JARRAY };
 		json._order = { "name", "arguments", "block" };
 		require(")");
 		pblock(json.at("block"));
@@ -83,8 +83,8 @@ struct TinyWizzardParser : ASTParser2 {
 			return false;
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
-		json.obj["statement"] = { Json::JSTRING, 0, "assign" };
-		json.obj["varpath"] = { Json::JSTRING, 0, presult.at(0) };
+		json.obj["statement"]  = { Json::JSTRING, 0, "assign" };
+		json.obj["varpath"]    = { Json::JSTRING, 0, presult.at(0) };
 		json.obj["expression"] = { Json::JOBJECT };
 		json._order = { "statement", "varpath", "expression" };
 		// parse expression
@@ -104,8 +104,13 @@ struct TinyWizzardParser : ASTParser2 {
 		json._order = { "statement", "printvals" };
 		// parse expressions
 		Json expr = { Json::JOBJECT };
-		pexpression(expr);
-		json.at("printvals").push(expr);
+		if (pexpression(expr))
+			json.at("printvals").push(expr);
+		while (accept(",")) {
+			if (!pexpression(expr))
+				error("syntax-error", "expected argument after ','");
+			json.at("printvals").push(expr);
+		}
 		require(";");
 		return true;
 	}
@@ -114,15 +119,11 @@ struct TinyWizzardParser : ASTParser2 {
 		json = { Json::JOBJECT };
 		json._order = { "expr" };
 		if (accept("$number")) {
-			// json.prop("expr").string("number");
-			// json.prop("value").number( (double)stoi(presult.at(0)) );
 			json.obj["expr"]  = { Json::JSTRING, 0, "number" };
 			json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
 			return true;
 		}
 		else if (accept("$identifier")) {
-			// json.prop("expr").string("variable");
-			// json.prop("value").string(presult.at(0));
 			json.obj["expr"]  = { Json::JSTRING, 0, "variable" };
 			json.obj["value"] = { Json::JSTRING, 0, presult.at(0) };
 			return true;
