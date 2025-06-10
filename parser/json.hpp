@@ -1,5 +1,4 @@
 #pragma once
-#include "tokenizer.hpp"
 #include <vector>
 #include <map>
 #include <algorithm>
@@ -36,10 +35,7 @@ ostream& operator<<(ostream& os, const Json& json) {
 			os << "NULL";
 			break;
 		case Json::JSTRING:
-			if (TokenHelpers::isliteral(json.str))
-				os << json.str;
-			else
-				os << '"' << json.str << '"';
+			os << '"' << json.str << '"';
 			break;
 		case Json::JNUMBER:
 			os << json.num;

@@ -136,7 +136,6 @@ struct Tokenizer : public TokenHelpers {
 
 	// helpers
 	int error(const string& msg) {
-		// fprintf(stderr, "%s\n", msg.c_str());
 		errormsg = msg;
 		return false;
 	}

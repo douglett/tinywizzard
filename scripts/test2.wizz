@@ -5,5 +5,5 @@ int a;
 int main() {
 	a = 1;
 	// test
-	print 1, a;
+	print 1, a, "hello world";
 }

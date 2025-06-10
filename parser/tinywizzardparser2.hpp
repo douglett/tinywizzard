@@ -116,6 +116,8 @@ struct TinyWizzardParser : ASTParser2 {
 	}
 
 	int pexpression(Json& json) {
+		log(4, "(trace) pexpression");
+		// log(4, tok.peek());
 		json = { Json::JOBJECT };
 		json._order = { "expr" };
 		if (accept("$number")) {
@@ -126,6 +128,11 @@ struct TinyWizzardParser : ASTParser2 {
 		else if (accept("$identifier")) {
 			json.obj["expr"]  = { Json::JSTRING, 0, "variable" };
 			json.obj["value"] = { Json::JSTRING, 0, presult.at(0) };
+			return true;
+		}
+		else if (accept("$strlit")) {
+			json.obj["expr"]  = { Json::JSTRING, 0, "strlit" };
+			json.obj["value"] = { Json::JSTRING, 0, stripliteral( presult.at(0) ) };
 			return true;
 		}
 		return false;

@@ -36,6 +36,8 @@ struct ASTParser2 : TokenHelpers {
 				presult.push_back(tok.get());
 			else if (rule == "$number" && isnumber(tok.peek()))
 				presult.push_back(tok.get());
+			else if (rule == "$strlit" && isliteral(tok.peek()))
+				presult.push_back(tok.get());
 			else if (tok.peek() == rule)
 				presult.push_back(tok.get());
 			else
