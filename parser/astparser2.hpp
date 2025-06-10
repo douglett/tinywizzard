@@ -7,7 +7,7 @@ using namespace std;
 struct ASTParser2 : TokenHelpers {
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
-	string lasttok;
+	vector<string> presult;
 	int infolevel = 1;
 
 	int parse(const string& fname) {
@@ -26,15 +26,21 @@ struct ASTParser2 : TokenHelpers {
 	}
 
 	// === parsing primitives ===
-	int accept(const string& rule) {
-		assert(rule != "");
-		if (rule == "$eof" && tok.eof())
-			return lasttok = tok.get(), true;
-		else if (rule == "$identifier" && isidentifier(tok.peek()))
-			return lasttok = tok.get(), true;
-		else if (tok.peek() == rule)
-			return lasttok = tok.get(), true;
-		return false;
+	int accept(const string& rulestr) {
+		auto rulelist = splitstr(rulestr);
+		assert(rulelist.size() > 0);
+		presult = {};
+		int pos = tok.pos;
+		for (const auto& rule : rulelist)
+			if (rule == "$eof" && tok.eof())
+				presult.push_back(tok.get());
+			else if (rule == "$identifier" && isidentifier(tok.peek()))
+				presult.push_back(tok.get());
+			else if (tok.peek() == rule)
+				presult.push_back(tok.get());
+			else
+				return tok.pos = pos, false;
+		return true;
 	}
 
 	int require(const string& rule) {

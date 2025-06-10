@@ -28,9 +28,8 @@ struct TinyWizzardParser : ASTParser2 {
 		ast.obj["functions"] = { Json::JARRAY };
 		ast._order = { "classname", "static", "variables", "functions" };
 		// parse header
-		require("static"), require("class"), require("$identifier");
-		ast.obj["classname"] = { Json::JSTRING, 0, lasttok };
-		require(";");
+		require("static class $identifier ;");
+		ast.obj["classname"] = { Json::JSTRING, 0, presult.at(2) };
 		// class members
 		while (!accept("$eof"))
 			if      (pfunction(ast.at("functions"))) ;
@@ -44,14 +43,12 @@ struct TinyWizzardParser : ASTParser2 {
 	int pfunction(Json& parent) {
 		if (infolevel >= INFO_TRACE)  printf("[trace] pfunction\n");
 		// entry
-		int pos = tok.pos;
-		string name;
-		if (!(accept("int") && accept("$identifier") && (name = lasttok, true) && accept("(")))
-			return tok.pos = pos, false;
+		if (!accept("int $identifier ("))
+			return false;
 		// create json object
 		auto& func = parent.push({ Json::JOBJECT });
-		func.obj["name"] = { Json::JSTRING, 0, name };
-		require(")"), require("{");
+		func.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		require(") {");
 		require("}");
 		// function body
 		return true;
@@ -60,12 +57,11 @@ struct TinyWizzardParser : ASTParser2 {
 	int pdim(Json& parent) {
 		if (infolevel >= INFO_TRACE)  printf("[trace] pdim\n");
 		// entry
-		int pos = tok.pos;
-		if (!(accept("int") && accept("$identifier")))
-			return tok.pos = pos, false;
+		if (!accept("int $identifier"))
+			return false;
 		// create json object
 		auto& dim = parent.push({ Json::JOBJECT });
-		dim.obj["name"] = { Json::JSTRING, 0, lasttok };
+		dim.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
 		require(";");
 		return true;
 	}
