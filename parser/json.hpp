@@ -2,13 +2,14 @@
 #include "tokenizer.hpp"
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <cassert>
 using namespace std;
 
 
 struct Json {
 	enum JTYPE { JNULL, JNUMBER, JBOOLEAN, JSTRING, JARRAY, JOBJECT };
-	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj;
+	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj; vector<string> _order;
 
 	Json& at(const string& key) { assert(type == JOBJECT);  return obj.at(key); }
 	Json& at(size_t key)        { assert(type == JARRAY);   return arr.at(key); }
@@ -61,12 +62,19 @@ ostream& operator<<(ostream& os, const Json& json) {
 			if (json.obj.size() == 0)
 				os << "{}";
 			else {
+				// calculate object print order
+				auto order = json._order;
+				for (auto& pair : json.obj)
+					if (find(order.begin(), order.end(), pair.first) == order.end())
+						order.push_back(pair.first);
+				// show object
 				os << "{\n";
 				indent++;
 				string indentstr(indent*2, INDENTCHAR);
 				size_t i = 0;
-				for (auto& pair : json.obj) {
-					os << indentstr << '"' << pair.first << "\": " << pair.second;
+				for (auto& key : order) {
+					if (!json.obj.count(key))  continue;
+					os << indentstr << '"' << key << "\": " << json.obj.at(key);
 					os << (++i < json.obj.size() ? "," : "") << "\n";
 				}
 				indent--;

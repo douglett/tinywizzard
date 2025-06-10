@@ -24,18 +24,20 @@ struct TinyWizzardParser : ASTParser2 {
 	int pclass() {
 		if (infolevel >= INFO_TRACE)
 			printf("[trace] pclass\n");
+		// create object
 		ast = { Json::JOBJECT };
 		ast.obj["static"] = { Json::JBOOLEAN, true };
-
-		// require("static"), require("class"), require("$identifier"), require(";");
+		ast.obj["variables"] = { Json::JARRAY };
+		ast.obj["functions"] = { Json::JARRAY };
+		ast._order = { "classname", "static", "variables", "functions" };
+		// parse header
 		require("static"), require("class"), require("$identifier");
 		ast.obj["classname"] = { Json::JSTRING, 0, lasttok };
 		require(";");
 		// class members
-		ast.obj["members"] = { Json::JARRAY };
 		while (!accept("$eof"))
-			if      (pfunction(ast.at("members"))) ;
-			else if (pdim(ast.at("members"))) ;
+			if      (pfunction(ast.at("functions"))) ;
+			else if (pdim(ast.at("variables"))) ;
 			else    break;
 		// class end
 		require("$eof");
