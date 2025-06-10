@@ -146,6 +146,12 @@ struct Tokenizer : public TokenHelpers {
 			cout << t.str << " ";
 		cout << endl;
 	}
+	string showstr() {
+		string s = "tokens: ";
+		for (const auto& t : tok)
+			s += t.str + " ";
+		return s;
+	}
 
 	// parsing
 	int eof() {

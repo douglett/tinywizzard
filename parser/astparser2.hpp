@@ -15,13 +15,10 @@ struct ASTParser2 : TokenHelpers {
 	}
 
 	int tokenize(const string& fname) {
-		if (infolevel >= 1)
-			printf("-----\n"),
-			printf("loading file to token stream: %s\n", fname.c_str());
+		log(1, "loading file to token stream: " + fname);
 		if ( !tok.tokenize(fname) )
 			error("parse", tok.errormsg);
-		if (infolevel >= 2)
-			tok.show();
+		log(2, tok.showstr());
 		return true;
 	}
 
@@ -51,14 +48,19 @@ struct ASTParser2 : TokenHelpers {
 
 	// === helpers ===
 	void show() {
-		if (infolevel >= 1)
-			printf("outputting program AST to output.json...\n");
+		log(1, "outputting program AST to output.json...");
 		fstream fs("output.json", ios::out);
 		fs << ast;
 	}
 
+	int log(int level, const string& msg) {
+		if (infolevel >= level)
+			printf("[Parser] %s\n", msg.c_str());
+		return true;
+	}
+
 	int error(const string& type, const string& msg) {
-		throw runtime_error("[ASTParser] " + type + ": " + msg 
+		throw runtime_error("[Parser] " + type + ": " + msg 
 			+ "\n\t\tline-" + to_string(tok.linepos()) 
 			+ " @ '" + tok.peek() + "'" );
 		return false;

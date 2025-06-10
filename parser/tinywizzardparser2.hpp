@@ -10,17 +10,17 @@ struct TinyWizzardParser : ASTParser2 {
 		infolevel = INFO_TRACE;
 		tokenize(fname);
 		// parse program
-		if (infolevel >= 1)  printf("syntax parsing...\n");
+		log(1, "syntax parsing...");
 		pclass();
 		// show success
 		show();
-		if (infolevel >= 1)  printf("file parsed successfully!\n");
+		log(1, "file parsed successfully!");
 		// ok
 		return true;
 	}
 
 	int pclass() {
-		if (infolevel >= INFO_TRACE)  printf("[trace] pclass\n");
+		log(INFO_TRACE, "(trace) pclass");
 		// create object
 		ast = { Json::JOBJECT };
 		ast.obj["static"] = { Json::JBOOLEAN, true };
@@ -41,13 +41,16 @@ struct TinyWizzardParser : ASTParser2 {
 	}
 
 	int pfunction(Json& parent) {
-		if (infolevel >= INFO_TRACE)  printf("[trace] pfunction\n");
+		log(INFO_TRACE, "(trace) pfunction");
 		// entry
 		if (!accept("int $identifier ("))
 			return false;
 		// create json object
-		auto& func = parent.push({ Json::JOBJECT });
-		func.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		auto& json = parent.push({ Json::JOBJECT });
+		json.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		json.obj["arguments"] = { Json::JARRAY };
+		json.obj["block"] = { Json::JARRAY };
+		json._order = { "name", "arguments", "block" };
 		require(") {");
 		require("}");
 		// function body
@@ -55,13 +58,13 @@ struct TinyWizzardParser : ASTParser2 {
 	}
 
 	int pdim(Json& parent) {
-		if (infolevel >= INFO_TRACE)  printf("[trace] pdim\n");
+		log(INFO_TRACE, "(trace) pdim");
 		// entry
 		if (!accept("int $identifier"))
 			return false;
 		// create json object
-		auto& dim = parent.push({ Json::JOBJECT });
-		dim.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		auto& json = parent.push({ Json::JOBJECT });
+		json.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
 		require(";");
 		return true;
 	}
