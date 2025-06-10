@@ -40,7 +40,7 @@ struct ASTParser2 : TokenHelpers {
 	int require(const string& rule) {
 		if (accept(rule))
 			return true;
-		return error(rule, "syntax error");
+		return error("syntax-error", "expected '" + rule + "'");
 	}
 
 	// === helpers ===
@@ -51,8 +51,8 @@ struct ASTParser2 : TokenHelpers {
 		fs << ast;
 	}
 
-	int error(const string& rule, const string& msg) {
-		throw runtime_error("[ASTParser] " + rule + ": " + msg 
+	int error(const string& type, const string& msg) {
+		throw runtime_error("[ASTParser] " + type + ": " + msg 
 			+ "\n\t\tline-" + to_string(tok.linepos()) 
 			+ " @ '" + tok.peek() + "'" );
 		return false;

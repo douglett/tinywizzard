@@ -1,3 +1,6 @@
 static class test2;
 
 int a;
+
+int main() {
+}
