@@ -9,15 +9,20 @@ using namespace std;
 
 struct Json {
 	enum JTYPE { JNULL, JNUMBER, JBOOLEAN, JSTRING, JARRAY, JOBJECT };
-	JTYPE type; double num; string str; vector<Json> arr; map<string, Json> obj; vector<string> _order;
+	JTYPE type = JNULL; double num = 0; string str; vector<Json> arr; map<string, Json> obj; vector<string> _order;
 
 	Json& at(const string& key) { assert(type == JOBJECT);  return obj.at(key); }
 	Json& at(size_t key)        { assert(type == JARRAY);   return arr.at(key); }
 	const Json& at(const string& key) const { assert(type == JOBJECT);  return obj.at(key); }
 	const Json& at(size_t key)        const { assert(type == JARRAY);   return arr.at(key); }
-	Json& push(const Json& obj) { assert(type == JARRAY);  arr.push_back(obj);  return arr.back(); }
 	int count(const string& key) const { return type != JOBJECT ? 0 : obj.count(key); }
 	int size() const { return type == JOBJECT ? obj.size() : type == JARRAY ? arr.size() : 0; }
+	// mofifiers
+	Json& push(const Json& obj) { assert(type == JARRAY);  arr.push_back(obj);  return arr.back(); }
+	// Json& prop(const string& key) { assert(type == JOBJECT);  return obj[key]; }
+	// Json& string(const string& str) { *this = { JSTRING, 0, str };  return *this; }
+	// Json& number(double num) { *this = { JNUMBER, num };  return *this; }
+	// Json& boolean(bool b) { *this = { JBOOLEAN, (double)b };  return *this; }
 };
 
 

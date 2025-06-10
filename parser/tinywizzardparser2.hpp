@@ -70,8 +70,9 @@ struct TinyWizzardParser : ASTParser2 {
 		assert(block.type == Json::JARRAY);
 		require("{");
 		while (!tok.eof())
-			if    (passign(block)) ;
-			else  break;
+			if      (passign(block)) ;
+			else if (pprint(block)) ;
+			else    break;
 		require("}");
 		return true;
 	}
@@ -89,13 +90,43 @@ struct TinyWizzardParser : ASTParser2 {
 		// parse expression
 		pexpression(json.at("expression"));
 		require(";");
-		return false;
+		return true;
+	}
+
+	int pprint(Json& parent) {
+		log(4, "(trace) pprint");
+		if (!accept("print"))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.obj["statement"] = { Json::JSTRING, 0, "print" };
+		json.obj["printvals"] = { Json::JARRAY };
+		json._order = { "statement", "printvals" };
+		// parse expressions
+		Json expr = { Json::JOBJECT };
+		pexpression(expr);
+		json.at("printvals").push(expr);
+		require(";");
+		return true;
 	}
 
 	int pexpression(Json& json) {
-		require("$number");
-		json.obj["expr"] = { Json::JSTRING, 0, "number" };
-		json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
-		return true;
+		json = { Json::JOBJECT };
+		json._order = { "expr" };
+		if (accept("$number")) {
+			// json.prop("expr").string("number");
+			// json.prop("value").number( (double)stoi(presult.at(0)) );
+			json.obj["expr"]  = { Json::JSTRING, 0, "number" };
+			json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
+			return true;
+		}
+		else if (accept("$identifier")) {
+			// json.prop("expr").string("variable");
+			// json.prop("value").string(presult.at(0));
+			json.obj["expr"]  = { Json::JSTRING, 0, "variable" };
+			json.obj["value"] = { Json::JSTRING, 0, presult.at(0) };
+			return true;
+		}
+		return false;
 	}
 };
