@@ -51,6 +51,12 @@ struct ASTParser2 : TokenHelpers {
 		return error("syntax-error", "expected '" + rule + "'");
 	}
 
+	int peek(const string& rule) {
+		int pos = tok.pos;
+		int ok = accept(rule);
+		return tok.pos = pos, ok;
+	}
+
 	// === helpers ===
 	void show() {
 		log(1, "outputting program AST to output.json...");

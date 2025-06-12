@@ -133,18 +133,44 @@ struct TinyWizzardParser : ASTParser2 {
 		else                  return false;
 	}
 
+	// int padd(Json& json) {
+	// 	log(4, "(trace) padd");
+	// 	if (!pmul(json))
+	// 		return false;
+	// 	while (accept("+") || accept("-")) {
+	// 		auto temp = json;
+	// 		json = { Json::JOBJECT };
+	// 		json.obj["statement"] = { Json::JSTRING, 0, "add" };
+	// 		json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
+	// 		json.obj["lhs"]       = temp;
+	// 		json._order = { "statement", "operator", "lhs", "rhs" };
+	// 		pmul(json.obj["rhs"]);
+	// 	}
+	// 	return true;
+	// }
+
 	int padd(Json& json) {
 		log(4, "(trace) padd");
 		if (!pmul(json))
 			return false;
-		if (accept("+") || accept("-")) {
+		if (peek("+") || peek("-")) {
 			auto temp = json;
 			json = { Json::JOBJECT };
-			json.obj["statement"] = { Json::JSTRING, 0, "add" };
-			json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
-			json.obj["lhs"]       = temp;
-			json._order = { "statement", "operator", "lhs", "rhs" };
-			pmul(json.obj["rhs"]);
+			json.obj["expr"] = { Json::JSTRING, 0, "add" };
+			auto& cmd = json.obj["cmd"] = { Json::JARRAY };
+			json._order = { "expr", "cmd" };
+			cmd.push(temp);
+
+			while (accept("+") || accept("-")) {
+				// Json op = { Json::JOBJECT };
+				// op.obj["expr"]  = { Json::JSTRING, 0, "operator" };
+				// op.obj["value"] = { Json::JSTRING, 0, presult.at(0) };
+				// Json op = { Json::JSTRING, 0, presult.at(0) };
+				Json op = { Json::JSTRING, 0, "$opcode:"+presult.at(0) };
+				cmd.push({ Json::JNULL });
+				pmul(cmd.arr.back());
+				cmd.push(op);
+			}
 		}
 		return true;
 	}
@@ -153,13 +179,13 @@ struct TinyWizzardParser : ASTParser2 {
 		log(4, "(trace) pmul");
 		if (!patom(json))
 			return false;
-		if (accept("*") || accept("/")) {
+		while (accept("*") || accept("/")) {
 			auto temp = json;
 			json = { Json::JOBJECT };
-			json.obj["statement"] = { Json::JSTRING, 0, "mul" };
-			json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
-			json.obj["lhs"]       = temp;
-			json._order = { "statement", "operator", "lhs", "rhs" };
+			json.obj["expr"]     = { Json::JSTRING, 0, "mul" };
+			json.obj["operator"] = { Json::JSTRING, 0, presult.at(0) };
+			json.obj["lhs"]      = temp;
+			json._order = { "expr", "operator", "lhs", "rhs" };
 			patom(json.obj["rhs"]);
 		}
 		return true;
@@ -171,8 +197,9 @@ struct TinyWizzardParser : ASTParser2 {
 		json = { Json::JOBJECT };
 		json._order = { "expr" };
 		if (accept("$number")) {
-			json.obj["expr"]  = { Json::JSTRING, 0, "number" };
-			json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
+			// json.obj["expr"]  = { Json::JSTRING, 0, "number" };
+			// json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
+			json = { Json::JNUMBER, (double)stoi(presult.at(0)) };
 			return true;
 		}
 		else if (accept("$identifier")) {
