@@ -15,5 +15,8 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 TODO:
 -----
 - redo parser
+	- implement semantics
+	- new generator
+	- test in runtime
 - improve JSON printer
 - local variables

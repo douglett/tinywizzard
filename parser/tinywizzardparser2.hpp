@@ -142,6 +142,7 @@ struct TinyWizzardParser : ASTParser2 {
 			json = { Json::JOBJECT };
 			json.obj["expr"]     = { Json::JSTRING, 0, "add" };
 			json.obj["operator"] = { Json::JSTRING, 0, presult.at(0) };
+			// json.obj["expr"]     = { Json::JSTRING, 0, presult.at(0) == "+" ? "add" : "sub" };
 			json.obj["lhs"]      = temp;
 			json._order = { "expr", "operator", "lhs", "rhs" };
 			pmul(json.obj["rhs"]);
