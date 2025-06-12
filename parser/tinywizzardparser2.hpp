@@ -135,7 +135,7 @@ struct TinyWizzardParser : ASTParser2 {
 
 	int padd(Json& json) {
 		log(4, "(trace) padd");
-		if (!patom(json))
+		if (!pmul(json))
 			return false;
 		if (accept("+") || accept("-")) {
 			auto temp = json;
@@ -143,9 +143,24 @@ struct TinyWizzardParser : ASTParser2 {
 			json.obj["statement"] = { Json::JSTRING, 0, "add" };
 			json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
 			json.obj["lhs"]       = temp;
-			json.obj["rhs"];
 			json._order = { "statement", "operator", "lhs", "rhs" };
-			patom(json.at("rhs"));
+			pmul(json.obj["rhs"]);
+		}
+		return true;
+	}
+
+	int pmul(Json& json) {
+		log(4, "(trace) pmul");
+		if (!patom(json))
+			return false;
+		if (accept("*") || accept("/")) {
+			auto temp = json;
+			json = { Json::JOBJECT };
+			json.obj["statement"] = { Json::JSTRING, 0, "mul" };
+			json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
+			json.obj["lhs"]       = temp;
+			json._order = { "statement", "operator", "lhs", "rhs" };
+			patom(json.obj["rhs"]);
 		}
 		return true;
 	}
