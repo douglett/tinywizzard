@@ -18,10 +18,14 @@ struct Json {
 	int size() const { return type == JOBJECT ? obj.size() : type == JARRAY ? arr.size() : 0; }
 	// mofifiers
 	Json& push(const Json& obj) { assert(type == JARRAY);  arr.push_back(obj);  return arr.back(); }
+
 	// Json& prop(const string& key) { assert(type == JOBJECT);  return obj[key]; }
 	// Json& string(const string& str) { *this = { JSTRING, 0, str };  return *this; }
 	// Json& number(double num) { *this = { JNUMBER, num };  return *this; }
 	// Json& boolean(bool b) { *this = { JBOOLEAN, (double)b };  return *this; }
+	
+	// Json& sets(const string& val) { *this = { JSTRING, 0, val };  return *this; }
+	// Json& sets(const string& prop, const string& val) { assert(type == JOBJECT);  obj[prop] = { JSTRING, 0, val };  return *this; }
 };
 
 

@@ -2,7 +2,7 @@ static class test2;
 
 int a;
 int b = 4;
-// int b2 = 4+1;
+int b2 = 4+1;
 // int c = b * 2;
 
 int main() {

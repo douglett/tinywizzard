@@ -126,14 +126,32 @@ struct TinyWizzardParser : ASTParser2 {
 
 	// === expressions ===
 
-	// int prexpression(Json& json) {
-	// 	log(4, "(trace) prexpression");
-	// 	if (!pexpression(expr))
-	// 		error("syntax-error", "expected expression");
-	// }
+	int pexpression(Json& json, bool require=false) {
+		log(4, "(trace) prexpression");
+		if      (padd(json))  return true;
+		else if (require)     return error("syntax-error", "expected expression");
+		else                  return false;
+	}
 
-	int pexpression(Json& json) {
-		log(4, "(trace) pexpression");
+	int padd(Json& json) {
+		log(4, "(trace) padd");
+		if (!patom(json))
+			return false;
+		if (accept("+") || accept("-")) {
+			auto temp = json;
+			json = { Json::JOBJECT };
+			json.obj["statement"] = { Json::JSTRING, 0, "add" };
+			json.obj["operator"]  = { Json::JSTRING, 0, presult.at(0) };
+			json.obj["lhs"]       = temp;
+			json.obj["rhs"];
+			json._order = { "statement", "operator", "lhs", "rhs" };
+			patom(json.at("rhs"));
+		}
+		return true;
+	}
+
+	int patom(Json& json) {
+		log(4, "(trace) patom");
 		// log(4, tok.peek());
 		json = { Json::JOBJECT };
 		json._order = { "expr" };
@@ -154,11 +172,4 @@ struct TinyWizzardParser : ASTParser2 {
 		}
 		return false;
 	}
-
-	// int padd(Json& json, bool require=false) {
-	// 	log(4, "(trace) padd");
-	// 	if (!patom(json))  return false;
-	// 	if (!(accept("+") || accept("-")))  return false;
-
-	// }
 };
