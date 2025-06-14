@@ -10,12 +10,22 @@ struct Json {
 	enum JTYPE { JNULL, JNUMBER, JBOOLEAN, JSTRING, JARRAY, JOBJECT };
 	JTYPE type = JNULL; double num = 0; string str; vector<Json> arr; map<string, Json> obj; vector<string> _order;
 
-	Json& at(const string& key) { assert(type == JOBJECT);  return obj.at(key); }
-	Json& at(size_t key)        { assert(type == JARRAY);   return arr.at(key); }
-	const Json& at(const string& key) const { assert(type == JOBJECT);  return obj.at(key); }
-	const Json& at(size_t key)        const { assert(type == JARRAY);   return arr.at(key); }
-	int count(const string& key) const { return type != JOBJECT ? 0 : obj.count(key); }
-	int size() const { return type == JOBJECT ? obj.size() : type == JARRAY ? arr.size() : 0; }
+	// object info
+	int size() const { assert(type == JOBJECT || type == JARRAY);  return type == JOBJECT ? obj.size() : arr.size(); }
+	int count(const string& key) const { assert(type == JOBJECT);  return obj.count(key); }
+	// get members
+	Json& at(const string& key) { return (Json&)(((const Json*)this)->at(key)); }
+	Json& at(size_t key)        { return (Json&)(((const Json*)this)->at(key)); }
+	const Json& at(const string& key) const {
+		assert(type == JOBJECT);
+		if (!obj.count(key))  throw out_of_range("Json(Object).at: '" + key + "'");
+		return obj.at(key);
+	}
+	const Json& at(size_t key) const {
+		assert(type == JARRAY);
+		if (arr.size() < 0 || arr.size() >= key)  throw out_of_range("Json(Array).at: '" + to_string(key) + "'");
+		return arr.at(key);
+	}
 	// mofifiers
 	Json& push(const Json& obj) { assert(type == JARRAY);  arr.push_back(obj);  return arr.back(); }
 
