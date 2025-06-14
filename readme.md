@@ -15,10 +15,12 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 TODO:
 -----
 - redo parser
-	- implement semantics
-		- function names
-	- new generator
-	- test in runtime
 	- remove old classes
-- improve JSON printer
 - local variables
+- semantics
+	- duplicate function names
+	- strings in expressions (add / mul)
+- expressions in print
+	- replace printi/v/s commands?
+	- OR
+	- special variable for expression results? $TEMP? other?
