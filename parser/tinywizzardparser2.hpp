@@ -5,7 +5,7 @@ using namespace std;
 
 struct TinyWizzardParser : ASTParser2 {
 	int parse(const string& fname) {
-		infolevel = 4;  // 4 = trace
+		loglevel = 4;  // 4 = trace
 		tokenize(fname);
 		// parse program
 		log(1, "syntax parsing...");

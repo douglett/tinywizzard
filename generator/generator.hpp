@@ -12,7 +12,7 @@ using namespace std;
  */
 struct Generator : TokenHelpers, RuntimeBase {
 	vector<Instruction> program;
-	int infolevel = 1, errcount = 0, dsym = -1;
+	int loglevel = 1, errcount = 0, dsym = -1;
 
 	int generate(const Json& json) {
 		return error("Generator", "missing generate implementation");
@@ -25,7 +25,7 @@ struct Generator : TokenHelpers, RuntimeBase {
 	//  === helpers ===
 	
 	int log(int level, const string& msg) {
-		if (level >= infolevel)
+		if (level >= loglevel)
 			printf("[Generator] %s\n", msg.c_str());
 		return true;
 	}

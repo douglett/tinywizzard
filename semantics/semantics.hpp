@@ -3,7 +3,7 @@
 using namespace std;
 
 struct Semantics {
-	int infolevel = 1, errcount = 0, dsym = -1;
+	int loglevel = 1, errcount = 0, dsym = -1;
 
 	int validate(const Json& json) {
 		return error("validate", "missing validate implementation");
@@ -15,7 +15,7 @@ struct Semantics {
 
 	// === helpers ===
 	int log(int level, const string& msg) {
-		if (infolevel >= level)
+		if (loglevel >= level)
 			printf("[Semantics] %s\n", msg.c_str());
 		return true;
 	}

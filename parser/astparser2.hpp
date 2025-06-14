@@ -5,11 +5,11 @@ using namespace std;
 
 
 struct ASTParser2 : TokenHelpers {
-	// enum INFOLEVEL { INFO_NONE, INFO_BASIC, INFO_EXTRA, INFO_TRACE };
+	// enum LOG_LEVEL { LOG_NONE, LOG_BASIC, LOG_EXTRA, LOG_FULL, LOG_TRACE };
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
 	vector<string> presult;
-	int infolevel = 1, presultline = 0;
+	int loglevel = 1, presultline = 0;
 
 	int parse(const string& fname) {
 		return error("parse", "missing parse implementation");
@@ -62,7 +62,7 @@ struct ASTParser2 : TokenHelpers {
 	// === helpers ===
 	
 	int log(int level, const string& msg) {
-		if (infolevel >= level)
+		if (loglevel >= level)
 			printf("[Parser] %s\n", msg.c_str());
 		return true;
 	}
