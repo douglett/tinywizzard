@@ -36,6 +36,12 @@ struct TinyWizzardGenerator : Generator {
 	vector<Instruction>& getilist() {
 		return funcname.length() ? functions.at(funcname).ilist : functions.at("STATIC_INIT").ilist;
 	}
+	void output(INSTRUCTION_TYPE type, int argi) {
+		getilist().push_back({ type, {}, argi });
+	}
+	void output(INSTRUCTION_TYPE type, const vector<string>& args={}, int argi=0) {
+		getilist().push_back({ type, args, argi });
+	}
 
 	void outputfunctions() {
 		log(1, "ouputting functions to main program...");
@@ -72,8 +78,8 @@ struct TinyWizzardGenerator : Generator {
 		auto& name  = json.at("name").str;
 		dsym        = json.at("dsym").num;
 		// generate dim
-		ilist.push_back({ IN_DSYM, {}, dsym });
-		ilist.push_back({ IN_DIM, { name } });
+		output( IN_DSYM, dsym );
+		output( IN_DIM, { name } );
 		if (json.count("expression")) {
 			pexpression(json.at("expression"));
 			ilist.push_back({ IN_PUT, { name } });
@@ -93,14 +99,13 @@ struct TinyWizzardGenerator : Generator {
 
 	void pstatement(const Json& json) {
 		log(4, "(trace) pstatement");
-		auto& ilist = getilist();
 		auto& type  = json.at("statement").str;
 		dsym        = json.at("dsym").num;
 		// generate statement
-		ilist.push_back({ IN_DSYM, {}, dsym });
+		output( IN_DSYM, dsym );
 		if (type == "assign") {
 			pexpression(json.at("expression"));
-			ilist.push_back({ IN_PUT, { json.at("variable").str } });
+			output( IN_PUT, { json.at("variable").str } );
 		}
 		else
 			errorc("pstatement", "unknown statement '" + type + "'");
@@ -110,21 +115,20 @@ struct TinyWizzardGenerator : Generator {
 
 	void pexpression(const Json& json) {
 		log(4, "(trace) pexpression");
-		auto& ilist = getilist();
 		auto& type  = json.at("expr").str;
 		// generate expression
 		if (type == "number")
-			ilist.push_back({ IN_PUSH, {}, (int)json.at("value").num });
+			output( IN_PUSH, json.at("value").num );
 		else if (type == "variable")
-			ilist.push_back({ IN_GET, { json.at("value").str } });
+			output( IN_GET, { json.at("value").str } );
 		else if (type == "add" || type == "mul") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
 			auto& op = json.at("operator").str;
-			if      (op == "+")  ilist.push_back({ IN_ADD });
-			else if (op == "-")  ilist.push_back({ IN_SUB });
-			else if (op == "*")  ilist.push_back({ IN_MUL });
-			else if (op == "/")  ilist.push_back({ IN_DIV });
+			if      (op == "+")  output( IN_ADD );
+			else if (op == "-")  output( IN_SUB );
+			else if (op == "*")  output( IN_MUL );
+			else if (op == "/")  output( IN_DIV );
 			else    errorc(type, "unknown operator: " + op);
 		}
 		else
