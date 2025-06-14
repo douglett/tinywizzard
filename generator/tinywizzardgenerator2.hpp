@@ -31,6 +31,12 @@ struct TinyWizzardGenerator : Generator {
 		funcname = "";
 	}
 
+	// === generate helpers ===
+
+	vector<Instruction>& getilist() {
+		return funcname.length() ? functions.at(funcname).ilist : functions.at("STATIC_INIT").ilist;
+	}
+
 	void outputfunctions() {
 		log(1, "ouputting functions to main program...");
 		// calculate order
@@ -65,10 +71,13 @@ struct TinyWizzardGenerator : Generator {
 		auto& ilist = functions.at("STATIC_INIT").ilist;
 		auto& name  = json.at("name").str;
 		dsym        = json.at("dsym").num;
+		// generate dim
 		ilist.push_back({ IN_DSYM, {}, dsym });
 		ilist.push_back({ IN_DIM, { name } });
-		if (json.count("expression"))
+		if (json.count("expression")) {
 			pexpression(json.at("expression"));
+			ilist.push_back({ IN_PUT, { name } });
+		}
 	}
 
 	void pfunction(const Json& json) {
@@ -82,19 +91,13 @@ struct TinyWizzardGenerator : Generator {
 
 	// === statements ===
 
-	vector<Instruction>& getilist() {
-		return funcname.length() 
-			? functions.at(funcname).ilist 
-			: functions.at("STATIC_INIT").ilist;
-	}
-
 	void pstatement(const Json& json) {
 		log(4, "(trace) pstatement");
 		auto& ilist = getilist();
 		auto& type  = json.at("statement").str;
 		dsym        = json.at("dsym").num;
-		ilist.push_back({ IN_DSYM, {}, dsym });
 		// generate statement
+		ilist.push_back({ IN_DSYM, {}, dsym });
 		if (type == "assign") {
 			pexpression(json.at("expression"));
 			ilist.push_back({ IN_PUT, { json.at("variable").str } });
