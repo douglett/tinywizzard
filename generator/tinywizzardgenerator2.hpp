@@ -17,8 +17,8 @@ struct TinyWizzardGenerator : Generator {
 		// compile
 		pclass(json);
 		// success or fail
-		// if (errcount)
-		// 	error("Generator", "compile failed with " + to_string(errcount) + " errors.");
+		if (errcount)
+			error("Generator", "compile failed with " + to_string(errcount) + " errors.");
 		outputliterals();
 		outputfunctions();
 		show();
@@ -47,8 +47,9 @@ struct TinyWizzardGenerator : Generator {
 
 	void outputliterals() {
 		auto& fn = functions.at("STATIC_INIT").ilist;
+		fn.insert(fn.begin(), { IN_NOOP, { "string-literals" } });
 		for (size_t i = 0; i < literals.size(); i++)
-			fn.insert(fn.end(), { IN_DATA, { "STRING_LIT_"+to_string(i), literals.at(i) } });
+			fn.insert(fn.begin()+i+1, { IN_DATA, { "STRING_LIT_"+to_string(i), literals.at(i) } });
 	}
 
 	void outputfunctions() {

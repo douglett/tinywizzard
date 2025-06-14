@@ -24,7 +24,7 @@ struct RuntimeBase {
 		string s = "\t";
 		switch (in.type) {
 			// pseudo-instructions
-			case IN_NOOP:      s = in.args.size() ? in.args.at(0) : "";  break;
+			case IN_NOOP:      s = "# " + (in.args.size() ? in.args.at(0) : "");  break;
 			case IN_DSYM:      s = "# dsym: line " + to_string(in.argi);  break;
 			case IN_LABEL:     s = in.args.at(0) + ":";  break;
 			// data
