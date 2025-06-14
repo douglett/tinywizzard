@@ -9,6 +9,10 @@ struct Semantics {
 		return error("validate", "missing validate implementation");
 	}
 
+	void reset() {
+		errcount = 0, dsym = -1;
+	}
+
 	// === helpers ===
 	int log(int level, const string& msg) {
 		if (infolevel >= level)
@@ -18,7 +22,6 @@ struct Semantics {
 
 	int errorc(const string& type, const string& msg) {
 		printf("[Semantics] error in %s: %s (line %d)\n", type.c_str(), msg.c_str(), dsym);
-		// printf("[Semantics] error in %s: %s\n", type.c_str(), msg.c_str());
 		errcount++;
 		return false;
 	}

@@ -3,7 +3,7 @@ SRC = main.cpp
 PARSER = parser/tokenizer.hpp parser/json.hpp parser/ruleset.hpp parser/astparser.hpp parser/tinywizzardparser.hpp \
 	parser/astparser2.hpp parser/tinywizzardparser2.hpp
 SEMANTICS = semantics/semantics.hpp semantics/tinywizzardsemantics.hpp
-GENERATOR = generator/generator.hpp generator/tinywizzardgenerator.hpp
+GENERATOR = generator/generator.hpp generator/tinywizzardgenerator.hpp generator/tinywizzardgenerator2.hpp
 RUNTIME = runtime/runtimebase.hpp runtime/runtime.hpp
 HEAD = $(PARSER) $(SEMANTICS) $(GENERATOR) $(RUNTIME)
 

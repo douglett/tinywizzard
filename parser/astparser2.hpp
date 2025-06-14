@@ -24,6 +24,7 @@ struct ASTParser2 : TokenHelpers {
 	}
 
 	// === parsing primitives ===
+
 	int accept(const string& rulestr) {
 		auto rulelist = splitstr(rulestr);
 		assert(rulelist.size() > 0);
@@ -59,12 +60,7 @@ struct ASTParser2 : TokenHelpers {
 	}
 
 	// === helpers ===
-	void show() {
-		log(1, "outputting program AST to output.json...");
-		fstream fs("output.json", ios::out);
-		fs << ast;
-	}
-
+	
 	int log(int level, const string& msg) {
 		if (infolevel >= level)
 			printf("[Parser] %s\n", msg.c_str());
@@ -76,5 +72,11 @@ struct ASTParser2 : TokenHelpers {
 			+ "\n\t\tline-" + to_string(tok.linepos()) 
 			+ " @ '" + tok.peek() + "'" );
 		return false;
+	}
+
+	void show() {
+		log(1, "outputting program AST to output.json...");
+		fstream fs("output.json", ios::out);
+		fs << ast;
 	}
 };

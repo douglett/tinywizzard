@@ -2,12 +2,13 @@
 #include "semantics.hpp"
 using namespace std;
 
+
 struct TinyWizzardSemantics : Semantics {
 	map<string, bool> dims;
 
 	int validate(const Json& json) {
 		log(1, "validating file...");
-		errcount = 0;
+		reset();
 		// validate class members
 		for (auto& var : json.at("variables").arr)
 			pdim(var);
@@ -18,6 +19,11 @@ struct TinyWizzardSemantics : Semantics {
 			return error("validate", "failed with " + to_string(errcount) + " errors.");
 		log(1, "validate successful!");
 		return true;
+	}
+
+	void reset() {
+		Semantics::reset();
+		dims = {};
 	}
 
 	void pdim(const Json& json) {

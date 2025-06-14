@@ -5,44 +5,46 @@
 #include <exception>
 using namespace std;
 
+
 /**
  * Language Generator
  * Generates ASM output from AST
  */
 struct Generator : TokenHelpers, RuntimeBase {
 	vector<Instruction> program;
-	int infolevel = 1, errcount = 0, dsym = 0;
+	int infolevel = 1, errcount = 0, dsym = -1;
 
-	// stub
 	int generate(const Json& json) {
-		return error("compiler", "missing generate implementation");
+		return error("Generator", "missing generate implementation");
 	}
 
 	void reset() {
-		errcount = dsym = 0;
+		errcount = 0, dsym = -1;
 	}
-
 
 	//  === helpers ===
-	void show() {
-		if (infolevel >= 1)
-			printf("outputting compiled ASM to output.asm...\n");
-		fstream fs("output.asm", ios::out);
-		for (const auto& in : program)
-			fs << showinstruction(in) << endl;
+	
+	int log(int level, const string& msg) {
+		if (level >= infolevel)
+			printf("[Generator] %s\n", msg.c_str());
+		return true;
 	}
 
-	// error and continue
 	int errorc(const string& type, const string& msg) {
-		cout << "[compiler] error in " << type << ": " + msg 
-			<< " (line " << dsym << ")"
-			<< endl;
+		printf("[Generator] error in %s: %s (line %d)\n", type.c_str(), msg.c_str(), dsym);
 		errcount++;
 		return false;
 	}
 
 	int error(const string& type, const string& msg) {
-		throw runtime_error("[compiler] " + type + ": " + msg);
+		throw runtime_error("[Generator] " + type + ": " + msg);
 		return false;
+	}
+
+	void show() {
+		log(1, "outputting compiled ASM to output.asm...");
+		fstream fs("output.asm", ios::out);
+		for (const auto& in : program)
+			fs << showinstruction(in) << endl;
 	}
 };

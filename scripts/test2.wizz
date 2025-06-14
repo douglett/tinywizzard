@@ -12,4 +12,5 @@ int main() {
 	//g = 1 + g;
 	// test
 	print 1, a, "hello world";
+	print "maths tests:", a, b, b2, b3, c, d;
 }
