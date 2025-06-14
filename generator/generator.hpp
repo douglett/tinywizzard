@@ -25,7 +25,7 @@ struct Generator : TokenHelpers, RuntimeBase {
 	//  === helpers ===
 	
 	int log(int level, const string& msg) {
-		if (level >= loglevel)
+		if (loglevel >= level)
 			printf("[Generator] %s\n", msg.c_str());
 		return true;
 	}
