@@ -7,6 +7,7 @@ using namespace std;
 struct TinyWizzardGenerator : Generator {
 	struct Func { string name; vector<Instruction> ilist; };
 	map<string, Func> functions;
+	vector<string> literals;
 	string funcname;
 
 	int generate(const Json& json) {
@@ -18,6 +19,7 @@ struct TinyWizzardGenerator : Generator {
 		// success or fail
 		// if (errcount)
 		// 	error("Generator", "compile failed with " + to_string(errcount) + " errors.");
+		outputliterals();
 		outputfunctions();
 		show();
 		log(1, "compiled successfully!");
@@ -41,6 +43,12 @@ struct TinyWizzardGenerator : Generator {
 	}
 	void output(INSTRUCTION_TYPE type, const vector<string>& args={}, int argi=0) {
 		getilist().push_back({ type, args, argi });
+	}
+
+	void outputliterals() {
+		auto& fn = functions.at("STATIC_INIT").ilist;
+		for (size_t i = 0; i < literals.size(); i++)
+			fn.insert(fn.end(), { IN_DATA, { "STRING_LIT_"+to_string(i), literals.at(i) } });
 	}
 
 	void outputfunctions() {
@@ -107,6 +115,23 @@ struct TinyWizzardGenerator : Generator {
 			pexpression(json.at("expression"));
 			output( IN_PUT, { json.at("variable").str } );
 		}
+		else if (type == "print") {
+			for (auto& printval : json.at("printvals").arr) {
+				auto& type = printval.at("expr").str;
+				if (type == "number")
+					output( IN_PRINTI, printval.at("value").num );
+				else if (type == "variable")
+					output( IN_PRINTV, { printval.at("value").str } );
+				else if (type == "strlit") {
+					literals.push_back(printval.at("value").str);
+					output( IN_PRINTS, { "STRING_LIT_"+to_string(literals.size()-1) } );
+				}
+				else
+					errorc("pstatement-print", "unknown printval type: " + type);
+				output( IN_PRINTC, ' ' );  // space-seperate values
+			}
+			output( IN_PRINTC, '\n' );  // enf-of-line
+		}
 		else
 			errorc("pstatement", "unknown statement '" + type + "'");
 	}
@@ -129,7 +154,7 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == "-")  output( IN_SUB );
 			else if (op == "*")  output( IN_MUL );
 			else if (op == "/")  output( IN_DIV );
-			else    errorc(type, "unknown operator: " + op);
+			else    errorc("pexpression-add-mul", "unknown operator: " + op);
 		}
 		else
 			errorc("pexpression", "unknown expression '" + type + "'");
