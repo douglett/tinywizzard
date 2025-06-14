@@ -12,11 +12,12 @@ struct TinyWizzardSemantics : Semantics {
 			pdim(var);
 		if (errcount)
 			return error("validate", "failed with " + to_string(errcount) + " errors.");
-		log(1, "validate successful");
+		log(1, "validate successful!");
 		return true;
 	}
 
 	void pdim(const Json& json) {
+		dsym = json.at("dsym").num;
 		auto& name = json.at("name").str;
 		if (dims.count(name))
 			errorc("pdim", "re-definition of '" + name + "'");

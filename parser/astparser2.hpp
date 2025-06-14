@@ -9,7 +9,7 @@ struct ASTParser2 : TokenHelpers {
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
 	vector<string> presult;
-	int infolevel = 1;
+	int infolevel = 1, presultline = 0;
 
 	int parse(const string& fname) {
 		return error("parse", "missing parse implementation");
@@ -28,6 +28,7 @@ struct ASTParser2 : TokenHelpers {
 		auto rulelist = splitstr(rulestr);
 		assert(rulelist.size() > 0);
 		presult = {};
+		presultline = tok.linepos();
 		int pos = tok.pos;
 		for (const auto& rule : rulelist)
 			if (rule == "$eof" && tok.eof())

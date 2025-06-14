@@ -3,7 +3,7 @@
 using namespace std;
 
 struct Semantics {
-	int infolevel = 1, errcount = 0;
+	int infolevel = 1, errcount = 0, dsym = -1;
 
 	int validate(const Json& json) {
 		return error("validate", "missing validate implementation");
@@ -17,8 +17,8 @@ struct Semantics {
 	}
 
 	int errorc(const string& type, const string& msg) {
-		// printf("[Semantics] error in %s: %s (line %d)\n", type.c_str(), msg.c_str(), -1);
-		printf("[Semantics] error in %s: %s\n", type.c_str(), msg.c_str());
+		printf("[Semantics] error in %s: %s (line %d)\n", type.c_str(), msg.c_str(), dsym);
+		// printf("[Semantics] error in %s: %s\n", type.c_str(), msg.c_str());
 		errcount++;
 		return false;
 	}
