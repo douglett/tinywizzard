@@ -8,8 +8,12 @@ struct TinyWizzardSemantics : Semantics {
 	int validate(const Json& json) {
 		log(1, "validating file...");
 		errcount = 0;
+		// validate class members
 		for (auto& var : json.at("variables").arr)
 			pdim(var);
+		for (auto& func : json.at("functions").arr)
+			pfunction(func);
+		// success or fail
 		if (errcount)
 			return error("validate", "failed with " + to_string(errcount) + " errors.");
 		log(1, "validate successful!");
@@ -21,6 +25,52 @@ struct TinyWizzardSemantics : Semantics {
 		auto& name = json.at("name").str;
 		if (dims.count(name))
 			errorc("pdim", "re-definition of '" + name + "'");
+		if (json.count("expression"))
+			pexpression(json.at("expression"));
 		dims[name] = true;
+	}
+
+	void pfunction(const Json& json) {
+		for (auto& stmt : json.at("block").arr)
+			pstatement(stmt);
+	}
+
+	void pstatement(const Json& json) {
+		dsym = json.at("dsym").num;
+		auto& type = json.at("statement").str;
+		// assign
+		if (type == "assign") {
+			auto& name = json.at("variable").str;
+			if (!dims.count(name))
+				errorc("pstatement", "assign to undefined variable '" + name + "'");
+			pexpression(json.at("expression"));
+		}
+		// print
+		else if (type == "print") {
+			for (auto& pval : json.at("printvals").arr)
+				pexpression(pval);
+		}
+		// warning
+		else {
+			log(1, "warning: unchecked statement '" + type + "'");
+		}
+	}
+
+	void pexpression(const Json& json) {
+		auto& type = json.at("expr").str;
+		if      (type == "number") ;
+		else if (type == "strlit") ;
+		else if (type == "add" || type == "mul") {
+			pexpression(json.at("lhs"));
+			pexpression(json.at("rhs"));
+		}
+		else if (type == "variable") {
+			auto& name = json.at("value").str;
+			if (!dims.count(name))
+				errorc("pexpression", "undefined variable '" + name + "'");
+		}
+		else {
+			log(1, "warning: unchecked expression '" + type + "'");
+		}
 	}
 };

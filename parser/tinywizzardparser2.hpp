@@ -95,9 +95,9 @@ struct TinyWizzardParser : ASTParser2 {
 		auto& json = parent.push({ Json::JOBJECT });
 		json.obj["statement"]  = { Json::JSTRING, 0, "assign" };
 		json.obj["dsym"]       = { Json::JNUMBER, (double)presultline };
-		json.obj["varpath"]    = { Json::JSTRING, 0, presult.at(0) };
+		json.obj["variable"]   = { Json::JSTRING, 0, presult.at(0) };
 		json.obj["expression"] = { Json::JOBJECT };
-		json._order = { "statement", "dsym", "varpath", "expression" };
+		json._order = { "statement", "dsym", "variable", "expression" };
 		// parse expression
 		pexpression(json.at("expression"));
 		require(";");
