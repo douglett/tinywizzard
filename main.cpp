@@ -9,7 +9,8 @@ using namespace std;
 void tinywizzard() {
 	TinyWizzardParser parser;
 	// parser.init();
-	parser.parse("scripts/test2.wizz");
+	parser.parse("scripts/test.wizz");
+	// parser.parse("scripts/test2.wizz");
 
 	TinyWizzardSemantics semantics;
 	semantics.validate(parser.ast);

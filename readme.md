@@ -16,7 +16,9 @@ TODO:
 -----
 - redo parser
 	- implement semantics
+		- function names
 	- new generator
 	- test in runtime
+	- remove old classes
 - improve JSON printer
 - local variables

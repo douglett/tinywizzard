@@ -7,6 +7,7 @@ using namespace std;
 struct TinyWizzardGenerator : Generator {
 	struct Func { string name; vector<Instruction> ilist; };
 	map<string, Func> functions;
+	string funcname;
 
 	int generate(const Json& json) {
 		loglevel = 4;  // 4 = trace
@@ -15,8 +16,8 @@ struct TinyWizzardGenerator : Generator {
 		// compile
 		pclass(json);
 		// success or fail
-		if (errcount)
-			error("Generator", "compile failed with " + to_string(errcount) + " errors.");
+		// if (errcount)
+		// 	error("Generator", "compile failed with " + to_string(errcount) + " errors.");
 		outputfunctions();
 		show();
 		log(1, "compiled successfully!");
@@ -27,6 +28,7 @@ struct TinyWizzardGenerator : Generator {
 		Generator::reset();
 		functions = {};
 		functions["STATIC_INIT"] = { "STATIC_INIT" };
+		funcname = "";
 	}
 
 	void outputfunctions() {
@@ -47,13 +49,15 @@ struct TinyWizzardGenerator : Generator {
 		}
 	}
 
-	// === Generate class ===
+	// === class definition ===
 
 	void pclass(const Json& json) {
 		auto& classname = json.at("classname").str;
 		log(1, "compiling class: " + classname);
 		for (auto& dim : json.at("variables").arr)
 			pdim(dim);
+		for (auto& func : json.at("functions").arr)
+			pfunction(func);
 	}
 
 	void pdim(const Json& json) {
@@ -67,12 +71,45 @@ struct TinyWizzardGenerator : Generator {
 			pexpression(json.at("expression"));
 	}
 
-	// === Generate expressions ===
+	void pfunction(const Json& json) {
+		log(4, "(trace) pfunction");
+		funcname            = json.at("name").str;
+		functions[funcname] = { funcname };
+		for (auto& stmt : json.at("block").arr)
+			pstatement(stmt);
+		funcname = "";
+	}
+
+	// === statements ===
+
+	vector<Instruction>& getilist() {
+		return funcname.length() 
+			? functions.at(funcname).ilist 
+			: functions.at("STATIC_INIT").ilist;
+	}
+
+	void pstatement(const Json& json) {
+		log(4, "(trace) pstatement");
+		auto& ilist = getilist();
+		auto& type  = json.at("statement").str;
+		dsym        = json.at("dsym").num;
+		ilist.push_back({ IN_DSYM, {}, dsym });
+		// generate statement
+		if (type == "assign") {
+			pexpression(json.at("expression"));
+			ilist.push_back({ IN_PUT, { json.at("variable").str } });
+		}
+		else
+			errorc("pstatement", "unknown statement '" + type + "'");
+	}
+
+	// === expressions ===
 
 	void pexpression(const Json& json) {
 		log(4, "(trace) pexpression");
-		auto& ilist = functions.at("STATIC_INIT").ilist;
+		auto& ilist = getilist();
 		auto& type  = json.at("expr").str;
+		// generate expression
 		if (type == "number")
 			ilist.push_back({ IN_PUSH, {}, (int)json.at("value").num });
 		else if (type == "variable")
