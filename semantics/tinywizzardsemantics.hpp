@@ -73,6 +73,8 @@ struct TinyWizzardSemantics : Semantics {
 		if      (type == "integer") ;
 		else if (type == "strlit") ;
 		else if (type == "add" || type == "mul") {
+			if (json.at("lhs").at("expr").str == "strlit" || json.at("rhs").at("expr").str == "strlit")
+				errorc("pexpression", "trying to add or multiply a string");
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
 		}

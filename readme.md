@@ -16,7 +16,7 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 TODO:
 -----
 - semantics
-	- strings in expressions (add / mul)
+	- ...
 - expressions in print
 	- replace printi/v/s commands?
 	- OR
