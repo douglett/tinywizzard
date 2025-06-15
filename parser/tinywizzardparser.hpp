@@ -1,9 +1,9 @@
 #pragma once
-#include "astparser2.hpp"
+#include "astparser.hpp"
 using namespace std;
 
 
-struct TinyWizzardParser : ASTParser2 {
+struct TinyWizzardParser : ASTParser {
 	int parse(const string& fname) {
 		loglevel = 4;  // 4 = trace
 		tokenize(fname);

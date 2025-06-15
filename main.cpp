@@ -1,6 +1,6 @@
-#include "parser/tinywizzardparser2.hpp"
+#include "parser/tinywizzardparser.hpp"
 #include "semantics/tinywizzardsemantics.hpp"
-#include "generator/tinywizzardgenerator2.hpp"
+#include "generator/tinywizzardgenerator.hpp"
 #include "runtime/runtime.hpp"
 using namespace std;
 

@@ -4,7 +4,7 @@
 using namespace std;
 
 
-struct ASTParser2 : TokenHelpers {
+struct ASTParser : TokenHelpers {
 	// enum LOG_LEVEL { LOG_NONE, LOG_BASIC, LOG_EXTRA, LOG_FULL, LOG_TRACE };
 	Tokenizer tok;
 	Json ast = { Json::JNULL };
