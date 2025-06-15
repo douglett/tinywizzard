@@ -64,7 +64,7 @@ struct TinyWizzardSemantics : Semantics {
 
 	void pexpression(const Json& json) {
 		auto& type = json.at("expr").str;
-		if      (type == "number") ;
+		if      (type == "integer") ;
 		else if (type == "strlit") ;
 		else if (type == "add" || type == "mul") {
 			pexpression(json.at("lhs"));

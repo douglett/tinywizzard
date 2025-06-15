@@ -175,7 +175,7 @@ struct TinyWizzardParser : ASTParser {
 		json = { Json::JOBJECT };
 		json._order = { "expr" };
 		if (accept("$number")) {
-			json.obj["expr"]  = { Json::JSTRING, 0, "number" };
+			json.obj["expr"]  = { Json::JSTRING, 0, "integer" };
 			json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
 			// json = { Json::JNUMBER, (double)stoi(presult.at(0)) };
 			return true;

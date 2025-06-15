@@ -119,7 +119,7 @@ struct TinyWizzardGenerator : Generator {
 		else if (type == "print") {
 			for (auto& printval : json.at("printvals").arr) {
 				auto& type = printval.at("expr").str;
-				if (type == "number")
+				if (type == "integer")
 					output( IN_PRINTI, printval.at("value").num );
 				else if (type == "variable")
 					output( IN_PRINTV, { printval.at("value").str } );
@@ -143,7 +143,7 @@ struct TinyWizzardGenerator : Generator {
 		log(4, "(trace) pexpression");
 		auto& type  = json.at("expr").str;
 		// generate expression
-		if (type == "number")
+		if (type == "integer")
 			output( IN_PUSH, json.at("value").num );
 		else if (type == "variable")
 			output( IN_GET, { json.at("value").str } );

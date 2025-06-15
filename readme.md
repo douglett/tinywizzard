@@ -15,9 +15,6 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 TODO:
 -----
-- redo parser
-	- remove old classes
-- local variables
 - semantics
 	- duplicate function names
 	- strings in expressions (add / mul)
@@ -25,3 +22,6 @@ TODO:
 	- replace printi/v/s commands?
 	- OR
 	- special variable for expression results? $TEMP? other?
+- local variables
+- string types
+- float types
