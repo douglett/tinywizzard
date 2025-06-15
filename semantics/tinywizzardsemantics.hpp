@@ -4,7 +4,7 @@ using namespace std;
 
 
 struct TinyWizzardSemantics : Semantics {
-	map<string, bool> dims;
+	map<string, bool> dims, functions;
 
 	int validate(const Json& json) {
 		log(1, "validating file...");
@@ -24,6 +24,7 @@ struct TinyWizzardSemantics : Semantics {
 	void reset() {
 		Semantics::reset();
 		dims = {};
+		functions = { { "STATIC_INIT", true } };
 	}
 
 	void pdim(const Json& json) {
@@ -37,6 +38,11 @@ struct TinyWizzardSemantics : Semantics {
 	}
 
 	void pfunction(const Json& json) {
+		dsym = json.at("dsym").num;
+		auto& name = json.at("name").str;
+		if (functions.count(name))
+			errorc("pfunction", "re-definition of '" + name + "'");
+		functions[name] = true;
 		for (auto& stmt : json.at("block").arr)
 			pstatement(stmt);
 	}

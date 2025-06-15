@@ -99,6 +99,7 @@ struct TinyWizzardGenerator : Generator {
 		log(4, "(trace) pfunction");
 		funcname            = json.at("name").str;
 		functions[funcname] = { funcname };
+		dsym                = json.at("dsym").num;
 		for (auto& stmt : json.at("block").arr)
 			pstatement(stmt);
 		funcname = "";

@@ -45,9 +45,10 @@ struct TinyWizzardParser : ASTParser {
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
 		json.obj["name"]      = { Json::JSTRING, 0, presult.at(1) };
+		json.obj["dsym"]      = { Json::JNUMBER, (double)presultline };
 		json.obj["arguments"] = { Json::JARRAY };
 		json.obj["block"]     = { Json::JARRAY };
-		json._order = { "name", "arguments", "block" };
+		json._order = { "name", "dsym", "arguments", "block" };
 		require(")");
 		pblock(json.at("block"));
 		// function body
