@@ -92,7 +92,7 @@ struct TinyWizzardSemantics : Semantics {
 			auto& name = json.at("value").str;
 			if (!dims.count(name))
 				errorc("pexpression", "undefined variable '" + name + "'");
-			return "int";
+			return dims.at(name);
 		}
 		else {
 			errorc("pexpression", "unknown in expression '" + type + "'");

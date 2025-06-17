@@ -19,7 +19,9 @@ void tinywizzard() {
 	run.program = gen.program;
 	run.run();
 
-	printf("%s\n", run.stringheap.at(1).c_str());
+	int ptr = run.var("s");
+	string& s = run.stringheap.at(ptr);
+	printf("%s\n", s.c_str());
 }
 
 
