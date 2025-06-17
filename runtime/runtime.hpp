@@ -87,7 +87,8 @@ struct Runtime : RuntimeBase {
 	}
 
 	int& var(const string& varname) {
-		if (!variables.count(varname)) error("var", "missing variable: " + varname);
+		if (!variables.count(varname))
+			error("var", "missing variable: " + varname);
 		return variables.at(varname);
 	}
 	int push(int t) {

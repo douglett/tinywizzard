@@ -83,7 +83,6 @@ struct TinyWizzardGenerator : Generator {
 
 	void pdim(const Json& json) {
 		log(4, "(trace) pdim");
-		auto& ilist = functions.at("STATIC_INIT").ilist;
 		auto& name  = json.at("name").str;
 		dsym        = json.at("dsym").num;
 		// generate dim
@@ -91,7 +90,7 @@ struct TinyWizzardGenerator : Generator {
 		output( IN_DIM, { name } );
 		if (json.count("expression")) {
 			pexpression(json.at("expression"));
-			ilist.push_back({ IN_PUT, { name } });
+			output( IN_PUT, { name } );
 		}
 	}
 
