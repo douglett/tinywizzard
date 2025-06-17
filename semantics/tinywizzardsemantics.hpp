@@ -61,10 +61,13 @@ struct TinyWizzardSemantics : Semantics {
 			auto& name = json.at("variable").str;
 			if (!dims.count(name))
 				errorc("pstatement", "assign to undefined variable '" + name + "'");
-			const auto& type = dims.at(name);
-			auto extype = pexpression(json.at("expression"));
+			// check type information
+			auto& type   = dims.at(name);
+			auto  extype = pexpression(json.at("expression"));
 			if (type != extype)
 				errorc("pstatement", "assign to variable '" + type + "' with '" + extype + "'");
+			// add type information to variable
+			((Json&)json).obj["type"] = { Json::JSTRING, 0, type };
 		}
 		// print
 		else if (type == "print") {

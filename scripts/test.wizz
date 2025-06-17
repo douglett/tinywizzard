@@ -11,6 +11,6 @@ int main() {
 	print 123, 1, 2, a, "hello";
 	a = 34;
 	print a, b, c;
-	// a = "hello";
+	s = "hello";
 	print s;
 }

@@ -102,6 +102,8 @@ struct TinyWizzardGenerator : Generator {
 				pexpressionstr(json.at("expression"), name);
 			}
 		}
+		else
+			errorc("pdim", "unknown type '" + type + "'");
 	}
 
 	void pfunction(const Json& json) {
@@ -123,8 +125,16 @@ struct TinyWizzardGenerator : Generator {
 		// generate statement
 		output( IN_DSYM, dsym );
 		if (type == "assign") {
-			pexpression(json.at("expression"));
-			output( IN_PUT, { json.at("variable").str } );
+			auto& vtype = json.at("type").str;
+			if (vtype == "int") {
+				pexpression(json.at("expression"));
+				output( IN_PUT, { json.at("variable").str } );
+			}
+			else if (vtype == "string") {
+				pexpressionstr(json.at("expression"), json.at("variable").str);
+			}
+			else
+				errorc("pstatement", "unknown type '" + vtype + "'");
 		}
 		else if (type == "print") {
 			for (auto& printval : json.at("printvals").arr) {
@@ -187,6 +197,6 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_COPYSTRL, { varname, "STRING_LIT_"+to_string(literals.size()-1) } );
 		}
 		else
-			errorc("pexpression", "unknown expression '" + type + "'");
+			errorc("pexpression", "unknown string expression '" + type + "'");
 	}
 };
