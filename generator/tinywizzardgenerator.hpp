@@ -131,8 +131,15 @@ struct TinyWizzardGenerator : Generator {
 				auto& type = printval.at("expr").str;
 				if (type == "integer")
 					output( IN_PRINTI, printval.at("value").num );
-				else if (type == "variable")
-					output( IN_PRINTV, { printval.at("value").str } );
+				else if (type == "variable") {
+					auto& vtype = printval.at("type").str;
+					if (vtype == "int")
+						output( IN_PRINTV, { printval.at("value").str } );
+					else if (vtype == "string")
+						output( IN_PRINTVS, { printval.at("value").str } );
+					else
+						errorc( "pstatement-print", "unknown variable type '" + vtype + "'");
+				}
 				else if (type == "strlit") {
 					literals.push_back(printval.at("value").str);
 					output( IN_PRINTS, { "STRING_LIT_"+to_string(literals.size()-1) } );
@@ -174,7 +181,7 @@ struct TinyWizzardGenerator : Generator {
 	void pexpressionstr(const Json& json, const string& varname) {
 		log(4, "(trace) pexpressionstr");
 		auto& type = json.at("expr").str;
-
+		// handle string expression
 		if (type == "strlit") {
 			literals.push_back(json.at("value").str);
 			output( IN_COPYSTRL, { varname, "STRING_LIT_"+to_string(literals.size()-1) } );

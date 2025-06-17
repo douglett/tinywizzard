@@ -65,6 +65,7 @@ struct Runtime : RuntimeBase {
 				case IN_PRINTC:    cout << (char)instr.argi;  break;
 				case IN_PRINTV:    cout << var(instr.args.at(0));  break;
 				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
+				case IN_PRINTVS:   cout << stringheap.at(var(instr.args.at(0)));  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
 				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;
