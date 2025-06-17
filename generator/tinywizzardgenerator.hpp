@@ -11,7 +11,7 @@ struct TinyWizzardGenerator : Generator {
 	string funcname;
 
 	int generate(const Json& json) {
-		loglevel = 4;  // 4 = trace
+		// loglevel = 4;  // 4 = trace
 		log(1, "generating single-class program...");
 		reset();
 		// compile

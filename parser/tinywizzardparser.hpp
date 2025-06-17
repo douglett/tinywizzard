@@ -5,7 +5,7 @@ using namespace std;
 
 struct TinyWizzardParser : ASTParser {
 	int parse(const string& fname) {
-		loglevel = 4;  // 4 = trace
+		// loglevel = 4;  // 4 = trace
 		tokenize(fname);
 		// parse program
 		log(1, "syntax parsing...");
@@ -57,13 +57,14 @@ struct TinyWizzardParser : ASTParser {
 
 	int pdim(Json& parent) {
 		log(4, "(trace) pdim");
-		if (!accept("int $identifier"))
+		if (!accept("$identifier $identifier"))
 			return false;
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
 		json.obj["name"] = { Json::JSTRING, 0, presult.at(1) };
+		json.obj["type"] = { Json::JSTRING, 0, presult.at(0) };
 		json.obj["dsym"] = { Json::JNUMBER, (double)presultline };
-		json._order = { "name", "dsym", "expression" };
+		json._order = { "name", "type", "dsym", "expression" };
 		// assignment
 		if (accept("=")) {
 			json.obj["expression"] = { Json::JOBJECT };
