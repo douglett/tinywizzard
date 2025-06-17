@@ -11,6 +11,7 @@ void tinywizzard() {
 
 	TinyWizzardSemantics semantics;
 	semantics.validate(parser.ast);
+	parser.show();
 
 	TinyWizzardGenerator gen;
 	gen.generate(parser.ast);
@@ -21,7 +22,7 @@ void tinywizzard() {
 
 	int ptr = run.var("s");
 	string& s = run.stringheap.at(ptr);
-	printf("%s\n", s.c_str());
+	printf("runtime test output: %s\n", s.c_str());
 }
 
 

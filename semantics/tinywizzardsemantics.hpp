@@ -92,6 +92,8 @@ struct TinyWizzardSemantics : Semantics {
 			auto& name = json.at("value").str;
 			if (!dims.count(name))
 				errorc("pexpression", "undefined variable '" + name + "'");
+			// add type information to variable
+			((Json&)json).obj["type"] = { Json::JSTRING, 0, dims.at(name) };
 			return dims.at(name);
 		}
 		else {
