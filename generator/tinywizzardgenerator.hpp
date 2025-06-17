@@ -98,6 +98,9 @@ struct TinyWizzardGenerator : Generator {
 		else if (type == "string") {
 			output( IN_MAKESTR );
 			output( IN_PUT, { name } );
+			if (json.count("expression")) {
+				pexpressionstr(json.at("expression"), name);
+			}
 		}
 	}
 
@@ -148,7 +151,7 @@ struct TinyWizzardGenerator : Generator {
 
 	void pexpression(const Json& json) {
 		log(4, "(trace) pexpression");
-		auto& type  = json.at("expr").str;
+		auto& type = json.at("expr").str;
 		// generate expression
 		if (type == "integer")
 			output( IN_PUSH, json.at("value").num );
@@ -163,6 +166,18 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == "*")  output( IN_MUL );
 			else if (op == "/")  output( IN_DIV );
 			else    errorc("pexpression-add-mul", "unknown operator: " + op);
+		}
+		else
+			errorc("pexpression", "unknown expression '" + type + "'");
+	}
+
+	void pexpressionstr(const Json& json, const string& varname) {
+		log(4, "(trace) pexpressionstr");
+		auto& type = json.at("expr").str;
+
+		if (type == "strlit") {
+			literals.push_back(json.at("value").str);
+			output( IN_COPYSTRL, { varname, "STRING_LIT_"+to_string(literals.size()-1) } );
 		}
 		else
 			errorc("pexpression", "unknown expression '" + type + "'");

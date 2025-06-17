@@ -38,7 +38,7 @@ struct TinyWizzardSemantics : Semantics {
 		if (json.count("expression")) {
 			auto extype = pexpression(json.at("expression"));
 			if (type != extype)
-				errorc("pdim", "initializing '" + type + "' with '" + extype);
+				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
 		}
 		dims[name] = type;
 	}

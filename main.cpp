@@ -18,6 +18,8 @@ void tinywizzard() {
 	Runtime run;
 	run.program = gen.program;
 	run.run();
+
+	printf("%s\n", run.stringheap.at(1).c_str());
 }
 
 
