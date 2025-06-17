@@ -70,21 +70,27 @@ struct TinyWizzardSemantics : Semantics {
 			errorc("pstatement", "unknown statement '" + type + "'");
 	}
 
-	void pexpression(const Json& json) {
+	string pexpression(const Json& json) {
 		auto& type = json.at("expr").str;
-		if      (type == "integer") ;
+		if      (type == "integer")  return "int";
+		else if (type == "strlit")   return "string";
 		else if (type == "add" || type == "mul") {
-			if (json.at("lhs").at("expr").str == "strlit" || json.at("rhs").at("expr").str == "strlit")
-				errorc("pexpression", "trying to add or multiply a string");
-			pexpression(json.at("lhs"));
-			pexpression(json.at("rhs"));
+			auto ltype = pexpression(json.at("lhs"));
+			auto rtype = pexpression(json.at("rhs"));
+			if (ltype == "int" && rtype == "int")
+				return "int";
+			errorc("pexpression", "trying to add/multiply between '" + ltype + "' and '" + rtype + "'");
+			return "void";
 		}
 		else if (type == "variable") {
 			auto& name = json.at("value").str;
 			if (!dims.count(name))
 				errorc("pexpression", "undefined variable '" + name + "'");
+			return "int";
 		}
-		else
+		else {
 			errorc("pexpression", "unknown in expression '" + type + "'");
+			return "void";
+		}
 	}
 };
