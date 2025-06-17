@@ -63,18 +63,16 @@ struct TinyWizzardSemantics : Semantics {
 		// print
 		else if (type == "print") {
 			for (auto& pval : json.at("printvals").arr)
-				pexpression(pval);
+				if    (pval.at("expr").str == "strlit") ;
+				else  pexpression(pval);
 		}
-		// warning
-		else {
-			log(1, "warning: unchecked statement '" + type + "'");
-		}
+		else
+			errorc("pstatement", "unknown statement '" + type + "'");
 	}
 
 	void pexpression(const Json& json) {
 		auto& type = json.at("expr").str;
 		if      (type == "integer") ;
-		else if (type == "strlit") ;
 		else if (type == "add" || type == "mul") {
 			if (json.at("lhs").at("expr").str == "strlit" || json.at("rhs").at("expr").str == "strlit")
 				errorc("pexpression", "trying to add or multiply a string");
@@ -86,8 +84,7 @@ struct TinyWizzardSemantics : Semantics {
 			if (!dims.count(name))
 				errorc("pexpression", "undefined variable '" + name + "'");
 		}
-		else {
-			log(1, "warning: unchecked expression '" + type + "'");
-		}
+		else
+			errorc("pexpression", "unknown in expression '" + type + "'");
 	}
 };
