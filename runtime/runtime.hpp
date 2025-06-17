@@ -13,10 +13,11 @@ struct Runtime : RuntimeBase {
 	vector<Instruction> program;
 	map<string, string> data;
 	map<string, int> variables;
+	map<int, string> stringheap;
 	vector<int> stack, callstack;
 	stringstream ss;
 	string s;
-	size_t PC = 0;
+	size_t PC = 0, heaptop = 0;
 
 	int run() {
 		printf("-----\n");
@@ -48,6 +49,7 @@ struct Runtime : RuntimeBase {
 				case IN_DATA:
 					data[instr.args.at(0)] = instr.args.at(1);
 					break;
+				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;

@@ -33,7 +33,7 @@ struct TinyWizzardSemantics : Semantics {
 		auto& type = json.at("type").str;
 		if (dims.count(name))
 			errorc("pdim", "re-definition of '" + name + "'");
-		if (type != "int")
+		if (type != "int" && type != "string")
 			errorc("pdim", "unknown type '" + type + "'");
 		if (json.count("expression")) {
 			auto extype = pexpression(json.at("expression"));

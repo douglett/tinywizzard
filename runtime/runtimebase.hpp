@@ -13,10 +13,11 @@ using namespace std;
 struct RuntimeBase {
 	enum INSTRUCTION_TYPE {
 		IN_NOOP, IN_DSYM, IN_LABEL,
-		IN_DIM, IN_DATA, IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_GETLINE, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
-		IN_PRINTI, IN_PRINTC, IN_PRINTV, IN_PRINTS,
+		IN_DIM, IN_DATA, IN_MAKESTR,
+		IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_GETLINE, IN_INPUT, IN_PUT, IN_GET, IN_PUSH,
+			IN_PRINTI, IN_PRINTC, IN_PRINTV, IN_PRINTS,
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_EQ, IN_NEQ, IN_LT, IN_GT, IN_LTE, IN_GTE,
-		IN_JUMPIF, IN_JUMPIFN
+			IN_JUMPIF, IN_JUMPIFN
 	};
 	struct Instruction { INSTRUCTION_TYPE type; vector<string> args; int argi; };
 
@@ -38,6 +39,7 @@ struct RuntimeBase {
 					+ in.args.at(0) 
 					+ " \"" + TokenHelpers::escapeliteral(in.args.at(1)) + "\"";
 				break;
+			case IN_MAKESTR:   s += "makestr";  break;
 			// control
 			case IN_END:       s += "end";  break;
 			case IN_JUMP:      s += "jump " + in.args.at(0);  break;

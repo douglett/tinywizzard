@@ -84,12 +84,19 @@ struct TinyWizzardGenerator : Generator {
 	void pdim(const Json& json) {
 		log(4, "(trace) pdim");
 		auto& name  = json.at("name").str;
+		auto& type  = json.at("type").str;
 		dsym        = json.at("dsym").num;
 		// generate dim
 		output( IN_DSYM, dsym );
 		output( IN_DIM, { name } );
-		if (json.count("expression")) {
-			pexpression(json.at("expression"));
+		if (type == "int") {
+			if (json.count("expression")) {
+				pexpression(json.at("expression"));
+				output( IN_PUT, { name } );
+			}
+		}
+		else if (type == "string") {
+			output( IN_MAKESTR );
 			output( IN_PUT, { name } );
 		}
 	}
