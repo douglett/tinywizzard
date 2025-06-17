@@ -35,8 +35,11 @@ struct TinyWizzardSemantics : Semantics {
 			errorc("pdim", "re-definition of '" + name + "'");
 		if (type != "int")
 			errorc("pdim", "unknown type '" + type + "'");
-		if (json.count("expression"))
-			pexpression(json.at("expression"));
+		if (json.count("expression")) {
+			auto extype = pexpression(json.at("expression"));
+			if (type != extype)
+				errorc("pdim", "initializing '" + type + "' with '" + extype);
+		}
 		dims[name] = type;
 	}
 
@@ -58,7 +61,10 @@ struct TinyWizzardSemantics : Semantics {
 			auto& name = json.at("variable").str;
 			if (!dims.count(name))
 				errorc("pstatement", "assign to undefined variable '" + name + "'");
-			pexpression(json.at("expression"));
+			const auto& type = dims.at(name);
+			auto extype = pexpression(json.at("expression"));
+			if (type != extype)
+				errorc("pstatement", "assign to variable '" + type + "' with '" + extype + "'");
 		}
 		// print
 		else if (type == "print") {
