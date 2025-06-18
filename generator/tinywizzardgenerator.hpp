@@ -196,6 +196,9 @@ struct TinyWizzardGenerator : Generator {
 			literals.push_back(json.at("value").str);
 			output( IN_COPYSTRL, { varname, "STRING_LIT_"+to_string(literals.size()-1) } );
 		}
+		else if (type == "variable") {
+			output( IN_COPYSTRV, { varname, json.at("value").str } );
+		}
 		else
 			errorc("pexpression", "unknown string expression '" + type + "'");
 	}

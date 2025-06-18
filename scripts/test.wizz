@@ -5,6 +5,7 @@ int b = 4+1;
 int c = b * 2;
 int d;
 string s = "test string";
+string ss = "blah";
 
 int main() {
 	a = 12;
@@ -12,5 +13,7 @@ int main() {
 	a = 34;
 	print a, b, c;
 	s = "hello";
+	print s;
+	s = ss;
 	print s;
 }

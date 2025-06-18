@@ -51,6 +51,7 @@ struct Runtime : RuntimeBase {
 					break;
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
 				case IN_COPYSTRL:  stringheap.at(var(instr.args.at(0))) = data.at(instr.args.at(1));  break;
+				case IN_COPYSTRV:  stringheap.at(var(instr.args.at(0))) = stringheap.at(var(instr.args.at(1)));  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
