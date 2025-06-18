@@ -7,6 +7,7 @@ struct TinyWizzardSemantics : Semantics {
 	map<string, string> dims, functions;
 
 	int validate(const Json& json) {
+		loglevel = 2;
 		log(1, "validating file...");
 		reset();
 		// validate class members
@@ -66,14 +67,13 @@ struct TinyWizzardSemantics : Semantics {
 			auto  extype = pexpression(json.at("expression"));
 			if (type != extype)
 				errorc("pstatement", "assign to variable '" + type + "' with '" + extype + "'");
-			// add type information to variable
+			// add type information to assignment variable
 			((Json&)json).obj["type"] = { Json::JSTRING, 0, type };
 		}
 		// print
 		else if (type == "print") {
 			for (auto& pval : json.at("printvals").arr)
-				if    (pval.at("expr").str == "strlit") ;
-				else  pexpression(pval);
+				pexpression(pval);
 		}
 		else
 			errorc("pstatement", "unknown statement '" + type + "'");
@@ -81,8 +81,9 @@ struct TinyWizzardSemantics : Semantics {
 
 	string pexpression(const Json& json) {
 		auto& type = json.at("expr").str;
-		if      (type == "integer")  return "int";
-		else if (type == "strlit")   return "string";
+		if      (type == "integer")   return "int";
+		else if (type == "strlit")    return "string";
+		else if (type == "variable")  return pexprvar(json);
 		else if (type == "add" || type == "mul") {
 			auto ltype = pexpression(json.at("lhs"));
 			auto rtype = pexpression(json.at("rhs"));
@@ -91,17 +92,18 @@ struct TinyWizzardSemantics : Semantics {
 			errorc("pexpression", "trying to add/multiply between '" + ltype + "' and '" + rtype + "'");
 			return "void";
 		}
-		else if (type == "variable") {
-			auto& name = json.at("value").str;
-			if (!dims.count(name))
-				errorc("pexpression", "undefined variable '" + name + "'");
-			// add type information to variable
-			((Json&)json).obj["type"] = { Json::JSTRING, 0, dims.at(name) };
-			return dims.at(name);
-		}
-		else {
-			errorc("pexpression", "unknown in expression '" + type + "'");
-			return "void";
-		}
+		else
+			return errorc("pexpression", "unknown in expression '" + type + "'"), "void";
+	}
+
+	string pexprvar(const Json& json) {
+		auto& name = json.at("value").str;
+		if (!dims.count(name))
+			errorc("pexpression", "undefined variable '" + name + "'");
+		// add type information to variable
+		auto& type = dims.at(name);
+		log(2, "adding to variable '" + name + "' type '" + type + "'");
+		((Json&)json).obj["type"] = { Json::JSTRING, 0, type };
+		return type;
 	}
 };

@@ -1,19 +1,10 @@
 static class hello;
 
 int a;
-int b = 4+1;
-int c = b * 2;
-int d;
-string s = "test string";
-string ss = "blah";
+string s;
 
 int main() {
-	a = 12;
-	print 123, 1, 2, a, "hello";
-	a = 34;
-	print a, b, c;
-	s = "hello";
-	print s;
-	s = ss;
-	print s;
+	a = 12 + 3;
+	s = "cheese";
+	print 123, a, s;
 }
