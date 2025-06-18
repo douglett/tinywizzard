@@ -50,8 +50,8 @@ struct Runtime : RuntimeBase {
 					data[instr.args.at(0)] = instr.args.at(1);
 					break;
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
-				case IN_COPYSTRL:  stringheap.at(var(instr.args.at(0))) = data.at(instr.args.at(1));  break;
-				case IN_COPYSTRV:  stringheap.at(var(instr.args.at(0))) = stringheap.at(var(instr.args.at(1)));  break;
+				case IN_COPYSTRL:  getstr(instr.args.at(0)) = getdata(instr.args.at(1));  break;
+				case IN_COPYSTRV:  getstr(instr.args.at(0)) = getstr(instr.args.at(1));  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
@@ -65,8 +65,8 @@ struct Runtime : RuntimeBase {
 				case IN_PRINTI:    cout << instr.argi;  break;
 				case IN_PRINTC:    cout << (char)instr.argi;  break;
 				case IN_PRINTV:    cout << var(instr.args.at(0));  break;
-				case IN_PRINTS:    cout << data.at(instr.args.at(0));  break;
-				case IN_PRINTVS:   cout << stringheap.at(var(instr.args.at(0)));  break;
+				case IN_PRINTS:    cout << getdata(instr.args.at(0));  break;
+				case IN_PRINTVS:   cout << getstr(instr.args.at(0));  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
 				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;
@@ -93,8 +93,19 @@ struct Runtime : RuntimeBase {
 
 	int& var(const string& varname) {
 		if (!variables.count(varname))
-			error("var", "missing variable: " + varname);
+			error("var", "missing variable " + varname);
 		return variables.at(varname);
+	}
+	string& getstr(const string& varname) {
+		int ptr = var(varname);
+		if (!stringheap.count(ptr))
+			error("getstr", "missing heap pointer " + varname + " (" + to_string(ptr) + ")");
+		return stringheap.at(ptr);
+	}
+	string& getdata(const string& varname) {
+		if (!data.count(varname))
+			error("getdata", "missing literal " + varname);
+		return data.at(varname);
 	}
 	int push(int t) {
 		stack.push_back(t);

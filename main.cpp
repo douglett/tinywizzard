@@ -11,7 +11,7 @@ void tinywizzard() {
 
 	TinyWizzardSemantics semantics;
 	semantics.validate(parser.ast);
-	parser.show();
+	parser.show();  // update with type info
 
 	TinyWizzardGenerator gen;
 	gen.generate(parser.ast);
@@ -19,10 +19,6 @@ void tinywizzard() {
 	Runtime run;
 	run.program = gen.program;
 	run.run();
-
-	int ptr = run.var("s");
-	string& s = run.stringheap.at(ptr);
-	printf("runtime test output: %s\n", s.c_str());
 }
 
 
