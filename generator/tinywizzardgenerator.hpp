@@ -75,7 +75,7 @@ struct TinyWizzardGenerator : Generator {
 	void pclass(const Json& json) {
 		auto& classname = json.at("classname").str;
 		log(1, "compiling class: " + classname);
-		for (auto& dim : json.at("variables").arr)
+		for (auto& dim : json.at("dims").arr)
 			pdim(dim);
 		for (auto& func : json.at("functions").arr)
 			pfunction(func);
@@ -128,10 +128,10 @@ struct TinyWizzardGenerator : Generator {
 			auto& vtype = json.at("type").str;
 			if (vtype == "int") {
 				pexpression(json.at("expression"));
-				output( IN_PUT, { json.at("variable").str } );
+				output( IN_PUT, { json.at("name").str } );
 			}
 			else if (vtype == "string") {
-				pexpressionstr(json.at("expression"), json.at("variable").str);
+				pexpressionstr(json.at("expression"), json.at("name").str);
 			}
 			else
 				errorc("pstatement", "unknown type '" + vtype + "'");

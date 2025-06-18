@@ -11,7 +11,7 @@ struct TinyWizzardSemantics : Semantics {
 		log(1, "validating file...");
 		reset();
 		// validate class members
-		for (auto& var : json.at("variables").arr)
+		for (auto& var : json.at("dims").arr)
 			pdim(var);
 		for (auto& func : json.at("functions").arr)
 			pfunction(func);
@@ -59,7 +59,7 @@ struct TinyWizzardSemantics : Semantics {
 		auto& type = json.at("statement").str;
 		// assign
 		if (type == "assign") {
-			auto& name = json.at("variable").str;
+			auto& name = json.at("name").str;
 			if (!dims.count(name))
 				errorc("pstatement", "assign to undefined variable '" + name + "'");
 			// check type information

@@ -22,16 +22,16 @@ struct TinyWizzardParser : ASTParser {
 		// create object
 		ast = { Json::JOBJECT };
 		ast.obj["static"]    = { Json::JBOOLEAN, true };
-		ast.obj["variables"] = { Json::JARRAY };
+		ast.obj["dims"] = { Json::JARRAY };
 		ast.obj["functions"] = { Json::JARRAY };
-		ast._order = { "classname", "static", "variables", "functions" };
+		ast._order = { "classname", "static", "dims", "functions" };
 		// parse header
 		require("static class $identifier ;");
 		ast.obj["classname"] = { Json::JSTRING, 0, presult.at(2) };
 		// class members
 		while (!accept("$eof"))
 			if      (pfunction(ast.at("functions"))) ;
-			else if (pdim(ast.at("variables"))) ;
+			else if (pdim(ast.at("dims"))) ;
 			else    break;
 		// class end
 		require("$eof");
@@ -97,9 +97,9 @@ struct TinyWizzardParser : ASTParser {
 		auto& json = parent.push({ Json::JOBJECT });
 		json.obj["statement"]  = { Json::JSTRING, 0, "assign" };
 		json.obj["dsym"]       = { Json::JNUMBER, (double)presultline };
-		json.obj["variable"]   = { Json::JSTRING, 0, presult.at(0) };
+		json.obj["name"]       = { Json::JSTRING, 0, presult.at(0) };
 		json.obj["expression"] = { Json::JOBJECT };
-		json._order = { "statement", "dsym", "variable", "type", "expression" };
+		json._order = { "statement", "dsym", "name", "type", "expression" };
 		// parse expression
 		pexpression(json.at("expression"));
 		require(";");
