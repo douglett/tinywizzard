@@ -19,7 +19,7 @@ struct TinyWizzardGenerator : Generator {
 		// success or fail
 		if (errcount)
 			error("Generator", "compile failed with " + to_string(errcount) + " errors.");
-		outputliterals();
+		outputstrlit();
 		outputfunctions();
 		show();
 		log(1, "compiled successfully!");
@@ -29,14 +29,14 @@ struct TinyWizzardGenerator : Generator {
 	void reset() {
 		Generator::reset();
 		functions = {};
-		functions["STATIC_INIT"] = { "STATIC_INIT" };
+		functions["$STATIC_INIT"] = { "$STATIC_INIT" };
 		funcname = "";
 	}
 
 	// === generate helpers ===
 
 	vector<Instruction>& getilist() {
-		return funcname.length() ? functions.at(funcname).ilist : functions.at("STATIC_INIT").ilist;
+		return funcname.length() ? functions.at(funcname).ilist : functions.at("$STATIC_INIT").ilist;
 	}
 	void output(INSTRUCTION_TYPE type, int argi) {
 		getilist().push_back({ type, {}, argi });
@@ -45,17 +45,22 @@ struct TinyWizzardGenerator : Generator {
 		getilist().push_back({ type, args, argi });
 	}
 
-	void outputliterals() {
-		auto& fn = functions.at("STATIC_INIT").ilist;
+	string addstrlit(const string& str) {
+		literals.push_back(str);
+		return "$STRLIT_" + to_string(literals.size() - 1);
+	}
+
+	void outputstrlit() {
+		auto& fn = functions.at("$STATIC_INIT").ilist;
 		fn.insert(fn.begin(), { IN_NOOP, { "string-literals" } });
 		for (size_t i = 0; i < literals.size(); i++)
-			fn.insert(fn.begin()+i+1, { IN_DATA, { "STRING_LIT_"+to_string(i), literals.at(i) } });
+			fn.insert(fn.begin()+i+1, { IN_DATA, { "$STRLIT_" + to_string(i), literals.at(i) } });
 	}
 
 	void outputfunctions() {
 		log(1, "ouputting functions to main program...");
 		// calculate order
-		vector<string> order = { "STATIC_INIT", "main" };
+		vector<string> order = { "$STATIC_INIT", "main" };
 		for (const auto& fn : functions)
 			if (find(order.begin(), order.end(), fn.first) == order.end())
 				order.push_back(fn.first);
@@ -151,8 +156,8 @@ struct TinyWizzardGenerator : Generator {
 						errorc( "pstatement-print", "unknown variable type '" + vtype + "'");
 				}
 				else if (type == "strlit") {
-					literals.push_back(printval.at("value").str);
-					output( IN_PRINTS, { "STRING_LIT_"+to_string(literals.size()-1) } );
+					auto litname = addstrlit(printval.at("value").str);
+					output( IN_PRINTS, { litname } );
 				}
 				else
 					errorc("pstatement-print", "unknown printval type: " + type);
@@ -193,8 +198,8 @@ struct TinyWizzardGenerator : Generator {
 		auto& type = json.at("expr").str;
 		// handle string expression
 		if (type == "strlit") {
-			literals.push_back(json.at("value").str);
-			output( IN_COPYSTRL, { varname, "STRING_LIT_"+to_string(literals.size()-1) } );
+			auto litname = addstrlit(json.at("value").str);
+			output( IN_COPYSTRL, { varname, litname } );
 		}
 		else if (type == "variable") {
 			output( IN_COPYSTRV, { varname, json.at("value").str } );

@@ -22,7 +22,7 @@ struct Runtime : RuntimeBase {
 	int run() {
 		printf("-----\n");
 		printf("running program...\n");
-		return call("STATIC_INIT") && call("main");
+		return call("$STATIC_INIT") && call("main");
 	}
 
 	int call(const string& funcname) {
