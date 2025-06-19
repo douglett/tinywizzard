@@ -144,23 +144,17 @@ struct TinyWizzardGenerator : Generator {
 		else if (type == "print") {
 			for (auto& printval : json.at("printvals").arr) {
 				auto& type = printval.at("expr").str;
-				if (type == "integer")
-					output( IN_PRINTI, printval.at("value").num );
-				else if (type == "variable") {
-					auto& vtype = printval.at("type").str;
-					if (vtype == "int")
-						output( IN_PRINTV, { printval.at("value").str } );
-					else if (vtype == "string")
-						output( IN_PRINTVS, { printval.at("value").str } );
-					else
-						errorc( "pstatement-print", "unknown variable type '" + vtype + "'");
-				}
-				else if (type == "strlit") {
+				if (type == "strlit") {
 					auto litname = addstrlit(printval.at("value").str);
 					output( IN_PRINTS, { litname } );
 				}
-				else
-					errorc("pstatement-print", "unknown printval type: " + type);
+				else if (type == "variable" && printval.at("type").str == "string") {
+					output( IN_PRINTVS, { printval.at("value").str } );
+				}
+				else {
+					pexpression(printval);
+					output( IN_PRINTV, { "$POP" } );
+				}
 				output( IN_PRINTC, ' ' );  // space-seperate values
 			}
 			output( IN_PRINTC, '\n' );  // enf-of-line

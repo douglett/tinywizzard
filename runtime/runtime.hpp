@@ -18,6 +18,7 @@ struct Runtime : RuntimeBase {
 	stringstream ss;
 	string s;
 	size_t PC = 0, heaptop = 0;
+	int TMP = 0;
 
 	int run() {
 		printf("-----\n");
@@ -92,6 +93,8 @@ struct Runtime : RuntimeBase {
 	}
 
 	int& var(const string& varname) {
+		if (varname == "$POP")
+			return TMP = pop(), TMP;
 		if (!variables.count(varname))
 			error("var", "missing variable " + varname);
 		return variables.at(varname);
