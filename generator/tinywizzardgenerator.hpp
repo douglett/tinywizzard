@@ -162,6 +162,12 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// input
 		else if (stmt == "input") {
+			string promptid;
+			if (json.count("prompt"))
+				promptid = addstrlit(json.at("prompt").str);
+			else
+				promptid = addstrlit("> ");
+			output( IN_PRINTS, { promptid } );
 			auto& varname = json.at("variable").at("value").str;
 			output( IN_INPUT, { varname } );
 		}

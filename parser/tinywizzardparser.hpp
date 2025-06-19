@@ -139,7 +139,11 @@ struct TinyWizzardParser : ASTParser {
 		json.obj["statement"] = { Json::JSTRING, 0, "input" };
 		json.obj["dsym"]      = { Json::JNUMBER, (double)presultline };
 		json.obj["variable"]  = { Json::JOBJECT };
-		json._order = { "statement", "dsym", "variable" };
+		json._order = { "statement", "dsym", "prompt", "variable" };
+		if (accept("$strlit")) {
+			json.obj["prompt"] = { Json::JSTRING, 0, stripliteral( presult.at(0) ) };
+			require(",");
+		}
 		// get variable
 		require("$identifier");
 		json.at("variable").obj["expr"]  = { Json::JSTRING, 0, "variable" };
@@ -166,7 +170,6 @@ struct TinyWizzardParser : ASTParser {
 			json = { Json::JOBJECT };
 			json.obj["expr"]     = { Json::JSTRING, 0, "add" };
 			json.obj["operator"] = { Json::JSTRING, 0, presult.at(0) };
-			// json.obj["expr"]     = { Json::JSTRING, 0, presult.at(0) == "+" ? "add" : "sub" };
 			json.obj["lhs"]      = temp;
 			json._order = { "expr", "operator", "lhs", "rhs" };
 			pmul(json.obj["rhs"]);
