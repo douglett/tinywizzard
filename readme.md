@@ -13,14 +13,14 @@ This WIP tiny version is focused on static classes with no memory management.
 https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 
-TODO:
------
-- semantics
-	- ...
-- expressions in print
-	- replace printi/v/s commands?
-	- OR
-	- special variable for expression results? $TEMP? other?
+## TODO:
+- input command
+- string expressions
+	- better API for copying
+	- better handling of literals
+	- better handling of printi/v/s?
+
+
+## later:
 - local variables
-- string types
 - float types

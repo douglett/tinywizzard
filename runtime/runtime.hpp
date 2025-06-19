@@ -59,7 +59,7 @@ struct Runtime : RuntimeBase {
 				case IN_CALL:      pushst();  jump(instr.args.at(0));  break;
 				case IN_RETURN:    popst();  if (external) return true;  break;
 				case IN_GETLINE:   getline(cin, s);  ss.str(s); ss.clear();  break;
-				case IN_INPUT:     a = 0; ss >> a; var(instr.args.at(0)) = a;  break;
+				case IN_INPUT:     a = 0;  ss >> a;  var(instr.args.at(0)) = a;  break;
 				case IN_PUT:       var(instr.args.at(0)) = pop();  break;
 				case IN_GET:       push( var(instr.args.at(0)) );  break;
 				case IN_PUSH:      push(instr.argi);  break;
