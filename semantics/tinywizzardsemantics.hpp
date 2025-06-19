@@ -76,6 +76,10 @@ struct TinyWizzardSemantics : Semantics {
 			for (auto& pval : json.at("printvals").arr)
 				pexpression(pval);
 		}
+		// input
+		else if (stmt == "input") {
+			pexprvar(json.at("variable"));
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");

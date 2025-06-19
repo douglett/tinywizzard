@@ -158,7 +158,12 @@ struct TinyWizzardGenerator : Generator {
 				}
 				output( IN_PRINTC, ' ' );  // space-seperate values
 			}
-			output( IN_PRINTC, '\n' );  // enf-of-line
+			output( IN_PRINTC, '\n' );  // end-of-line
+		}
+		// input
+		else if (stmt == "input") {
+			auto& varname = json.at("variable").at("value").str;
+			output( IN_INPUT, { varname } );
 		}
 		// unknown
 		else

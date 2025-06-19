@@ -5,6 +5,7 @@ string s;
 
 int main() {
 	a = 12 + 3;
+	print 123, a+2+3;
 	input s;
-	print 123, a+2+3, s;
+	print "you said:", s;
 }

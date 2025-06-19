@@ -82,6 +82,7 @@ struct TinyWizzardParser : ASTParser {
 		while (!tok.eof())
 			if      (passign(block)) ;
 			else if (pprint(block)) ;
+			else if (pinput(block)) ;
 			else    break;
 		require("}");
 		return true;
@@ -125,6 +126,24 @@ struct TinyWizzardParser : ASTParser {
 				error("syntax-error", "expected argument after ','");
 			json.at("printvals").push(expr);
 		}
+		require(";");
+		return true;
+	}
+
+	int pinput(Json& parent) {
+		log(4, "(trace) pinput");
+		if (!accept("input"))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.obj["statement"] = { Json::JSTRING, 0, "input" };
+		json.obj["dsym"]      = { Json::JNUMBER, (double)presultline };
+		json.obj["variable"]  = { Json::JOBJECT };
+		json._order = { "statement", "dsym", "variable" };
+		// get variable
+		require("$identifier");
+		json.at("variable").obj["expr"]  = { Json::JSTRING, 0, "variable" };
+		json.at("variable").obj["value"] = { Json::JSTRING, 0, presult.at(0) };
 		require(";");
 		return true;
 	}
