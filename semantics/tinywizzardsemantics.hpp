@@ -56,9 +56,9 @@ struct TinyWizzardSemantics : Semantics {
 
 	void pstatement(const Json& json) {
 		dsym = json.at("dsym").num;
-		auto& type = json.at("statement").str;
+		auto& stmt = json.at("statement").str;
 		// assign
-		if (type == "assign") {
+		if (stmt == "assign") {
 			auto& name = json.at("name").str;
 			if (!dims.count(name))
 				errorc("pstatement", "assign to undefined variable '" + name + "'");
@@ -72,20 +72,21 @@ struct TinyWizzardSemantics : Semantics {
 				errorc("pstatement", "assign to variable '" + type + "' with '" + extype + "'");
 		}
 		// print
-		else if (type == "print") {
+		else if (stmt == "print") {
 			for (auto& pval : json.at("printvals").arr)
 				pexpression(pval);
 		}
+		// unknown
 		else
-			errorc("pstatement", "unknown statement '" + type + "'");
+			errorc("pstatement", "unknown statement '" + stmt + "'");
 	}
 
 	string pexpression(const Json& json) {
-		auto& type = json.at("expr").str;
-		if      (type == "integer")   return "int";
-		else if (type == "strlit")    return "string";
-		else if (type == "variable")  return pexprvar(json);
-		else if (type == "add" || type == "mul") {
+		auto& expr = json.at("expr").str;
+		if      (expr == "integer")   return "int";
+		else if (expr == "strlit")    return "string";
+		else if (expr == "variable")  return pexprvar(json);
+		else if (expr == "add" || expr == "mul") {
 			auto ltype = pexpression(json.at("lhs"));
 			auto rtype = pexpression(json.at("rhs"));
 			if (ltype == "int" && rtype == "int")
@@ -94,7 +95,7 @@ struct TinyWizzardSemantics : Semantics {
 			return "void";
 		}
 		else
-			return errorc("pexpression", "unknown in expression '" + type + "'"), "void";
+			return errorc("pexpression", "unknown in expression '" + expr + "'"), "void";
 	}
 
 	string pexprvar(const Json& json) {

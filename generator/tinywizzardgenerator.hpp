@@ -125,23 +125,24 @@ struct TinyWizzardGenerator : Generator {
 
 	void pstatement(const Json& json) {
 		log(4, "(trace) pstatement");
-		auto& type  = json.at("statement").str;
+		auto& stmt  = json.at("statement").str;
 		dsym        = json.at("dsym").num;
-		// generate statement
 		output( IN_DSYM, dsym );
-		if (type == "assign") {
-			auto& vtype = json.at("type").str;
-			if (vtype == "int") {
+		// assign
+		if (stmt == "assign") {
+			auto& type = json.at("type").str;
+			if (type == "int") {
 				pexpression(json.at("expression"));
 				output( IN_PUT, { json.at("name").str } );
 			}
-			else if (vtype == "string") {
+			else if (type == "string") {
 				pexpressionstr(json.at("expression"), json.at("name").str);
 			}
 			else
-				errorc("pstatement", "unknown type '" + vtype + "'");
+				errorc("pstatement", "unknown type '" + type + "'");
 		}
-		else if (type == "print") {
+		// print
+		else if (stmt == "print") {
 			for (auto& printval : json.at("printvals").arr) {
 				auto& type = printval.at("expr").str;
 				if (type == "strlit") {
@@ -159,21 +160,22 @@ struct TinyWizzardGenerator : Generator {
 			}
 			output( IN_PRINTC, '\n' );  // enf-of-line
 		}
+		// unknown
 		else
-			errorc("pstatement", "unknown statement '" + type + "'");
+			errorc("pstatement", "unknown statement '" + stmt + "'");
 	}
 
 	// === expressions ===
 
 	void pexpression(const Json& json) {
 		log(4, "(trace) pexpression");
-		auto& type = json.at("expr").str;
+		auto& expr = json.at("expr").str;
 		// generate expression
-		if (type == "integer")
+		if (expr == "integer")
 			output( IN_PUSH, json.at("value").num );
-		else if (type == "variable")
+		else if (expr == "variable")
 			output( IN_GET, { json.at("value").str } );
-		else if (type == "add" || type == "mul") {
+		else if (expr == "add" || expr == "mul") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
 			auto& op = json.at("operator").str;
@@ -181,24 +183,24 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == "-")  output( IN_SUB );
 			else if (op == "*")  output( IN_MUL );
 			else if (op == "/")  output( IN_DIV );
-			else    errorc("pexpression-add-mul", "unknown operator: " + op);
+			else    errorc("pexpression-add-mul", "unknown operator '" + op + "'");
 		}
 		else
-			errorc("pexpression", "unknown expression '" + type + "'");
+			errorc("pexpression", "unknown expression '" + expr + "'");
 	}
 
 	void pexpressionstr(const Json& json, const string& varname) {
 		log(4, "(trace) pexpressionstr");
-		auto& type = json.at("expr").str;
+		auto& expr = json.at("expr").str;
 		// handle string expression
-		if (type == "strlit") {
+		if (expr == "strlit") {
 			auto litname = addstrlit(json.at("value").str);
 			output( IN_COPYSTRL, { varname, litname } );
 		}
-		else if (type == "variable") {
+		else if (expr == "variable") {
 			output( IN_COPYSTRV, { varname, json.at("value").str } );
 		}
 		else
-			errorc("pexpression", "unknown string expression '" + type + "'");
+			errorc("pexpression", "unknown string expression '" + expr + "'");
 	}
 };
