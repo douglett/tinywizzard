@@ -7,8 +7,9 @@ using namespace std;
 struct TinyWizzardGenerator : Generator {
 	struct Func { string name; vector<Instruction> ilist; };
 	map<string, Func> functions;
-	vector<string> literals;
 	string funcname;
+	vector<string> literals;
+	int conditions = 0;
 
 	int generate(const Json& json) {
 		// loglevel = 4;  // 4 = trace
@@ -31,6 +32,8 @@ struct TinyWizzardGenerator : Generator {
 		functions = {};
 		functions["$STATIC_INIT"] = { "$STATIC_INIT" };
 		funcname = "";
+		literals = {};
+		conditions = 0;
 	}
 
 	// === generate helpers ===
@@ -48,6 +51,10 @@ struct TinyWizzardGenerator : Generator {
 	string addstrlit(const string& str) {
 		literals.push_back(str);
 		return "$STRLIT_" + to_string(literals.size() - 1);
+	}
+
+	string nextlabel() {
+		return "$COND_" + to_string(conditions++);
 	}
 
 	void outputstrlit() {
@@ -176,6 +183,15 @@ struct TinyWizzardGenerator : Generator {
 				output( IN_INPUT, { varname } );
 			else
 				errorc("pstatement-input", "unknown type '" + type + "'");
+		}
+		// if-else
+		else if (stmt == "if") {
+			pexpression(json.at("expression"));
+			string label = nextlabel();
+			output( IN_JUMPIFN, { label } );
+			for (auto& stmt : json.at("block").arr)
+				pstatement(stmt);
+			output( IN_LABEL, { label } );
 		}
 		// unknown
 		else

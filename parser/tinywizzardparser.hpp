@@ -80,10 +80,12 @@ struct TinyWizzardParser : ASTParser {
 		assert(block.type == Json::JARRAY);
 		require("{");
 		while (!tok.eof())
-			if      (passign(block)) ;
+			if      (peek("}"))  break;
+			else if (passign(block)) ;
 			else if (pprint(block)) ;
 			else if (pinput(block)) ;
-			else    break;
+			else if (pif(block)) ;
+			else    { error("pblock", "unknown statement");  break; }
 		require("}");
 		return true;
 	}
@@ -149,6 +151,26 @@ struct TinyWizzardParser : ASTParser {
 		json.at("variable").obj["expr"]  = { Json::JSTRING, 0, "variable" };
 		json.at("variable").obj["value"] = { Json::JSTRING, 0, presult.at(0) };
 		require(";");
+		return true;
+	}
+
+	int pif(Json& parent) {
+		log(4, "(trace) pif");
+		if (!accept("if"))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.obj["statement"]   = { Json::JSTRING, 0, "if" };
+		json.obj["dsym"]        = { Json::JNUMBER, (double)presultline };
+		json.obj["expression"]  = { Json::JOBJECT };
+		json.obj["block"]       = { Json::JARRAY };
+		json._order = { "statement", "dsym", "expression", "block" };
+		// entry expression
+		require("(");
+		pexpression(json.at("expression"));
+		require(")");
+		// if-true block
+		pblock(json.at("block"));
 		return true;
 	}
 

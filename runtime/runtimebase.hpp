@@ -68,8 +68,8 @@ struct RuntimeBase {
 			case IN_GT:        s += "compare_gt";  break;
 			case IN_LTE:       s += "compare_lte";  break;
 			case IN_GTE:       s += "compare_gte";  break;
-			case IN_JUMPIF:    s += "jump_if";  break;
-			case IN_JUMPIFN:   s += "jump_ifn";  break;
+			case IN_JUMPIF:    s += "jumpif "  + in.args.at(0);  break;
+			case IN_JUMPIFN:   s += "jumpifn " + in.args.at(0);  break;
 		}
 		return s;
 	}
