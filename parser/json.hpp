@@ -27,10 +27,9 @@ struct Json {
 		return arr.at(key);
 	}
 	// mofifiers
-	Json& push  (const Json& val)                      { assert(type == JARRAY);  arr.push_back(val);  return arr.back(); }
-	Json& set   (const string& key, const Json& val)   { assert(type == JOBJECT);  obj[key] = val;  return obj.at(key); }
-	Json& setstr(const string& val)                    { return *this = { JSTRING, 0, val }; }
-	Json& setstr(const string& key, const string& val) { assert(type == JOBJECT);  obj[key].setstr(val);  return obj.at(key); }
+	Json&   push(const Json& val)   { assert(type == JARRAY);  arr.push_back(val);  return arr.back(); }
+	Json&   set (const string& key) { assert(type == JOBJECT);  return obj[key]; }
+	string& sets(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JSTRING) obj[key] = { JSTRING };  return obj[key].str; }
 };
 
 

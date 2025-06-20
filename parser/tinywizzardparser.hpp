@@ -190,11 +190,11 @@ struct TinyWizzardParser : ASTParser {
 		if (accept("= =") || accept("! =") || accept("< =") || accept("> =") || accept("<") || accept(">")) {
 			auto temp = json;
 			json = { Json::JOBJECT };
-			json.setstr( "expr",     "equals" );
-			json.setstr( "operator", joinstr(presult, "") );
-			json.set   ( "lhs",      temp );
+			json.sets("expr")     = "equals";
+			json.sets("operator") = joinstr(presult, "");
+			json.set ("lhs")      = temp;
 			json._order = { "expr", "operator", "lhs", "rhs" };
-			padd(json.obj["rhs"]);
+			padd(json.set("rhs"));
 		}
 		return true;
 	}
