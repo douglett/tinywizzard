@@ -164,13 +164,17 @@ struct TinyWizzardParser : ASTParser {
 		json.obj["dsym"]        = { Json::JNUMBER, (double)presultline };
 		json.obj["expression"]  = { Json::JOBJECT };
 		json.obj["block"]       = { Json::JARRAY };
-		json._order = { "statement", "dsym", "expression", "block" };
-		// entry expression
+		json._order = { "statement", "dsym", "expression", "block", "block-else" };
+		// if condition
 		require("(");
 		pexpression(json.at("expression"));
 		require(")");
-		// if-true block
 		pblock(json.at("block"));
+		// else condition
+		if (accept("else")) {
+			json.set("block-else") = { Json::JARRAY };
+			pblock(json.at("block-else"));
+		}
 		return true;
 	}
 

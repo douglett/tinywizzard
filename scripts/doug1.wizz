@@ -13,6 +13,9 @@ int main() {
 		print "You open the door... there was a bottomless pit there!";
 		print "You fall into the pit and die.";
 	}
+	else {
+		print "You do something else!";
+	}
 
 	print "THE END!";
 }

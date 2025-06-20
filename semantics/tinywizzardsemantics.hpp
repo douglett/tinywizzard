@@ -82,9 +82,14 @@ struct TinyWizzardSemantics : Semantics {
 		}
 		// if-else
 		else if (stmt == "if") {
+			// if condition
 			pexpression(json.at("expression"));
 			for (auto& stmt : json.at("block").arr)
 				pstatement(stmt);
+			// else condition
+			if (json.count("block-else"))
+				for (auto& stmt : json.at("block-else").arr)
+					pstatement(stmt);
 		}
 		// unknown
 		else
