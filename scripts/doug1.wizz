@@ -1,0 +1,18 @@
+static class textadv1;
+
+int dir;
+
+int main() {
+	// game story
+	print "You are standing in a strange room.";
+	print "There are doors leading north(1), south(2), east(3), and west(4).";
+	input "Please pick a number to proceed: ", dir;
+
+	// select direction
+	if (dir == 1) {
+		print "You open the door... there was a bottomless pit there!";
+		print "You fall into the pit and die.";
+	}
+
+	print "THE END!";
+}

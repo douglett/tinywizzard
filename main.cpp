@@ -7,7 +7,7 @@ using namespace std;
 
 void tinywizzard() {
 	TinyWizzardParser parser;
-	parser.parse("scripts/test.wizz");
+	parser.parse("scripts/doug1.wizz");
 
 	TinyWizzardSemantics semantics;
 	semantics.validate(parser.ast);
