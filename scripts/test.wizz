@@ -6,7 +6,9 @@ string s;
 int main() {
 	a = 12 + 3;
 	print 123, a+2+3;
-	input "blob:", s;
-	input s;
-	print "you said:", s;
+	//input "blob:", s;
+	//input s;
+	//print "you said:", s;
+	input a;
+	print "got:", a;
 }

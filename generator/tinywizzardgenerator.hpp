@@ -139,7 +139,7 @@ struct TinyWizzardGenerator : Generator {
 				pexpressionstr(json.at("expression"), json.at("name").str);
 			}
 			else
-				errorc("pstatement", "unknown type '" + type + "'");
+				errorc("pstatement-assign", "unknown type '" + type + "'");
 		}
 		// print
 		else if (stmt == "print") {
@@ -169,7 +169,13 @@ struct TinyWizzardGenerator : Generator {
 				promptid = addstrlit("> ");
 			output( IN_PRINTS, { promptid } );
 			auto& varname = json.at("variable").at("value").str;
-			output( IN_INPUT, { varname } );
+			auto& type    = json.at("variable").at("type").str;
+			if (type == "int")
+				output( IN_INPUTI, { varname } );
+			else if (type == "string")
+				output( IN_INPUT, { varname } );
+			else
+				errorc("pstatement-input", "unknown type '" + type + "'");
 		}
 		// unknown
 		else

@@ -14,7 +14,6 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 
 ## TODO:
-- input command
 - string expressions
 	- better API for copying
 	- better handling of literals

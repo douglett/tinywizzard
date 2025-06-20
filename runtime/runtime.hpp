@@ -57,6 +57,7 @@ struct Runtime : RuntimeBase {
 				case IN_CALL:      pushst();  jump(instr.args.at(0));  break;
 				case IN_RETURN:    popst();  if (external) return true;  break;
 				case IN_INPUT:     getline( cin, getstr(instr.args.at(0)) );  break;
+				case IN_INPUTI:    var(instr.args.at(0)) = getinputi();  break;
 				case IN_PUT:       var(instr.args.at(0)) = pop();  break;
 				case IN_GET:       push( var(instr.args.at(0)) );  break;
 				case IN_PUSH:      push(instr.argi);  break;
@@ -132,6 +133,16 @@ struct Runtime : RuntimeBase {
 			if (program[i].type == IN_LABEL && program[i].args.at(0) == label)
 				return PC = i;
 		return error("jump", "missing label: " + label);
+	}
+
+	// input
+	int getinputi() {
+		int i = 0;
+		string s;
+		getline(cin, s);
+		stringstream ss(s);
+		ss >> i;
+		return i;
 	}
 
 	int error(const string& type, const string& msg) {
