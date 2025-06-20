@@ -187,19 +187,27 @@ struct TinyWizzardGenerator : Generator {
 		// if-else
 		else if (stmt == "if") {
 			string nextcond, endcond = nextlabel();
-			for (auto& cond : json.at("conditionals").arr) {
-				// check block entry condition
-				nextcond = nextlabel();
+			auto& conditionals = json.at("conditionals").arr;
+			for (auto& cond : conditionals) {
 				if (cond.at("conditional").str != "else") {
+					// generate new on-fail label, unless this is the last conditional
+					nextcond = ( &cond == &conditionals.back() ? endcond : nextlabel() );
+					// check block entry condition
 					pexpression(cond.at("expression"));
 					output( IN_JUMPIFN, { nextcond } );
+					// condition success point
+					for (auto& stmt : cond.at("block").arr)
+						pstatement(stmt);
+					output( IN_JUMP, { endcond } );
+					// condition fail point
+					if (nextcond != endcond)
+						output( IN_LABEL, { nextcond } );
 				}
-				// condition success point
-				for (auto& stmt : cond.at("block").arr)
-					pstatement(stmt);
-				output( IN_JUMP, { endcond } );
-				// condition fail point
-				output( IN_LABEL, { nextcond } );
+				else {
+					// else conditional - just do it
+					for (auto& stmt : cond.at("block").arr)
+						pstatement(stmt);
+				}
 			}
 			// if-block end
 			output( IN_LABEL, { endcond } );
