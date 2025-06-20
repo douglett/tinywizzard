@@ -217,6 +217,11 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == "*" )  output( IN_MUL );
 			else if (op == "/" )  output( IN_DIV );
 			else if (op == "==")  output( IN_EQ  );
+			else if (op == "!=")  output( IN_NEQ );
+			else if (op == "<=")  output( IN_LTE );
+			else if (op == ">=")  output( IN_GTE );
+			else if (op == "<" )  output( IN_LT  );
+			else if (op == ">" )  output( IN_GT  );
 			else    errorc("pexpression-add-mul-equals", "unknown operator '" + op + "'");
 		}
 		else

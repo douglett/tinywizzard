@@ -187,11 +187,11 @@ struct TinyWizzardParser : ASTParser {
 		log(4, "(trace) pequals");
 		if (!padd(json))
 			return false;
-		if (accept("= =")) {
+		if (accept("= =") || accept("! =") || accept("< =") || accept("> =") || accept("<") || accept(">")) {
 			auto temp = json;
 			json = { Json::JOBJECT };
 			json.setstr( "expr",     "equals" );
-			json.setstr( "operator", "==" );
+			json.setstr( "operator", joinstr(presult, "") );
 			json.set   ( "lhs",      temp );
 			json._order = { "expr", "operator", "lhs", "rhs" };
 			padd(json.obj["rhs"]);

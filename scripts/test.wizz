@@ -7,7 +7,7 @@ int main() {
 	a = 12 + 3;
 	s = "blob";
 	print 123, a+2+3, s;
-	if (a == 15) {
+	if (a > 15) {
 		print "success";
 	}
 }
