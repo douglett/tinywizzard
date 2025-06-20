@@ -208,15 +208,16 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_PUSH, json.at("value").num );
 		else if (expr == "variable")
 			output( IN_GET, { json.at("value").str } );
-		else if (expr == "add" || expr == "mul") {
+		else if (expr == "add" || expr == "mul" || expr == "equals") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
 			auto& op = json.at("operator").str;
-			if      (op == "+")  output( IN_ADD );
-			else if (op == "-")  output( IN_SUB );
-			else if (op == "*")  output( IN_MUL );
-			else if (op == "/")  output( IN_DIV );
-			else    errorc("pexpression-add-mul", "unknown operator '" + op + "'");
+			if      (op == "+" )  output( IN_ADD );
+			else if (op == "-" )  output( IN_SUB );
+			else if (op == "*" )  output( IN_MUL );
+			else if (op == "/" )  output( IN_DIV );
+			else if (op == "==")  output( IN_EQ  );
+			else    errorc("pexpression-add-mul-equals", "unknown operator '" + op + "'");
 		}
 		else
 			errorc("pexpression", "unknown expression '" + expr + "'");

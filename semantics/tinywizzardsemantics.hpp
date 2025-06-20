@@ -96,6 +96,14 @@ struct TinyWizzardSemantics : Semantics {
 		if      (expr == "integer")   return "int";
 		else if (expr == "strlit")    return "string";
 		else if (expr == "variable")  return pexprvar(json);
+		else if (expr == "equals") {
+			auto ltype = pexpression(json.at("lhs"));
+			auto rtype = pexpression(json.at("rhs"));
+			if (ltype == "int" && rtype == "int")
+				return "int";
+			errorc("pexpression", "trying to check equality between '" + ltype + "' and '" + rtype + "'");
+			return "void";
+		}
 		else if (expr == "add" || expr == "mul") {
 			auto ltype = pexpression(json.at("lhs"));
 			auto rtype = pexpression(json.at("rhs"));

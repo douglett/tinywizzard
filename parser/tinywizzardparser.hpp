@@ -178,9 +178,25 @@ struct TinyWizzardParser : ASTParser {
 
 	int pexpression(Json& json, bool require=false) {
 		log(4, "(trace) prexpression");
-		if      (padd(json))  return true;
-		else if (require)     return error("syntax-error", "expected expression");
-		else                  return false;
+		if      (pequals(json))  return true;
+		else if (require)        return error("syntax-error", "expected expression");
+		else                     return false;
+	}
+
+	int pequals(Json& json) {
+		log(4, "(trace) pequals");
+		if (!padd(json))
+			return false;
+		if (accept("= =")) {
+			auto temp = json;
+			json = { Json::JOBJECT };
+			json.setstr( "expr",     "equals" );
+			json.setstr( "operator", "==" );
+			json.set   ( "lhs",      temp );
+			json._order = { "expr", "operator", "lhs", "rhs" };
+			padd(json.obj["rhs"]);
+		}
+		return true;
 	}
 
 	int padd(Json& json) {
