@@ -166,15 +166,16 @@ struct TinyWizzardParser : ASTParser {
 		json._order = { "statement", "dsym", "conditionals" };
 		// parse: if / else-if / else
 		pifconditional(json.at("conditionals"), "if");
-		// while ( pifconditional(json.at("conditionals"), "else if") ) ;
-		pifconditional(json.at("conditionals"), "else");
+		while (peek("else if")) 
+			pifconditional(json.at("conditionals"), "else if");
+		if (peek("else"))
+			pifconditional(json.at("conditionals"), "else");
 		return true;
 	}
 
 	int pifconditional(Json& parent, const string& cond) {
-		log(4, "(trace) pifconditional");
-		if (!accept(cond))
-			return false;
+		log(4, "(trace) pifconditional " + cond);
+		require(cond);
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
 		json.sets("conditional")  = cond;

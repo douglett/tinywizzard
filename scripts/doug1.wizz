@@ -10,11 +10,16 @@ int main() {
 
 	// select direction
 	if (dir == 1) {
-		print "You open the door... there was a bottomless pit there!";
+		print "You open the north door... there was a bottomless pit there!";
 		print "You fall into the pit and die.";
 	}
+	else if (dir == 2) {
+		print "You open the south door... a yeti jumps out at you!";
+		print "The yeti gobbles you up. You taste disgusting.";
+	}
 	else {
-		print "You do something else!";
+		print "Wracked with indicision, you stand around helplessly.";
+		print "You starve to death!";
 	}
 
 	print "THE END!";
