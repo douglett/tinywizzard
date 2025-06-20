@@ -17,8 +17,16 @@ int main() {
 		print "You open the south door... a yeti jumps out at you!";
 		print "The yeti gobbles you up. You taste disgusting.";
 	}
+	else if (dir == 3) {
+		print "You open the east door... a samurai stands dramatically, framed by the rising sun.";
+		print "He chops your head off! Blood sprays out everywhere like a cool movie.";
+	}
+	else if (dir == 4) {
+		print "You open the west door... a cowboy is here holding a six-shooter. He tips his hat, 'Howdy pardner!'";
+		print "Oops, the safety was off! He shoots you by accident and you die stupidly.";
+	}
 	else {
-		print "Wracked with indicision, you stand around helplessly.";
+		print "Wracked with indecision, you stand around helplessly.";
 		print "You starve to death!";
 	}
 
