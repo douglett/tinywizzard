@@ -154,30 +154,6 @@ struct TinyWizzardParser : ASTParser {
 		return true;
 	}
 
-	// int pif(Json& parent) {
-	// 	log(4, "(trace) pif");
-	// 	if (!accept("if"))
-	// 		return false;
-	// 	// create json object
-	// 	auto& json = parent.push({ Json::JOBJECT });
-	// 	json.obj["statement"]   = { Json::JSTRING, 0, "if" };
-	// 	json.obj["dsym"]        = { Json::JNUMBER, (double)presultline };
-	// 	json.obj["expression"]  = { Json::JOBJECT };
-	// 	json.obj["block"]       = { Json::JARRAY };
-	// 	json._order = { "statement", "dsym", "expression", "block", "else" };
-	// 	// if condition
-	// 	require("(");
-	// 	pexpression(json.at("expression"));
-	// 	require(")");
-	// 	pblock(json.at("block"));
-	// 	// else condition
-	// 	if (accept("else")) {
-	// 		json.set("else") = { Json::JARRAY };
-	// 		pblock(json.at("else"));
-	// 	}
-	// 	return true;
-	// }
-
 	int pif(Json& parent) {
 		log(4, "(trace) pif");
 		if (!peek("if"))
@@ -195,18 +171,18 @@ struct TinyWizzardParser : ASTParser {
 		return true;
 	}
 
-	int pifconditional(Json& parent, const string& iftype) {
+	int pifconditional(Json& parent, const string& cond) {
 		log(4, "(trace) pifconditional");
-		if (!accept(iftype))
+		if (!accept(cond))
 			return false;
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
-		json.sets("conditional")  = iftype;
+		json.sets("conditional")  = cond;
 		json.setn("dsym")         = presultline;
 		json.set ("block")        = { Json::JARRAY };
 		json._order = { "conditional", "dsym", "expression", "block" };
 		// conditional expression
-		if (iftype == "if" || iftype == "else if") {
+		if (cond != "else") {
 			require("(");
 			pexpression(json.set("expression"));
 			require(")");

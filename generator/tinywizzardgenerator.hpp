@@ -186,22 +186,23 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// if-else
 		else if (stmt == "if") {
-			// if condition
-			pexpression(json.at("expression"));
-			string nextcond = nextlabel(), endcond;
-			output( IN_JUMPIFN, { nextcond } );
-			for (auto& stmt : json.at("block").arr)
-				pstatement(stmt);
-			// if there is an else block, make and jump-to end condition label
-			if (json.count("else"))
-				output( IN_JUMP, { endcond = nextlabel() } );
-			output( IN_LABEL, { nextcond } );
-			// else condition
-			if (json.count("else")) {
-				for (auto& stmt : json.at("else").arr)
+			string nextcond, endcond = nextlabel();
+			for (auto& cond : json.at("conditionals").arr) {
+				// check block entry condition
+				nextcond = nextlabel();
+				if (cond.at("conditional").str != "else") {
+					pexpression(cond.at("expression"));
+					output( IN_JUMPIFN, { nextcond } );
+				}
+				// condition success point
+				for (auto& stmt : cond.at("block").arr)
 					pstatement(stmt);
-				output( IN_LABEL, { endcond } );
+				output( IN_JUMP, { endcond } );
+				// condition fail point
+				output( IN_LABEL, { nextcond } );
 			}
+			// if-block end
+			output( IN_LABEL, { endcond } );
 		}
 		// unknown
 		else
