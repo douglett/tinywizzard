@@ -111,7 +111,8 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_MAKESTR );
 			output( IN_PUT, { name } );
 			if (json.count("expression")) {
-				pexpressionstr(json.at("expression"), name);
+				// pexpressionstr(json.at("expression"), name);
+				errorc("pdim", "TODO");
 			}
 		}
 		else
@@ -143,7 +144,8 @@ struct TinyWizzardGenerator : Generator {
 				output( IN_PUT, { json.at("name").str } );
 			}
 			else if (type == "string") {
-				pexpressionstr(json.at("expression"), json.at("name").str);
+				// pexpressionstr(json.at("expression"), json.at("name").str);
+				errorc("pdim", "TODO");
 			}
 			else
 				errorc("pstatement-assign", "unknown type '" + type + "'");
@@ -155,11 +157,15 @@ struct TinyWizzardGenerator : Generator {
 				auto& type = pval.at("expr").str;
 				// print value based on its type
 				if (type == "strlit") {
-					auto litname = addstrlit(pval.at("value").str);
-					output( IN_PRINTS, { litname } );
+					// auto litname = addstrlit(pval.at("value").str);
+					// output( IN_PRINTS, { litname } );
+					pexpression(pval);
+					output( IN_PRINTVS, { "$POP" } );
 				}
 				else if (type == "variable" && pval.at("type").str == "string") {
-					output( IN_PRINTVS, { pval.at("value").str } );
+					// output( IN_PRINTVS, { pval.at("value").str } );
+					pexpression(pval);
+					output( IN_PRINTVS, { "$POP" } );
 				}
 				else {
 					pexpression(pval);
@@ -177,12 +183,12 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// input
 		else if (stmt == "input") {
-			string promptid;
-			if (json.count("prompt"))
-				promptid = addstrlit(json.at("prompt").str);
-			else
-				promptid = addstrlit("> ");
-			output( IN_PRINTS, { promptid } );
+			// string promptid;
+			// if (json.count("prompt"))
+			// 	promptid = addstrlit(json.at("prompt").str);
+			// else
+			// 	promptid = addstrlit("> ");
+			// output( IN_PRINTS, { promptid } );
 			auto& varname = json.at("variable").at("value").str;
 			auto& type    = json.at("variable").at("type").str;
 			if (type == "int")
@@ -235,6 +241,8 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_PUSH, json.at("value").num );
 		else if (expr == "variable")
 			output( IN_GET, { json.at("value").str } );
+		else if (expr == "strlit")
+			output( IN_GET, { addstrlit(json.at("value").str) } );
 		else if (expr == "add" || expr == "mul" || expr == "equals") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
@@ -255,18 +263,18 @@ struct TinyWizzardGenerator : Generator {
 			errorc("pexpression", "unknown expression '" + expr + "'");
 	}
 
-	void pexpressionstr(const Json& json, const string& varname) {
-		log(4, "(trace) pexpressionstr");
-		auto& expr = json.at("expr").str;
-		// handle string expression
-		if (expr == "strlit") {
-			auto litname = addstrlit(json.at("value").str);
-			output( IN_COPYSTRL, { varname, litname } );
-		}
-		else if (expr == "variable") {
-			output( IN_COPYSTRV, { varname, json.at("value").str } );
-		}
-		else
-			errorc("pexpression", "unknown string expression '" + expr + "'");
-	}
+	// void pexpressionstr(const Json& json, const string& varname) {
+	// 	log(4, "(trace) pexpressionstr");
+	// 	auto& expr = json.at("expr").str;
+	// 	// handle string expression
+	// 	if (expr == "strlit") {
+	// 		auto litname = addstrlit(json.at("value").str);
+	// 		output( IN_COPYSTRL, { varname, litname } );
+	// 	}
+	// 	else if (expr == "variable") {
+	// 		output( IN_COPYSTRV, { varname, json.at("value").str } );
+	// 	}
+	// 	else
+	// 		errorc("pexpression", "unknown string expression '" + expr + "'");
+	// }
 };

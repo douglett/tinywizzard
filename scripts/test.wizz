@@ -2,4 +2,5 @@ static class test;
 
 int main() {
 	print 1;
+	print "ass";
 }

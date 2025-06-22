@@ -46,11 +46,13 @@ struct Runtime : RuntimeBase {
 						variables[vname] = 0;
 					break;
 				case IN_DATA:
-					data[instr.args.at(0)] = instr.args.at(1);
+					// data[instr.args.at(0)] = instr.args.at(1);
+					stringheap[++heaptop] = instr.args.at(1);
+					variables[instr.args.at(0)] = heaptop;
 					break;
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
-				case IN_COPYSTRL:  getstr(instr.args.at(0)) = getdata(instr.args.at(1));  break;
-				case IN_COPYSTRV:  getstr(instr.args.at(0)) = getstr(instr.args.at(1));  break;
+				// case IN_COPYSTRL:  getstr(instr.args.at(0)) = getdata(instr.args.at(1));  break;
+				// case IN_COPYSTRV:  getstr(instr.args.at(0)) = getstr(instr.args.at(1));  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
@@ -63,8 +65,8 @@ struct Runtime : RuntimeBase {
 				case IN_PUSH:      push(instr.argi);  break;
 				case IN_PRINTI:    cout << pop();  break;
 				case IN_PRINTC:    cout << (char)pop();  break;
-				case IN_PRINTV:    cout << var(instr.args.at(0));  break;
-				case IN_PRINTS:    cout << getdata(instr.args.at(0));  break;
+				// case IN_PRINTV:    cout << var(instr.args.at(0));  break;
+				// case IN_PRINTS:    cout << getdata(instr.args.at(0));  break;
 				case IN_PRINTVS:   cout << getstr(instr.args.at(0));  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
