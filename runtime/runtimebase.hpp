@@ -15,7 +15,7 @@ struct RuntimeBase {
 		IN_NOOP, IN_DSYM, IN_LABEL,
 		IN_DIM, IN_DATA, IN_MAKESTR, IN_COPYSTRL, IN_COPYSTRV, IN_COPYSTR,
 		IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_INPUT, IN_INPUTI, IN_PUT, IN_GET, IN_PUSH,
-			IN_PRINTI, IN_PRINTC, IN_PRINTV, IN_PRINTS, IN_PRINTVS,
+			IN_PRINTI, IN_PRINTC, /*IN_PRINTV, IN_PRINTS, IN_PRINTVS,*/ IN_PRINTS2,
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_EQ, IN_NEQ, IN_LT, IN_GT, IN_LTE, IN_GTE,
 			IN_JUMPIF, IN_JUMPIFN
 	};
@@ -55,9 +55,10 @@ struct RuntimeBase {
 			case IN_PUSH:      s += "push " + to_string(in.argi);  break;
 			case IN_PRINTI:    s += "printi";  break;
 			case IN_PRINTC:    s += "printc";  break;
-			case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
-			case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
-			case IN_PRINTVS:   s += "printvs " + in.args.at(0);  break;
+			// case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
+			// case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
+			// case IN_PRINTVS:   s += "printvs " + in.args.at(0);  break;
+			case IN_PRINTS2:   s += "prints2";  break;
 			// maths
 			case IN_ADD:       s += "add";  break;
 			case IN_SUB:       s += "sub";  break;

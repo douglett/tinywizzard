@@ -68,7 +68,8 @@ struct Runtime : RuntimeBase {
 				case IN_PRINTC:    cout << (char)pop();  break;
 				// case IN_PRINTV:    cout << var(instr.args.at(0));  break;
 				// case IN_PRINTS:    cout << getdata(instr.args.at(0));  break;
-				case IN_PRINTVS:   cout << getstr(instr.args.at(0));  break;
+				// case IN_PRINTVS:   cout << getstr(instr.args.at(0));  break;
+				case IN_PRINTS2:   cout << getstr(pop());  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
 				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;

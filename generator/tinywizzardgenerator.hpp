@@ -163,12 +163,12 @@ struct TinyWizzardGenerator : Generator {
 					// auto litname = addstrlit(pval.at("value").str);
 					// output( IN_PRINTS, { litname } );
 					pexpression(pval);
-					output( IN_PRINTVS, { "$POP" } );
+					output( IN_PRINTS2 );
 				}
 				else if (type == "variable" && pval.at("type").str == "string") {
 					// output( IN_PRINTVS, { pval.at("value").str } );
 					pexpression(pval);
-					output( IN_PRINTVS, { "$POP" } );
+					output( IN_PRINTS2 );
 				}
 				else {
 					pexpression(pval);
@@ -186,12 +186,13 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// input
 		else if (stmt == "input") {
-			// string promptid;
-			// if (json.count("prompt"))
-			// 	promptid = addstrlit(json.at("prompt").str);
-			// else
-			// 	promptid = addstrlit("> ");
-			// output( IN_PRINTS, { promptid } );
+			string promptid;
+			if (json.count("prompt"))
+				promptid = addstrlit(json.at("prompt").str);
+			else
+				promptid = addstrlit("> ");
+			output( IN_GET, { promptid } );
+			output( IN_PRINTS2 );
 			auto& varname = json.at("variable").at("value").str;
 			auto& type    = json.at("variable").at("type").str;
 			if (type == "int")
