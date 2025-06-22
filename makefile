@@ -10,7 +10,7 @@ $(OUT): $(SRC) $(HEAD)
 	g++ -std=c++17 -O0 -gdwarf -Wall -o $(OUT) $(SRC)
 
 run: $(OUT)
-	./$(OUT)
+	./$(OUT) scripts/test.wizz
 
 clean:
 	rm -f *.out *.exe

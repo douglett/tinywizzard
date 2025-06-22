@@ -15,11 +15,14 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 ## TODO:
 - string expressions
-	- better API for copying
 	- better handling of literals
 	- better handling of printi/v/s?
+	- better API for copying
+	- string equality
 
-
-## later:
-- local variables
-- float types
+- control
+	- while
+	- break
+	- return
+	- call
+	- for

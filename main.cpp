@@ -5,9 +5,9 @@
 using namespace std;
 
 
-void tinywizzard() {
+void tinywizzard(const string& fname) {
 	TinyWizzardParser parser;
-	parser.parse("scripts/doug1.wizz");
+	parser.parse(fname);
 
 	TinyWizzardSemantics semantics;
 	semantics.validate(parser.ast);
@@ -22,6 +22,7 @@ void tinywizzard() {
 }
 
 
-int main() {
-	tinywizzard();
+int main(int argc, char** argv) {
+	string script = argc >= 2 ? argv[1] : "scripts/test.wizz";
+	tinywizzard(script);
 }
