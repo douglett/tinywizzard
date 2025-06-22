@@ -53,7 +53,7 @@ struct RuntimeBase {
 			case IN_PUSH:      s += "push " + to_string(in.argi);  break;
 			case IN_PRINTI:    s += "printi";  break;
 			case IN_PRINTC:    s += "printc";  break;
-			case IN_PRINTS:    s += "prints2";  break;
+			case IN_PRINTS:    s += "prints";  break;
 			// maths
 			case IN_ADD:       s += "add";  break;
 			case IN_SUB:       s += "sub";  break;

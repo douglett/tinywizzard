@@ -5,4 +5,6 @@ string s = "blah";
 int main() {
 	print 1;
 	print "ass", s;
+	s = "fart";
+	print s;
 }

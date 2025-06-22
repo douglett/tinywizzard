@@ -145,8 +145,9 @@ struct TinyWizzardGenerator : Generator {
 				output( IN_PUT, { json.at("name").str } );
 			}
 			else if (type == "string") {
-				// pexpressionstr(json.at("expression"), json.at("name").str);
-				errorc("pdim", "TODO");
+				output( IN_GET, { json.at("name").str } );
+				pexpression(json.at("expression"));
+				output( IN_COPYSTR );
 			}
 			else
 				errorc("pstatement-assign", "unknown type '" + type + "'");
