@@ -1,6 +1,8 @@
 static class test;
 
+string s = "blah";
+
 int main() {
 	print 1;
-	print "ass";
+	print "ass", s;
 }

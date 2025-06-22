@@ -53,6 +53,7 @@ struct Runtime : RuntimeBase {
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
 				// case IN_COPYSTRL:  getstr(instr.args.at(0)) = getdata(instr.args.at(1));  break;
 				// case IN_COPYSTRV:  getstr(instr.args.at(0)) = getstr(instr.args.at(1));  break;
+				case IN_COPYSTR:   b = pop(), a = pop(), getstr(a) = getstr(b);  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;
@@ -103,6 +104,11 @@ struct Runtime : RuntimeBase {
 		int ptr = var(varname);
 		if (!stringheap.count(ptr))
 			error("getstr", "missing heap pointer " + varname + " (" + to_string(ptr) + ")");
+		return stringheap.at(ptr);
+	}
+	string& getstr(int ptr) {
+		if (!stringheap.count(ptr))
+			error("getstr", "missing heap pointer (" + to_string(ptr) + ")");
 		return stringheap.at(ptr);
 	}
 	string& getdata(const string& varname) {

@@ -112,7 +112,10 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_PUT, { name } );
 			if (json.count("expression")) {
 				// pexpressionstr(json.at("expression"), name);
-				errorc("pdim", "TODO");
+				// errorc("pdim", "TODO");
+				output( IN_GET, { name } );
+				pexpression(json.at("expression"));
+				output( IN_COPYSTR );
 			}
 		}
 		else
