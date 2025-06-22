@@ -11,12 +11,10 @@ using namespace std;
  */
 struct Runtime : RuntimeBase {
 	vector<Instruction> program;
-	map<string, string> data;
 	map<string, int> variables;
 	map<int, string> stringheap;
 	vector<int> stack, callstack;
 	size_t PC = 0, heaptop = 0;
-	int TMP = 0;
 
 	int run() {
 		printf("-----\n");
@@ -46,13 +44,10 @@ struct Runtime : RuntimeBase {
 						variables[vname] = 0;
 					break;
 				case IN_DATA:
-					// data[instr.args.at(0)] = instr.args.at(1);
 					stringheap[++heaptop] = instr.args.at(1);
 					variables[instr.args.at(0)] = heaptop;
 					break;
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
-				// case IN_COPYSTRL:  getstr(instr.args.at(0)) = getdata(instr.args.at(1));  break;
-				// case IN_COPYSTRV:  getstr(instr.args.at(0)) = getstr(instr.args.at(1));  break;
 				case IN_COPYSTR:   b = pop(), a = pop(), getstr(a) = getstr(b);  break;
 				// control
 				case IN_END:       return true;
@@ -66,10 +61,7 @@ struct Runtime : RuntimeBase {
 				case IN_PUSH:      push(instr.argi);  break;
 				case IN_PRINTI:    cout << pop();  break;
 				case IN_PRINTC:    cout << (char)pop();  break;
-				// case IN_PRINTV:    cout << var(instr.args.at(0));  break;
-				// case IN_PRINTS:    cout << getdata(instr.args.at(0));  break;
-				// case IN_PRINTVS:   cout << getstr(instr.args.at(0));  break;
-				case IN_PRINTS2:   cout << getstr(pop());  break;
+				case IN_PRINTS:    cout << getstr(pop());  break;
 				// maths
 				case IN_ADD:       b = pop(), a = pop(), push(a +  b);  break;
 				case IN_SUB:       b = pop(), a = pop(), push(a -  b);  break;
@@ -95,8 +87,6 @@ struct Runtime : RuntimeBase {
 	}
 
 	int& var(const string& varname) {
-		if (varname == "$POP")
-			return TMP = pop(), TMP;
 		if (!variables.count(varname))
 			error("var", "missing variable " + varname);
 		return variables.at(varname);
@@ -111,11 +101,6 @@ struct Runtime : RuntimeBase {
 		if (!stringheap.count(ptr))
 			error("getstr", "missing heap pointer (" + to_string(ptr) + ")");
 		return stringheap.at(ptr);
-	}
-	string& getdata(const string& varname) {
-		if (!data.count(varname))
-			error("getdata", "missing literal " + varname);
-		return data.at(varname);
 	}
 	int push(int t) {
 		stack.push_back(t);

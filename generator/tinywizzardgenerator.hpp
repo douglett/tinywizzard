@@ -111,8 +111,6 @@ struct TinyWizzardGenerator : Generator {
 			output( IN_MAKESTR );
 			output( IN_PUT, { name } );
 			if (json.count("expression")) {
-				// pexpressionstr(json.at("expression"), name);
-				// errorc("pdim", "TODO");
 				output( IN_GET, { name } );
 				pexpression(json.at("expression"));
 				output( IN_COPYSTR );
@@ -159,21 +157,13 @@ struct TinyWizzardGenerator : Generator {
 			for (auto& pval : printvals) {
 				auto& type = pval.at("expr").str;
 				// print value based on its type
-				if (type == "strlit") {
-					// auto litname = addstrlit(pval.at("value").str);
-					// output( IN_PRINTS, { litname } );
-					pexpression(pval);
-					output( IN_PRINTS2 );
-				}
-				else if (type == "variable" && pval.at("type").str == "string") {
-					// output( IN_PRINTVS, { pval.at("value").str } );
-					pexpression(pval);
-					output( IN_PRINTS2 );
-				}
-				else {
-					pexpression(pval);
+				pexpression(pval);
+				if (type == "strlit")
+					output( IN_PRINTS );
+				else if (type == "variable" && pval.at("type").str == "string")
+					output( IN_PRINTS );
+				else
 					output( IN_PRINTI );
-				}
 				// space-seperate each print value
 				if (&pval != &printvals.back()) {
 					output( IN_PUSH, ' ' );
@@ -192,7 +182,7 @@ struct TinyWizzardGenerator : Generator {
 			else
 				promptid = addstrlit("> ");
 			output( IN_GET, { promptid } );
-			output( IN_PRINTS2 );
+			output( IN_PRINTS );
 			auto& varname = json.at("variable").at("value").str;
 			auto& type    = json.at("variable").at("type").str;
 			if (type == "int")
@@ -266,19 +256,4 @@ struct TinyWizzardGenerator : Generator {
 		else
 			errorc("pexpression", "unknown expression '" + expr + "'");
 	}
-
-	// void pexpressionstr(const Json& json, const string& varname) {
-	// 	log(4, "(trace) pexpressionstr");
-	// 	auto& expr = json.at("expr").str;
-	// 	// handle string expression
-	// 	if (expr == "strlit") {
-	// 		auto litname = addstrlit(json.at("value").str);
-	// 		output( IN_COPYSTRL, { varname, litname } );
-	// 	}
-	// 	else if (expr == "variable") {
-	// 		output( IN_COPYSTRV, { varname, json.at("value").str } );
-	// 	}
-	// 	else
-	// 		errorc("pexpression", "unknown string expression '" + expr + "'");
-	// }
 };
