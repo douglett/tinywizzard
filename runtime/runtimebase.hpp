@@ -52,8 +52,8 @@ struct RuntimeBase {
 			case IN_PUT:       s += "put " + in.args.at(0);  break;
 			case IN_GET:       s += "get " + in.args.at(0);  break;
 			case IN_PUSH:      s += "push " + to_string(in.argi);  break;
-			case IN_PRINTI:    s += "printi " + to_string(in.argi);  break;
-			case IN_PRINTC:    s += "printc " + to_string(in.argi);  break;
+			case IN_PRINTI:    s += "printi";  break;
+			case IN_PRINTC:    s += "printc";  break;
 			case IN_PRINTV:    s += "printv " + in.args.at(0);  break;
 			case IN_PRINTS:    s += "prints " + in.args.at(0);  break;
 			case IN_PRINTVS:   s += "printvs " + in.args.at(0);  break;

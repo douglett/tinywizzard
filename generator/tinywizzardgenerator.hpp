@@ -163,14 +163,17 @@ struct TinyWizzardGenerator : Generator {
 				}
 				else {
 					pexpression(pval);
-					output( IN_PRINTV, { "$POP" } );
+					output( IN_PRINTI );
 				}
 				// space-seperate each print value
-				if (&pval != &printvals.back())
-					output( IN_PRINTC, ' ' );
+				if (&pval != &printvals.back()) {
+					output( IN_PUSH, ' ' );
+					output( IN_PRINTC );
+				}
 			}
 			// end-of-line character
-			output( IN_PRINTC, '\n' );
+			output( IN_PUSH, '\n' );
+			output( IN_PRINTC );
 		}
 		// input
 		else if (stmt == "input") {
