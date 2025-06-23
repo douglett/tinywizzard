@@ -5,7 +5,7 @@ using namespace std;
 
 struct TinyWizzardSemantics : Semantics {
 	map<string, string> dims, functions;
-	int mainfunc = 0, loopblocklevel = 0;
+	int loopblocklevel = 0;
 
 	int validate(const Json& json) {
 		loglevel = 2;
@@ -14,10 +14,7 @@ struct TinyWizzardSemantics : Semantics {
 		// validate class members
 		for (auto& var : json.at("dims").arr)
 			pdim(var);
-		for (auto& func : json.at("functions").arr)
-			pfunction(func);
-		if (!mainfunc)
-			errorc("validate", "missing function 'main'");
+		pallfunctions(json.at("functions"));
 		// success or fail
 		if (errcount)
 			return error("validate", "failed with " + to_string(errcount) + " errors.");
@@ -28,7 +25,7 @@ struct TinyWizzardSemantics : Semantics {
 	void reset() {
 		Semantics::reset();
 		dims = {};
-		functions = { { "STATIC_INIT", "int" } };
+		functions = { { "$STATIC_INIT", "int" } };
 		loopblocklevel = 0;
 	}
 
@@ -48,16 +45,23 @@ struct TinyWizzardSemantics : Semantics {
 		dims[name] = type;
 	}
 
-	void pfunction(const Json& json) {
-		dsym = json.at("dsym").num;
-		auto& name = json.at("name").str;
-		if (functions.count(name))
-			errorc("pfunction", "re-definition of '" + name + "'");
-		if (name == "main")
-			mainfunc = true;
-		functions[name] = true;
-		for (auto& stmt : json.at("block").arr)
-			pstatement(stmt);
+	void pallfunctions(const Json& funclist) {
+		assert(funclist.type == Json::JARRAY);
+		// hoist function definitions
+		for (auto& func : funclist.arr) {
+			dsym = func.at("dsym").num;
+			auto& name = func.at("name").str;
+			if (functions.count(name))
+				errorc("pfunction", "re-definition of '" + name + "'");
+			functions[name] = true;
+		}
+		// check function blocks
+		for (auto& func : funclist.arr)
+			for (auto& stmt : func.at("block").arr)
+				pstatement(stmt);
+		// check for main function
+		if (!functions.count("main"))
+			errorc("validate", "missing function 'main'");
 	}
 
 	void pstatement(const Json& json) {
