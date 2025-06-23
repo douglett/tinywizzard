@@ -26,8 +26,8 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 	- var+= (not string)
 
 - control
-	- while
 	- break
+		- break levels
 	- return
 	- call
 	- for

@@ -6,9 +6,11 @@ using namespace std;
 
 struct TinyWizzardGenerator : Generator {
 	struct Func { string name; vector<Instruction> ilist; };
+	struct LoopBlock { string start, end; };
 	map<string, Func> functions;
 	string funcname;
 	vector<string> literals;
+	vector<LoopBlock> loopblocks;
 	int conditions = 0;
 
 	int generate(const Json& json) {
@@ -223,17 +225,25 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// while
 		else if (stmt == "while") {
-			string startlabel = nextlabel(), endlabel = nextlabel();
+			LoopBlock block = { nextlabel(), nextlabel() };
 			// loop entry condition
-			output( IN_LABEL, { startlabel } );
+			output( IN_LABEL, { block.start } );
 			pexpression(json.at("expression"));
-			output( IN_JUMPIFN, { endlabel } );
+			output( IN_JUMPIFN, { block.end } );
 			// do block and loop
+			loopblocks.push_back(block);
 			for (auto& stmt : json.at("block").arr)
 				pstatement(stmt);
-			output( IN_JUMP, { startlabel } );
+			output( IN_JUMP, { block.start } );
+			loopblocks.pop_back();
 			// end loop
-			output( IN_LABEL, { endlabel } );
+			output( IN_LABEL, { block.end } );
+		}
+		// break
+		else if (stmt == "break") {
+			if (!loopblocks.size())
+				errorc("pstatement-break", "missing loop-block labels");
+			output( IN_JUMP, { loopblocks.back().end } );
 		}
 		// unknown
 		else

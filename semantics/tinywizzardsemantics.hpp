@@ -5,6 +5,7 @@ using namespace std;
 
 struct TinyWizzardSemantics : Semantics {
 	map<string, string> dims, functions;
+	int loopblocklevel = 0;
 
 	int validate(const Json& json) {
 		loglevel = 2;
@@ -26,6 +27,7 @@ struct TinyWizzardSemantics : Semantics {
 		Semantics::reset();
 		dims = {};
 		functions = { { "STATIC_INIT", "int" } };
+		loopblocklevel = 0;
 	}
 
 	void pdim(const Json& json) {
@@ -92,8 +94,15 @@ struct TinyWizzardSemantics : Semantics {
 		// while
 		else if (stmt == "while") {
 			pexpression(json.at("expression"));
+			loopblocklevel++;
 			for (auto& stmt : json.at("block").arr)
 				pstatement(stmt);
+			loopblocklevel--;
+		}
+		// break
+		else if (stmt == "break") {
+			if (loopblocklevel < 1)
+				errorc("pstatement-break", "break outside of loop-block");
 		}
 		// unknown
 		else

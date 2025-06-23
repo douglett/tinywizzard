@@ -86,6 +86,7 @@ struct TinyWizzardParser : ASTParser {
 			else if (pinput(block)) ;
 			else if (pif(block)) ;
 			else if (pwhile(block)) ;
+			else if (pbreak(block)) ;
 			else    { error("pblock", "unknown statement");  break; }
 		require("}");
 		return true;
@@ -198,7 +199,7 @@ struct TinyWizzardParser : ASTParser {
 		log(4, "(trace) pwhile");
 		if (!accept("while"))
 			return false;
-				// create json object
+		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
 		json.sets("statement")  = "while";
 		json.setn("dsym")       = presultline;
@@ -210,6 +211,20 @@ struct TinyWizzardParser : ASTParser {
 		require(")");
 		// block
 		pblock(json.at("block"));
+		return true;
+	}
+
+	int pbreak(Json& parent) {
+		log(4, "(trace) pbreak");
+		if (!accept("break"))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.sets("statement")  = "break";
+		json.setn("dsym")       = presultline;
+		json._order = { "statement", "dsym" };
+		// OK
+		require(";");
 		return true;
 	}
 
