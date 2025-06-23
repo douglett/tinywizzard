@@ -89,6 +89,12 @@ struct TinyWizzardSemantics : Semantics {
 					pstatement(stmt);
 			}
 		}
+		// while
+		else if (stmt == "while") {
+			pexpression(json.at("expression"));
+			for (auto& stmt : json.at("block").arr)
+				pstatement(stmt);
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");

@@ -1,12 +1,10 @@
 static class test;
 
-string s = "blah";
+int a = 0;
 
 int main() {
-	if (s == "blah") {
-		print "it was blah";
-	}
-	if (s != "blah") {
-		print "it was not blah";
+	while (a < 5) {
+		print a;
+		a = a + 1;
 	}
 }

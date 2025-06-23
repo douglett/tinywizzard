@@ -20,6 +20,11 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 		- printi var_a
 		- printi $POP
 
+- language
+	- true / false
+	- var++, var--
+	- var+= (not string)
+
 - control
 	- while
 	- break

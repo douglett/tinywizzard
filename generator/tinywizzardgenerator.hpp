@@ -221,6 +221,20 @@ struct TinyWizzardGenerator : Generator {
 			// if-block end
 			output( IN_LABEL, { endcond } );
 		}
+		// while
+		else if (stmt == "while") {
+			string startlabel = nextlabel(), endlabel = nextlabel();
+			// loop entry condition
+			output( IN_LABEL, { startlabel } );
+			pexpression(json.at("expression"));
+			output( IN_JUMPIFN, { endlabel } );
+			// do block and loop
+			for (auto& stmt : json.at("block").arr)
+				pstatement(stmt);
+			output( IN_JUMP, { startlabel } );
+			// end loop
+			output( IN_LABEL, { endlabel } );
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");
