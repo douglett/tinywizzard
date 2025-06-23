@@ -4,20 +4,23 @@ int a = 0;
 int b = 0;
 
 int main() {
-	// while (a < 5) {
-	// 	b = 0;
-	// 	while (b < 2) {
-	// 		print a, b;
-	// 		b = b + 1;
-	// 	}
-	// 	a = a + 1;
-	// }
-
 	while (a < 5) {
-		print a;
-		if (a == 3) {
-			break;
+		b = 0;
+		while (b < 5) {
+			print a, b;
+			if (b == 3) {
+				break 2;
+			}
+			b = b + 1;
 		}
 		a = a + 1;
 	}
+
+	// while (a < 5) {
+	// 	print a;
+	// 	if (a == 3) {
+	// 		break;
+	// 	}
+	// 	a = a + 1;
+	// }
 }

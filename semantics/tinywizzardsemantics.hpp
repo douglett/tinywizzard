@@ -101,8 +101,13 @@ struct TinyWizzardSemantics : Semantics {
 		}
 		// break
 		else if (stmt == "break") {
+			int level = json.at("level").num;
 			if (loopblocklevel < 1)
 				errorc("pstatement-break", "break outside of loop-block");
+			else if (level < 1)
+				errorc("pstatement-break", "illegal break level '" + to_string(level) + "'");
+			else if (level > loopblocklevel)
+				errorc("pstatement-break", "break level too high '" + to_string(level) + "'");
 		}
 		// unknown
 		else
