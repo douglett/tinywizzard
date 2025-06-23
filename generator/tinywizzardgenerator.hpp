@@ -254,6 +254,11 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == ">" )  output( IN_GT  );
 			else    errorc("pexpression-add-mul-equals", "unknown operator '" + op + "'");
 		}
+		else if (expr == "equals-string") {
+			pexpression(json.at("lhs"));
+			pexpression(json.at("rhs"));
+			output( IN_EQUALSSTR );
+		}
 		else
 			errorc("pexpression", "unknown expression '" + expr + "'");
 	}

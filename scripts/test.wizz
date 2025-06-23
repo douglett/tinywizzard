@@ -3,8 +3,7 @@ static class test;
 string s = "blah";
 
 int main() {
-	print 1;
-	print "ass", s;
-	s = "fart";
-	print s;
+	if (s == "blah") {
+		print "it was blah";
+	}
 }

@@ -49,6 +49,7 @@ struct Runtime : RuntimeBase {
 					break;
 				case IN_MAKESTR:   stringheap[++heaptop] = "";  push(heaptop);  break;
 				case IN_COPYSTR:   b = pop(), a = pop(), getstr(a) = getstr(b);  break;
+				case IN_EQUALSSTR: b = pop(), a = pop(), push( getstr(a) == getstr(b) );  break;
 				// control
 				case IN_END:       return true;
 				case IN_JUMP:      jump(instr.args.at(0));  break;

@@ -104,6 +104,10 @@ struct TinyWizzardSemantics : Semantics {
 			auto rtype = pexpression(json.at("rhs"));
 			if (ltype == "int" && rtype == "int")
 				return "int";
+			else if (ltype == "string" && rtype == "string") {
+				((Json&)json).sets("expr") = "equals-string";
+				return "string";
+			}
 			errorc("pexpression", "trying to check equality between '" + ltype + "' and '" + rtype + "'");
 			return "void";
 		}

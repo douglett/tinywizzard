@@ -18,6 +18,8 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 	- better handling of literals
 	- better handling of printi/v/s?
 	- better API for copying
+	- CHECK THIS! still use direct/indirect printing and copying?
+		- how to lay this out?
 	- string equality
 
 - control
