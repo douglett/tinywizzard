@@ -56,14 +56,14 @@ struct Runtime : RuntimeBase {
 				case IN_JUMP:        jump(instr.args.at(0));  break;
 				case IN_CALL:        pushst();  jump(instr.args.at(0));  break;
 				case IN_RETURN:      popst();  if (external) return true;  break;
-				case IN_INPUT:       getline( cin, getstr(instr.args.at(0)) );  break;
-				case IN_INPUTI:      var(instr.args.at(0)) = getinputi();  break;
-				case IN_PUT:         var(instr.args.at(0)) = pop();  break;
-				case IN_GET:         push( var(instr.args.at(0)) );  break;
+				case IN_LOAD:        push( var(instr.args.at(0)) );  break;
+				case IN_STORE:       var(instr.args.at(0)) = pop();  break;
 				case IN_PUSH:        push(instr.argi);  break;
 				case IN_PRINTI:      cout << pop();  break;
 				case IN_PRINTC:      cout << (char)pop();  break;
 				case IN_PRINTS:      cout << getstr(pop());  break;
+				case IN_INPUT:       getline( cin, getstr(instr.args.at(0)) );  break;
+				case IN_INPUTI:      var(instr.args.at(0)) = getinputi();  break;
 				// maths
 				case IN_ADD:         b = pop(), a = pop(), push(a +  b);  break;
 				case IN_SUB:         b = pop(), a = pop(), push(a -  b);  break;

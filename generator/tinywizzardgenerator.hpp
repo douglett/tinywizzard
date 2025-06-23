@@ -104,14 +104,14 @@ struct TinyWizzardGenerator : Generator {
 		if (type == "int") {
 			if (json.count("expression")) {
 				pexpression(json.at("expression"));
-				output( IN_PUT, { name } );
+				output( IN_STORE, { name } );
 			}
 		}
 		else if (type == "string") {
 			output( IN_MAKESTR );
-			output( IN_PUT, { name } );
+			output( IN_STORE, { name } );
 			if (json.count("expression")) {
-				output( IN_GET, { name } );
+				output( IN_LOAD, { name } );
 				pexpression(json.at("expression"));
 				output( IN_COPYSTR );
 			}
@@ -142,10 +142,10 @@ struct TinyWizzardGenerator : Generator {
 			auto& type = json.at("type").str;
 			if (type == "int") {
 				pexpression(json.at("expression"));
-				output( IN_PUT, { json.at("name").str } );
+				output( IN_STORE, { json.at("name").str } );
 			}
 			else if (type == "string") {
-				output( IN_GET, { json.at("name").str } );
+				output( IN_LOAD, { json.at("name").str } );
 				pexpression(json.at("expression"));
 				output( IN_COPYSTR );
 			}
@@ -182,7 +182,7 @@ struct TinyWizzardGenerator : Generator {
 				promptid = addstrlit(json.at("prompt").str);
 			else
 				promptid = addstrlit("> ");
-			output( IN_GET, { promptid } );
+			output( IN_LOAD, { promptid } );
 			output( IN_PRINTS );
 			auto& varname = json.at("variable").at("value").str;
 			auto& type    = json.at("variable").at("type").str;
@@ -235,9 +235,9 @@ struct TinyWizzardGenerator : Generator {
 		if (expr == "integer")
 			output( IN_PUSH, json.at("value").num );
 		else if (expr == "variable")
-			output( IN_GET, { json.at("value").str } );
+			output( IN_LOAD, { json.at("value").str } );
 		else if (expr == "strlit")
-			output( IN_GET, { addstrlit(json.at("value").str) } );
+			output( IN_LOAD, { addstrlit(json.at("value").str) } );
 		else if (expr == "add" || expr == "mul" || expr == "equals") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));

@@ -19,8 +19,6 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 		- printi 10
 		- printi var_a
 		- printi $POP
-	- get -> load
-	- put -> store
 
 - control
 	- while
