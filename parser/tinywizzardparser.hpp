@@ -223,7 +223,6 @@ struct TinyWizzardParser : ASTParser {
 		auto& json = parent.push({ Json::JOBJECT });
 		json.sets("statement")  = "break";
 		json.setn("dsym")       = presultline;
-		json.setn("level")      = 1;
 		json._order = { "statement", "dsym", "level" };
 		// break level
 		if (accept("$number"))

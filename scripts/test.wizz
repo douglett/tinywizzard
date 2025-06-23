@@ -9,8 +9,8 @@ int main() {
 		while (b < 5) {
 			print a, b;
 			if (b == 3) {
-				// break 2;
-				return 1 + 1;
+				break;
+				// return 1 + 1;
 			}
 			b = b + 1;
 		}

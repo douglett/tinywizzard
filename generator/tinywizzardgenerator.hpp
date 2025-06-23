@@ -241,10 +241,13 @@ struct TinyWizzardGenerator : Generator {
 		}
 		// break
 		else if (stmt == "break") {
-			size_t level = json.at("level").num;
-			if (level > loopblocks.size())
-				errorc("pstatement-break", "missing loop-block labels");
-			output( IN_JUMP, { loopblocks.at(loopblocks.size() - level).end } );
+			if (json.count("level")) {
+				size_t level = json.at("level").num;
+				output( IN_JUMP, { loopblocks.at(loopblocks.size() - level).end } );
+			}
+			else {
+				output( IN_JUMP, { loopblocks.back().end } );
+			}
 		}
 		// return
 		else if (stmt == "return") {
