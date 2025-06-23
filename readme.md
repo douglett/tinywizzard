@@ -15,12 +15,16 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 ## TODO:
 - string expressions
-	- better handling of literals
-	- better handling of printi/v/s?
-	- better API for copying
-	- CHECK THIS! still use direct/indirect printing and copying?
-		- how to lay this out?
 	- string equality
+	- string not-equal
+
+- ASM improvements
+	- use direct/indirect printing and copying?
+		- printi 10
+		- printi var_a
+		- printi $POP
+	- get -> load
+	- put -> store
 
 - control
 	- while

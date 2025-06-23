@@ -13,7 +13,7 @@ using namespace std;
 struct RuntimeBase {
 	enum INSTRUCTION_TYPE {
 		IN_NOOP, IN_DSYM, IN_LABEL,
-		IN_DIM, IN_DATA, IN_MAKESTR, IN_COPYSTR, IN_EQUALSSTR,
+		IN_DIM, IN_DATA, IN_MAKESTR, IN_COPYSTR, IN_EQSTR, IN_NEQSTR,
 		IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_INPUT, IN_INPUTI, IN_PUT, IN_GET, IN_PUSH,
 			IN_PRINTI, IN_PRINTC, IN_PRINTS,
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_EQ, IN_NEQ, IN_LT, IN_GT, IN_LTE, IN_GTE,
@@ -41,7 +41,8 @@ struct RuntimeBase {
 				break;
 			case IN_MAKESTR:     s += "makestr";  break;
 			case IN_COPYSTR:     s += "copystr";  break;
-			case IN_EQUALSSTR:   s += "equalsstr";  break;
+			case IN_EQSTR:       s += "equalsstr";  break;
+			case IN_NEQSTR:      s += "notequalsstr";  break;
 			// control
 			case IN_END:         s += "end";  break;
 			case IN_JUMP:        s += "jump " + in.args.at(0);  break;

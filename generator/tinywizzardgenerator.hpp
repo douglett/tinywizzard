@@ -257,7 +257,10 @@ struct TinyWizzardGenerator : Generator {
 		else if (expr == "equals-string") {
 			pexpression(json.at("lhs"));
 			pexpression(json.at("rhs"));
-			output( IN_EQUALSSTR );
+			auto& op = json.at("operator").str;
+			if      (op == "==")  output( IN_EQSTR  );
+			else if (op == "!=")  output( IN_NEQSTR );
+			else    errorc("pexpression-equals-string", "unknown operator '" + op + "'");
 		}
 		else
 			errorc("pexpression", "unknown expression '" + expr + "'");

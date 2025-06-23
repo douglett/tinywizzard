@@ -6,4 +6,7 @@ int main() {
 	if (s == "blah") {
 		print "it was blah";
 	}
+	if (s != "blah") {
+		print "it was not blah";
+	}
 }
