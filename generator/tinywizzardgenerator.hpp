@@ -246,6 +246,14 @@ struct TinyWizzardGenerator : Generator {
 				errorc("pstatement-break", "missing loop-block labels");
 			output( IN_JUMP, { loopblocks.at(loopblocks.size() - level).end } );
 		}
+		// return
+		else if (stmt == "return") {
+			if (json.count("expression"))
+				pexpression(json.at("expression"));
+			else
+				output( IN_PUSH, 1 );
+			output( IN_RETURN );
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");

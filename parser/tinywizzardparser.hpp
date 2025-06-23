@@ -87,6 +87,7 @@ struct TinyWizzardParser : ASTParser {
 			else if (pif(block)) ;
 			else if (pwhile(block)) ;
 			else if (pbreak(block)) ;
+			else if (preturn(block)) ;
 			else    { error("pblock", "unknown statement");  break; }
 		require("}");
 		return true;
@@ -227,6 +228,23 @@ struct TinyWizzardParser : ASTParser {
 		// break level
 		if (accept("$number"))
 			json.setn("level") = stoi(presult.at(0));
+		// OK
+		require(";");
+		return true;
+	}
+
+	int preturn(Json& parent) {
+		log(4, "(trace) preturn");
+		if (!accept("return"))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.sets("statement")  = "return";
+		json.setn("dsym")       = presultline;
+		json._order = { "statement", "dsym", "expression" };
+		// return expression
+		if (!peek(";"))
+			pexpression(json.set("expression"));
 		// OK
 		require(";");
 		return true;

@@ -109,6 +109,11 @@ struct TinyWizzardSemantics : Semantics {
 			else if (level > loopblocklevel)
 				errorc("pstatement-break", "break level too high '" + to_string(level) + "'");
 		}
+		// return
+		else if (stmt == "return") {
+			if (json.count("expression"))
+				pexpression(json.at("expression"));
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");
