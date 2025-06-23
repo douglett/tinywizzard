@@ -153,6 +153,12 @@ struct TinyWizzardSemantics : Semantics {
 			errorc("pexpression", "trying to add/multiply between '" + ltype + "' and '" + rtype + "'");
 			return "void";
 		}
+		else if (expr == "call") {
+			auto fname = json.at("value").str;
+			if (!functions.count(fname))
+				errorc("pexpression", "calling undefined function '" + fname + "'");
+			return "int";
+		}
 		else
 			return errorc("pexpression", "unknown in expression '" + expr + "'"), "void";
 	}

@@ -25,14 +25,15 @@ struct Runtime : RuntimeBase {
 	int call(const string& funcname) {
 		pushst();
 		jump(funcname);
-		return run_instructions(true);
+		return run_instructions();
 	}
 
-	int run_instructions(bool external=false) {
+	int run_instructions() {
 		int a = 0, b = 0;
 
 		while (PC < program.size()) {
 			const auto& instr = program.at(PC);
+			// cout << PC << " :: " << showinstruction(instr) << endl;
 			switch (instr.type) {
 				// pseudo-instructions
 				case IN_NOOP:   break;
@@ -55,7 +56,7 @@ struct Runtime : RuntimeBase {
 				case IN_END:         return true;
 				case IN_JUMP:        jump(instr.args.at(0));  break;
 				case IN_CALL:        pushst();  jump(instr.args.at(0));  break;
-				case IN_RETURN:      popst();  if (external) return true;  break;
+				case IN_RETURN:      popst();  if (callstack.size() == 0) return true;  break;
 				case IN_LOAD:        push( var(instr.args.at(0)) );  break;
 				case IN_STORE:       var(instr.args.at(0)) = pop();  break;
 				case IN_PUSH:        push(instr.argi);  break;
@@ -83,8 +84,8 @@ struct Runtime : RuntimeBase {
 			PC++;
 		}
 
-		// OK
-		printf("end of program: program terminated\n");
+		// warn about end-of-program termination 
+		printf("end-of-program: program terminated\n");
 		return true;
 	}
 

@@ -1,9 +1,12 @@
 static class test;
 
-int main() {
-	print "calling magicnumber function...";
+int magicnumber() {
+	print "magicnumber";
+	return 1 + 2 + 3 + 4;
 }
 
-int magicnumber() {
-	return 1 + 2 + 3 + 4;
+int main() {
+	print "calling magicnumber function...";
+	print magicnumber();
+	print "here";
 }

@@ -26,7 +26,6 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 	- var+= (not string)
 
 - control
-	- return
-		- return expr
 	- call
+		- calling functions parsed out-of-order
 	- for

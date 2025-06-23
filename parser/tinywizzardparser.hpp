@@ -314,7 +314,12 @@ struct TinyWizzardParser : ASTParser {
 		if (accept("$number")) {
 			json.obj["expr"]  = { Json::JSTRING, 0, "integer" };
 			json.obj["value"] = { Json::JNUMBER, (double)stoi(presult.at(0)) };
-			// json = { Json::JNUMBER, (double)stoi(presult.at(0)) };
+			return true;
+		}
+		else if (accept("$identifier (")) {
+			json.sets("expr")  = "call";
+			json.sets("value") = presult.at(0);
+			require(")");
 			return true;
 		}
 		else if (accept("$identifier")) {

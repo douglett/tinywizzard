@@ -298,6 +298,9 @@ struct TinyWizzardGenerator : Generator {
 			else if (op == "!=")  output( IN_NEQSTR );
 			else    errorc("pexpression-equals-string", "unknown operator '" + op + "'");
 		}
+		else if (expr == "call") {
+			output( IN_CALL, { json.at("value").str } );
+		}
 		else
 			errorc("pexpression", "unknown expression '" + expr + "'");
 	}
