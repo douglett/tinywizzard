@@ -14,7 +14,7 @@ struct RuntimeBase {
 	enum INSTRUCTION_TYPE {
 		IN_NOOP, IN_DSYM, IN_LABEL,
 		IN_DIM, IN_DATA, IN_MAKESTR, IN_COPYSTR, IN_EQSTR, IN_NEQSTR,
-		IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_LOAD, IN_STORE, IN_PUSH,
+		IN_END, IN_JUMP, IN_CALL, IN_RETURN, IN_RETURNI, IN_LOAD, IN_STORE, IN_PUSH,
 			IN_PRINTI, IN_PRINTC, IN_PRINTS, IN_INPUT, IN_INPUTI,
 		IN_ADD, IN_SUB, IN_MUL, IN_DIV, IN_EQ, IN_NEQ, IN_LT, IN_GT, IN_LTE, IN_GTE,
 			IN_JUMPIF, IN_JUMPIFN
@@ -48,6 +48,7 @@ struct RuntimeBase {
 			case IN_JUMP:        s += "jump " + in.args.at(0);  break;
 			case IN_CALL:        s += "call " + in.args.at(0);  break;
 			case IN_RETURN:      s += "return";  break;
+			case IN_RETURNI:     s += "returni " + to_string(in.argi);  break;
 			case IN_LOAD:        s += "load " + in.args.at(0);  break;
 			case IN_STORE:       s += "store " + in.args.at(0);  break;
 			case IN_PUSH:        s += "push " + to_string(in.argi);  break;

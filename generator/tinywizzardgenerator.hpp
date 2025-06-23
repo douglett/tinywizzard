@@ -80,7 +80,8 @@ struct TinyWizzardGenerator : Generator {
 			const auto& fn = functions.at(fname);
 			program.push_back({ IN_LABEL, {fn.name} });
 			program.insert(program.end(), fn.ilist.begin(), fn.ilist.end());
-			program.push_back({ IN_RETURN });
+			// default function return
+			program.push_back({ IN_RETURNI, {}, 0 });
 		}
 	}
 
@@ -129,6 +130,7 @@ struct TinyWizzardGenerator : Generator {
 		dsym                = json.at("dsym").num;
 		for (auto& stmt : json.at("block").arr)
 			pstatement(stmt);
+		// output( IN_RETURNI, 0 );
 		funcname = "";
 	}
 
@@ -254,7 +256,7 @@ struct TinyWizzardGenerator : Generator {
 			if (json.count("expression"))
 				pexpression(json.at("expression"));
 			else
-				output( IN_PUSH, 1 );
+				output( IN_PUSH, 0 );
 			output( IN_RETURN );
 		}
 		// unknown

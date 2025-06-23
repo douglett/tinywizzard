@@ -56,6 +56,7 @@ struct Runtime : RuntimeBase {
 				case IN_END:         return true;
 				case IN_JUMP:        jump(instr.args.at(0));  break;
 				case IN_CALL:        pushst();  jump(instr.args.at(0));  break;
+				case IN_RETURNI:     push(instr.argi);
 				case IN_RETURN:      popst();  if (callstack.size() == 0) return true;  break;
 				case IN_LOAD:        push( var(instr.args.at(0)) );  break;
 				case IN_STORE:       var(instr.args.at(0)) = pop();  break;
