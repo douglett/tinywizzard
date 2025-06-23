@@ -14,10 +14,6 @@ https://www.geeksforgeeks.org/phases-of-a-compiler/
 
 
 ## TODO:
-- string expressions
-	- string equality
-	- string not-equal
-
 - ASM improvements
 	- use direct/indirect printing and copying?
 		- printi 10

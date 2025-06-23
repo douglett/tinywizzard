@@ -105,6 +105,9 @@ struct TinyWizzardSemantics : Semantics {
 			if (ltype == "int" && rtype == "int")
 				return "int";
 			else if (ltype == "string" && rtype == "string") {
+				auto& op = json.at("operator").str;
+				if (op != "==" && op != "!=")
+					errorc("pexpression", "invalid string comparison '" + op + "'");
 				((Json&)json).sets("expr") = "equals-string";
 				return "string";
 			}
