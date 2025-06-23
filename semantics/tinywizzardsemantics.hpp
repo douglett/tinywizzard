@@ -5,7 +5,7 @@ using namespace std;
 
 struct TinyWizzardSemantics : Semantics {
 	map<string, string> dims, functions;
-	int loopblocklevel = 0;
+	int mainfunc = 0, loopblocklevel = 0;
 
 	int validate(const Json& json) {
 		loglevel = 2;
@@ -16,6 +16,8 @@ struct TinyWizzardSemantics : Semantics {
 			pdim(var);
 		for (auto& func : json.at("functions").arr)
 			pfunction(func);
+		if (!mainfunc)
+			errorc("validate", "missing function 'main'");
 		// success or fail
 		if (errcount)
 			return error("validate", "failed with " + to_string(errcount) + " errors.");
@@ -51,6 +53,8 @@ struct TinyWizzardSemantics : Semantics {
 		auto& name = json.at("name").str;
 		if (functions.count(name))
 			errorc("pfunction", "re-definition of '" + name + "'");
+		if (name == "main")
+			mainfunc = true;
 		functions[name] = true;
 		for (auto& stmt : json.at("block").arr)
 			pstatement(stmt);
