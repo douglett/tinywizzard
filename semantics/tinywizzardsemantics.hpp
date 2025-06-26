@@ -5,7 +5,7 @@ using namespace std;
 
 struct TinyWizzardSemantics : Semantics {
 	map<string, string> dims, functions;
-	int loopblocklevel = 0;
+	int loopblocklevel = 0, local = 0;
 
 	int validate(const Json& json) {
 		loglevel = 2;
@@ -26,7 +26,7 @@ struct TinyWizzardSemantics : Semantics {
 		Semantics::reset();
 		dims = {};
 		functions = { { "$STATIC_INIT", "int" } };
-		loopblocklevel = 0;
+		loopblocklevel = local = 0;
 	}
 
 	void pdim(const Json& json) {
@@ -37,6 +37,8 @@ struct TinyWizzardSemantics : Semantics {
 			errorc("pdim", "re-definition of '" + name + "'");
 		if (type != "int" && type != "string")
 			errorc("pdim", "unknown type '" + type + "'");
+		if (local && type != "int")
+			errorc("pdim", "locals must be int, got '" + type + "'");
 		if (json.count("expression")) {
 			auto extype = pexpression(json.at("expression"));
 			if (type != extype)
@@ -56,9 +58,11 @@ struct TinyWizzardSemantics : Semantics {
 			functions[name] = true;
 		}
 		// check function blocks
+		local = 1;
 		for (auto& func : funclist.arr)
 			for (auto& stmt : func.at("block").arr)
 				pstatement(stmt);
+		local = 0;
 		// check for main function
 		if (!functions.count("main"))
 			errorc("validate", "missing function 'main'");
@@ -118,6 +122,10 @@ struct TinyWizzardSemantics : Semantics {
 				else if (level > loopblocklevel)
 					errorc("pstatement-break", "break level too high '" + to_string(level) + "'");
 			}
+		}
+		// dim
+		else if (stmt == "dim") {
+			pdim(json);
 		}
 		// return
 		else if (stmt == "return") {

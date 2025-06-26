@@ -123,6 +123,24 @@ struct TinyWizzardGenerator : Generator {
 			errorc("pdim", "unknown type '" + type + "'");
 	}
 
+	void pdimlocal(const Json& json) {
+		log(4, "(trace) pdim");
+		auto& name  = json.at("name").str;
+		auto& type  = json.at("type").str;
+		dsym        = json.at("dsym").num;
+		// generate dim
+		// output( IN_DSYM, dsym );
+		output( IN_DIM, { name } );
+		if (type == "int") {
+			if (json.count("expression")) {
+				pexpression(json.at("expression"));
+				output( IN_STORE, { name } );
+			}
+		}
+		else
+			errorc("pdim", "unknown type '" + type + "'");
+	}
+
 	void pfunction(const Json& json) {
 		log(4, "(trace) pfunction");
 		funcname            = json.at("name").str;
@@ -250,6 +268,10 @@ struct TinyWizzardGenerator : Generator {
 			else {
 				output( IN_JUMP, { loopblocks.back().end } );
 			}
+		}
+		// dim-local
+		else if (stmt == "dim") {
+			pdimlocal(json);
 		}
 		// return
 		else if (stmt == "return") {
