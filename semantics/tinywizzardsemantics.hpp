@@ -57,10 +57,8 @@ struct TinyWizzardSemantics : Semantics {
 		dsym = json.at("dsym").num;
 		auto& name = json.at("name").str;
 		auto& type = json.at("type").str;
-		if (dims.count(name)) {
-			errorc("pdim", "re-definition of '" + name + "'");
-			return;
-		}
+		if (dims.count(name))
+			return errorc("pdim", "re-definition of '" + name + "'"), void();
 		if (type != "int" && type != "string")
 			errorc("pdim", "unknown type '" + type + "'");
 		if (json.count("expression")) {
@@ -76,10 +74,8 @@ struct TinyWizzardSemantics : Semantics {
 		dsym = json.at("dsym").num;
 		auto& name = json.at("name").str;
 		auto& type = json.at("type").str;
-		if (locals.count(name)) {
-			errorc("pdim", "re-definition of '" + name + "'");
-			return;
-		}
+		if (locals.count(name))
+			return errorc("pdim", "re-definition of '" + name + "'"), void();
 		if (type != "int" && type != "string")
 			errorc("pdim", "unknown type '" + type + "'");
 		if (type != "int")

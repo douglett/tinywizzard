@@ -3,10 +3,13 @@ static class test;
 int a = 12;
 
 int main() {
-	int b = 4;
+	print a;
+	int a = 4;
+	print a;
 	print test2();
+	print a;
 }
 
 int test2() {
-	print b;
+	print a;
 }
