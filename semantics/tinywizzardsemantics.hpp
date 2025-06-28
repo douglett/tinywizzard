@@ -4,11 +4,12 @@ using namespace std;
 
 
 struct TinyWizzardSemantics : Semantics {
-	map<string, string> dims, functions;
-	int loopblocklevel = 0, local = 0;
+	map<string, string> dims, locals, functions;
+	int loopblocklevel = 0;
 
 	int validate(const Json& json) {
 		loglevel = 2;
+		// loglevel = 4;  // trace
 		log(1, "validating file...");
 		reset();
 		// validate class members
@@ -24,30 +25,13 @@ struct TinyWizzardSemantics : Semantics {
 
 	void reset() {
 		Semantics::reset();
-		dims = {};
+		dims = locals = {};
 		functions = { { "$STATIC_INIT", "int" } };
-		loopblocklevel = local = 0;
-	}
-
-	void pdim(const Json& json) {
-		dsym = json.at("dsym").num;
-		auto& name = json.at("name").str;
-		auto& type = json.at("type").str;
-		if (dims.count(name))
-			errorc("pdim", "re-definition of '" + name + "'");
-		if (type != "int" && type != "string")
-			errorc("pdim", "unknown type '" + type + "'");
-		if (local && type != "int")
-			errorc("pdim", "locals must be int, got '" + type + "'");
-		if (json.count("expression")) {
-			auto extype = pexpression(json.at("expression"));
-			if (type != extype)
-				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
-		}
-		dims[name] = type;
+		loopblocklevel = 0;
 	}
 
 	void pallfunctions(const Json& funclist) {
+		log(4, "(trace) pallfunctions");
 		assert(funclist.type == Json::JARRAY);
 		// hoist function definitions
 		for (auto& func : funclist.arr) {
@@ -58,17 +42,58 @@ struct TinyWizzardSemantics : Semantics {
 			functions[name] = true;
 		}
 		// check function blocks
-		local = 1;
-		for (auto& func : funclist.arr)
+		for (auto& func : funclist.arr) {
 			for (auto& stmt : func.at("block").arr)
 				pstatement(stmt);
-		local = 0;
+			locals = {};
+		}
 		// check for main function
 		if (!functions.count("main"))
 			errorc("validate", "missing function 'main'");
 	}
 
+	void pdim(const Json& json) {
+		log(4, "(trace) pdim");
+		dsym = json.at("dsym").num;
+		auto& name = json.at("name").str;
+		auto& type = json.at("type").str;
+		if (dims.count(name)) {
+			errorc("pdim", "re-definition of '" + name + "'");
+			return;
+		}
+		if (type != "int" && type != "string")
+			errorc("pdim", "unknown type '" + type + "'");
+		if (json.count("expression")) {
+			auto extype = pexpression(json.at("expression"));
+			if (type != extype)
+				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
+		}
+		dims[name] = type;
+	}
+
+	void pdimlocal(const Json& json) {
+		log(4, "(trace) pdimlocal");
+		dsym = json.at("dsym").num;
+		auto& name = json.at("name").str;
+		auto& type = json.at("type").str;
+		if (locals.count(name)) {
+			errorc("pdim", "re-definition of '" + name + "'");
+			return;
+		}
+		if (type != "int" && type != "string")
+			errorc("pdim", "unknown type '" + type + "'");
+		if (type != "int")
+			errorc("pdim", "locals must be int, got '" + type + "'");
+		if (json.count("expression")) {
+			auto extype = pexpression(json.at("expression"));
+			if (type != extype)
+				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
+		}
+		locals[name] = type;
+	}
+
 	void pstatement(const Json& json) {
+		log(4, "(trace) pstatement");
 		dsym = json.at("dsym").num;
 		auto& stmt = json.at("statement").str;
 		// assign
@@ -125,7 +150,7 @@ struct TinyWizzardSemantics : Semantics {
 		}
 		// dim
 		else if (stmt == "dim") {
-			pdim(json);
+			pdimlocal(json);
 		}
 		// return
 		else if (stmt == "return") {
@@ -138,6 +163,7 @@ struct TinyWizzardSemantics : Semantics {
 	}
 
 	string pexpression(const Json& json) {
+		log(4, "(trace) pexpression");
 		auto& expr = json.at("expr").str;
 		if      (expr == "integer")   return "int";
 		else if (expr == "strlit")    return "string";
@@ -176,9 +202,10 @@ struct TinyWizzardSemantics : Semantics {
 	}
 
 	string pexprvar(const Json& json) {
+		log(4, "(trace) pexprvar");
 		auto& name = json.at("value").str;
 		if (!dims.count(name))
-			errorc("pexpression", "undefined variable '" + name + "'");
+			return errorc("pexpression", "undefined variable '" + name + "'"), "void";
 		// add type information to json
 		auto& type = dims.at(name);
 		log(2, "variable '" + name + "' => '" + type + "'");
