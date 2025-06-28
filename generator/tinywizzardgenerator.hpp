@@ -130,7 +130,7 @@ struct TinyWizzardGenerator : Generator {
 		dsym        = json.at("dsym").num;
 		// generate dim
 		// output( IN_DSYM, dsym );
-		output( IN_DIM, { name } );
+		output( IN_DIMLOCAL, { name } );
 		if (type == "int") {
 			if (json.count("expression")) {
 				pexpression(json.at("expression"));

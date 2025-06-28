@@ -10,10 +10,12 @@ using namespace std;
  * Common Runtime
  */
 struct Runtime : RuntimeBase {
+	struct StackFrame { size_t PC; map<string, int> locals; };
 	vector<Instruction> program;
 	map<string, int> variables;
 	map<int, string> stringheap;
-	vector<int> stack, callstack;
+	vector<StackFrame> callstack;
+	vector<int> stack;
 	size_t PC = 0, heaptop = 0;
 
 	int run() {
@@ -43,6 +45,10 @@ struct Runtime : RuntimeBase {
 				case IN_DIM:
 					for (auto& vname : instr.args)
 						variables[vname] = 0;
+					break;
+				case IN_DIMLOCAL:
+					for (auto& vname : instr.args)
+						stacktop().locals[vname] = 0;
 					break;
 				case IN_DATA:
 					stringheap[++heaptop] = instr.args.at(1);
@@ -91,7 +97,9 @@ struct Runtime : RuntimeBase {
 	}
 
 	int& var(const string& varname) {
-		if (!variables.count(varname))
+		if (callstack.size() && callstack.back().locals.count(varname))
+			return callstack.back().locals.at(varname);
+		else if (!variables.count(varname))
 			error("var", "missing variable " + varname);
 		return variables.at(varname);
 	}
@@ -118,13 +126,16 @@ struct Runtime : RuntimeBase {
 		return t;
 	}
 	void pushst() {
-		callstack.push_back(PC);
+		callstack.push_back({ PC });
 	}
 	void popst() {
+		PC = stacktop().PC;
+		callstack.pop_back();
+	}
+	StackFrame& stacktop() {
 		if (callstack.size() == 0)
 			error("popst", "callstack empty");
-		PC = callstack.back();
-		callstack.pop_back();
+		return callstack.back();
 	}
 	int jump(const string& label) {
 		for (size_t i = 0; i < program.size(); i++)
