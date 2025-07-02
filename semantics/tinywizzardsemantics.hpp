@@ -153,6 +153,10 @@ struct TinyWizzardSemantics : Semantics {
 			if (json.count("expression"))
 				pexpression(json.at("expression"));
 		}
+		// expression statement
+		else if (stmt == "expression") {
+			pexpression(json.at("expression"));
+		}
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");

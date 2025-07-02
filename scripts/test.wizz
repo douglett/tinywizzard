@@ -6,7 +6,7 @@ int main() {
 	print a;
 	int a = 4;
 	print a;
-	print test2();
+	test2();
 	print a;
 }
 

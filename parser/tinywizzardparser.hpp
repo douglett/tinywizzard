@@ -69,8 +69,9 @@ struct TinyWizzardParser : ASTParser {
 		// assignment
 		if (accept("=")) {
 			json.obj["expression"] = { Json::JOBJECT };
-			if (!pexpression(json.at("expression")))
-				error("syntax-error", "expected expression after '='");
+			pexpression(json.at("expression"));
+			// if (!pexpression(json.at("expression")))
+			// 	error("syntax-error", "expected expression after '='");
 		}
 		require(";");
 		return true;
@@ -90,6 +91,7 @@ struct TinyWizzardParser : ASTParser {
 			else if (pbreak(block)) ;
 			else if (preturn(block)) ;
 			else if (pdim(block)) ;
+			else if (pexpressionline(block)) ;
 			else    { error("pblock", "unknown statement");  break; }
 		require("}");
 		return true;
@@ -126,12 +128,14 @@ struct TinyWizzardParser : ASTParser {
 		json._order = { "statement", "dsym", "printvals" };
 		// parse expressions
 		Json expr = { Json::JOBJECT };
-		if (pexpression(expr))
+		if (pexpression(expr, false)) {
 			json.at("printvals").push(expr);
-		while (accept(",")) {
-			if (!pexpression(expr))
-				error("syntax-error", "expected argument after ','");
-			json.at("printvals").push(expr);
+			while (accept(",")) {
+				// if (!pexpression(expr))
+				// 	error("syntax-error", "expected argument after ','");
+				pexpression(expr);
+				json.at("printvals").push(expr);
+			}
 		}
 		require(";");
 		return true;
@@ -251,9 +255,26 @@ struct TinyWizzardParser : ASTParser {
 		return true;
 	}
 
+	int pexpressionline(Json& parent) {
+		log(4, "(trace) pexpressionline");
+		Json expr;
+		int dsym = tok.pos;
+		if (!pexpression(expr, false))
+			return false;
+		// create json object
+		auto& json = parent.push({ Json::JOBJECT });
+		json.sets("statement")  = "expression";
+		json.setn("dsym")       = dsym;
+		json.set ("expression") = expr;
+		json._order = { "statement", "dsym", "expression" };
+		// OK
+		require(";");
+		return true;
+	}
+
 	// === expressions ===
 
-	int pexpression(Json& json, bool require=false) {
+	int pexpression(Json& json, bool require=true) {
 		log(4, "(trace) prexpression");
 		if      (pequals(json))  return true;
 		else if (require)        return error("syntax-error", "expected expression");

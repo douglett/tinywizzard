@@ -281,6 +281,12 @@ struct TinyWizzardGenerator : Generator {
 				output( IN_PUSH, 0 );
 			output( IN_RETURN );
 		}
+		// naked expression
+		else if (stmt == "expression") {
+			pexpression(json.at("expression"));
+			// output( IN_DROP );
+		}
+
 		// unknown
 		else
 			errorc("pstatement", "unknown statement '" + stmt + "'");
