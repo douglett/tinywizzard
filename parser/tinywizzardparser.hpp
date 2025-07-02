@@ -61,10 +61,10 @@ struct TinyWizzardParser : ASTParser {
 			return false;
 		// create json object
 		auto& json = parent.push({ Json::JOBJECT });
-		json.obj["statement"] = { Json::JSTRING, 0, "dim" };
-		json.obj["dsym"]      = { Json::JNUMBER, (double)presultline };
-		json.obj["name"]      = { Json::JSTRING, 0, presult.at(1) };
-		json.obj["type"]      = { Json::JSTRING, 0, presult.at(0) };
+		json.obj["statement"] = { Json::JSTRING,  0, "dim" };
+		json.obj["dsym"]      = { Json::JNUMBER,  (double)presultline };
+		json.obj["name"]      = { Json::JSTRING,  0, presult.at(1) };
+		json.obj["type"]      = { Json::JSTRING,  0, presult.at(0) };
 		json._order = { "statement", "dsym", "name", "type", "local", "expression" };
 		// assignment
 		if (accept("=")) {
@@ -109,7 +109,7 @@ struct TinyWizzardParser : ASTParser {
 		json.obj["dsym"]       = { Json::JNUMBER, (double)presultline };
 		json.obj["name"]       = { Json::JSTRING, 0, presult.at(0) };
 		json.obj["expression"] = { Json::JOBJECT };
-		json._order = { "statement", "dsym", "name", "type", "expression" };
+		json._order = { "statement", "dsym", "name", "type", "local", "expression" };
 		// parse expression
 		pexpression(json.at("expression"));
 		require(";");

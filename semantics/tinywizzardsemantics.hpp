@@ -67,6 +67,7 @@ struct TinyWizzardSemantics : Semantics {
 				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
 		}
 		dims[name] = type;
+		((Json&)json).setb("local") = false;
 	}
 
 	void pdimlocal(const Json& json) {
@@ -74,7 +75,6 @@ struct TinyWizzardSemantics : Semantics {
 		dsym = json.at("dsym").num;
 		auto& name = json.at("name").str;
 		auto& type = json.at("type").str;
-		// ((Json&)json).setb("local") = true;
 		if (locals.count(name))
 			return errorc("pdim", "re-definition of '" + name + "'"), void();
 		if (type != "int" && type != "string")
@@ -87,6 +87,7 @@ struct TinyWizzardSemantics : Semantics {
 				errorc("pdim", "initializing '" + type + "' with '" + extype + "'");
 		}
 		locals[name] = type;
+		((Json&)json).setb("local") = true;
 	}
 
 	void pstatement(const Json& json) {
@@ -95,13 +96,17 @@ struct TinyWizzardSemantics : Semantics {
 		auto& stmt = json.at("statement").str;
 		// assign
 		if (stmt == "assign") {
-			auto& name = json.at("name").str;
-			if (!dims.count(name))
-				errorc("pstatement", "assign to undefined variable '" + name + "'");
-			// check type information and add to json
-			auto& type = dims.at(name);
+			auto&  name  = json.at("name").str;
+			string type  = "void";
+			bool   local = false;
+			// get type information
+			if      (dims.count(name))    type = dims.at(name);
+			else if (locals.count(name))  type = locals.at(name), local = true;
+			else    errorc("pstatement", "assign to undefined variable '" + name + "'");
+			// add type information to json
 			log(2, "assign   '" + name + "' => '" + type + "'");
-			((Json&)json).obj["type"] = { Json::JSTRING, 0, type };
+			((Json&)json).sets("type")  = type;
+			((Json&)json).setb("local") = local;
 			// check types match
 			auto extype = pexpression(json.at("expression"));
 			if (type != extype)
@@ -204,19 +209,17 @@ struct TinyWizzardSemantics : Semantics {
 
 	string pexprvar(const Json& json) {
 		log(4, "(trace) pexprvar");
-		auto&  name = json.at("value").str;
-		string type = "void";
+		auto&  name  = json.at("value").str;
+		string type  = "void";
+		bool   local = false;
 		// check if defined
-		if (dims.count(name))
-			type = dims.at(name);
-		else if (locals.count(name))
-			type = locals.at(name),
-			((Json&)json).setb("local") = true;
-		else
-			return errorc("pexpression", "undefined variable '" + name + "'"), "void";
+		if      (dims.count(name))    type = dims.at(name);
+		else if (locals.count(name))  type = locals.at(name), local = true;
+		else    return errorc("pexpression", "undefined variable '" + name + "'"), "void";
 		// add type information to json
 		log(2, "variable '" + name + "' => '" + type + "'");
-		((Json&)json).sets("type") = type;
+		((Json&)json).sets("type")  = type;
+		((Json&)json).setb("local") = local;
 		return type;
 	}
 };
