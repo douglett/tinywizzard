@@ -29,8 +29,9 @@ struct Json {
 	// mofifiers
 	Json&   push(const Json& val)   { assert(type == JARRAY);  arr.push_back(val);  return arr.back(); }
 	Json&   set (const string& key) { assert(type == JOBJECT);  return obj[key]; }
-	double& setn(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JNUMBER) obj[key] = { JNUMBER };  return obj[key].num; }
-	string& sets(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JSTRING) obj[key] = { JSTRING };  return obj[key].str; }
+	double& setn(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JNUMBER)  obj[key] = { JNUMBER };   return obj[key].num; }
+	double& setb(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JBOOLEAN) obj[key] = { JBOOLEAN };  return obj[key].num; }
+	string& sets(const string& key) { assert(type == JOBJECT);  if (obj[key].type != JSTRING)  obj[key] = { JSTRING };   return obj[key].str; }
 };
 
 

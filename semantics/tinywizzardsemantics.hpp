@@ -74,6 +74,7 @@ struct TinyWizzardSemantics : Semantics {
 		dsym = json.at("dsym").num;
 		auto& name = json.at("name").str;
 		auto& type = json.at("type").str;
+		// ((Json&)json).setb("local") = true;
 		if (locals.count(name))
 			return errorc("pdim", "re-definition of '" + name + "'"), void();
 		if (type != "int" && type != "string")
@@ -203,13 +204,19 @@ struct TinyWizzardSemantics : Semantics {
 
 	string pexprvar(const Json& json) {
 		log(4, "(trace) pexprvar");
-		auto& name = json.at("value").str;
-		if (!dims.count(name))
+		auto&  name = json.at("value").str;
+		string type = "void";
+		// check if defined
+		if (dims.count(name))
+			type = dims.at(name);
+		else if (locals.count(name))
+			type = locals.at(name),
+			((Json&)json).setb("local") = true;
+		else
 			return errorc("pexpression", "undefined variable '" + name + "'"), "void";
 		// add type information to json
-		auto& type = dims.at(name);
 		log(2, "variable '" + name + "' => '" + type + "'");
-		((Json&)json).obj["type"] = { Json::JSTRING, 0, type };
+		((Json&)json).sets("type") = type;
 		return type;
 	}
 };

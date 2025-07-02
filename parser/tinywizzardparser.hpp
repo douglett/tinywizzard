@@ -65,7 +65,7 @@ struct TinyWizzardParser : ASTParser {
 		json.obj["dsym"]      = { Json::JNUMBER, (double)presultline };
 		json.obj["name"]      = { Json::JSTRING, 0, presult.at(1) };
 		json.obj["type"]      = { Json::JSTRING, 0, presult.at(0) };
-		json._order = { "statement", "dsym", "name", "type", "expression" };
+		json._order = { "statement", "dsym", "name", "type", "local", "expression" };
 		// assignment
 		if (accept("=")) {
 			json.obj["expression"] = { Json::JOBJECT };

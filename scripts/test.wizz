@@ -3,11 +3,14 @@ static class test;
 int a = 12;
 
 int main() {
-	print a;
-	int a = 4;
-	print a;
-	test2();
-	print a;
+	// print a;
+	// int a = 4;
+	// print a;
+	// test2();
+	// print a;
+	int b = 2;
+	print b;
+	// b = 3;
 }
 
 int test2() {
