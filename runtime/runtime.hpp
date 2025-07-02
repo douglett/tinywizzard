@@ -67,6 +67,7 @@ struct Runtime : RuntimeBase {
 				case IN_LOAD:        push( var(instr.args.at(0)) );  break;
 				case IN_STORE:       var(instr.args.at(0)) = pop();  break;
 				case IN_PUSH:        push(instr.argi);  break;
+				case IN_DROP:        pop();  break;
 				case IN_PRINTI:      cout << pop();  break;
 				case IN_PRINTC:      cout << (char)pop();  break;
 				case IN_PRINTS:      cout << getstr(pop());  break;

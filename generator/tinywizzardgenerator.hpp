@@ -284,7 +284,7 @@ struct TinyWizzardGenerator : Generator {
 		// naked expression
 		else if (stmt == "expression") {
 			pexpression(json.at("expression"));
-			// output( IN_DROP );
+			output( IN_DROP );
 		}
 
 		// unknown
